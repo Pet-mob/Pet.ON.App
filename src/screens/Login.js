@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Button } from 'react-native';
 
-export default function TelaLogin({ navigation }) {
+export default function Login({ navigation }) {
     const [telefone, setTelefone] = useState('');
     const [senha, setSenha] = useState('');
 

@@ -9,8 +9,16 @@ import {
     StyleSheet,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons'; // Importando ícones
+import { useNavigation } from '@react-navigation/native'; // Importação da navegação
 
 const TelaInicial = () => {
+    const navigation = useNavigation(); // Hook de navegação
+
+    // Função para redirecionar para a tela de agendamento
+    const irParaAgendamento = (idPetShop) => {
+        navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
+    };
+
     // Dados simulados para categorias e pet shops
     const categorias = [
         { id: '1', nome: 'Banho e Tosa', icone: require('../../assets/adaptive-icon.png') },
@@ -81,15 +89,19 @@ const TelaInicial = () => {
                 data={petShops}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <View style={estilos.itemPetShop}>
-                        <Image source={item.icone} style={estilos.iconePetShop} />
-                        <View>
-                            <Text style={estilos.nomePetShop}>{item.nome}</Text>
-                            <Text style={estilos.detalhesPetShop}>
-                                {item.distancia} • {item.avaliacao}⭐
-                            </Text>
+                    <TouchableOpacity
+                        onPress={() => irParaAgendamento(item.id)} // Chama a navegação ao pressionar
+                    >
+                        <View style={estilos.itemPetShop}>
+                            <Image source={item.icone} style={estilos.iconePetShop} />
+                            <View>
+                                <Text style={estilos.nomePetShop}>{item.nome}</Text>
+                                <Text style={estilos.detalhesPetShop}>
+                                    {item.distancia} • {item.avaliacao}⭐
+                                </Text>
+                            </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
             />
 

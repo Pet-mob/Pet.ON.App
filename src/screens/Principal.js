@@ -8,6 +8,7 @@ import {
     FlatList,
     StyleSheet,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons'; // Importando ícones
 
 const TelaInicial = () => {
     // Dados simulados para categorias e pet shops
@@ -57,7 +58,7 @@ const TelaInicial = () => {
             </View>
 
             {/* Categorias */}
-            <Text style={estilos.tituloSecao}>Categorias</Text>
+            {/* <Text style={estilos.tituloSecao}>Categorias</Text>
             <View style={estilos.containerCategorias}>
                 {categorias.map((categoria) => (
                     <View key={categoria.id} style={estilos.itemCategoria}>
@@ -65,17 +66,17 @@ const TelaInicial = () => {
                         <Text style={estilos.textoCategoria}>{categoria.nome}</Text>
                     </View>
                 ))}
-            </View>
+            </View> */}
 
             {/* Promoções */}
-            <Text style={estilos.tituloSecao}>Promoções</Text>
+            {/* <Text style={estilos.tituloSecao}>Promoções</Text>
             <View style={estilos.containerPromocoes}>
                 <View style={estilos.cartaoPromocao}></View>
                 <View style={estilos.cartaoPromocao}></View>
-            </View>
+            </View> */}
 
             {/* Pet Shops Próximos */}
-            <Text style={estilos.tituloSecao}>Pet Shops Próximos</Text>
+            <Text style={estilos.tituloSecao}>Pet Shops</Text>
             <FlatList
                 data={petShops}
                 keyExtractor={(item) => item.id}
@@ -91,6 +92,23 @@ const TelaInicial = () => {
                     </View>
                 )}
             />
+
+
+            {/* Menu na parte inferior */}
+            <View style={estilos.menu}>
+                <TouchableOpacity style={estilos.menuItem} onPress={() => alert('Home')}>
+                    <Icon name="home-outline" size={24} color="#333" />
+                    <Text style={estilos.menuTexto}>Home</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={estilos.menuItem} onPress={() => alert('Buscar')}>
+                    <Icon name="search-outline" size={24} color="#333" />
+                    <Text style={estilos.menuTexto}>Buscar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={estilos.menuItem} onPress={() => alert('Perfil')}>
+                    <Icon name="person-outline" size={24} color="#333" />
+                    <Text style={estilos.menuTexto}>Perfil</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -98,6 +116,7 @@ const TelaInicial = () => {
 const estilos = StyleSheet.create({
     container: {
         flex: 1,
+        paddingTop: 50,
         backgroundColor: '#F5F5F5',
         paddingHorizontal: 15,
     },
@@ -185,6 +204,26 @@ const estilos = StyleSheet.create({
     detalhesPetShop: {
         fontSize: 14,
         color: '#666',
+    },
+    menu: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
+        paddingVertical: 15,
+    },
+    menuItem: {
+        alignItems: 'center',
+    },
+    menuTexto: {
+        fontSize: 12,
+        color: '#333',
+        marginTop: 5,
     },
 });
 

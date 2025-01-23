@@ -12,13 +12,21 @@ const Stack = createStackNavigator();
 export default function Routes() {
     return (
         <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+            <Stack.Screen
+                name="Login"
+                component={Login}
+                options={{ headerShown: false }}
+            />
             <Stack.Screen
                 name="Principal"
                 component={Principal}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen name="Agendamento" component={Agendamento} options={{ title: 'Agendamento' }} />
+            <Stack.Screen
+                name="Agendamento"
+                component={Agendamento}
+                options={{ headerShown: false }}
+            />
             <Stack.Screen name="ConsultaAgendamento" component={ConsultaAgendamento} options={{ title: 'Consulta de Agendamentos' }} />
             <Stack.Screen name="Usuario" component={Usuario} options={{ title: 'Dados do Usuário' }} />
         </Stack.Navigator>

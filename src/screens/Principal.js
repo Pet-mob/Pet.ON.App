@@ -33,21 +33,21 @@ const TelaInicial = () => {
             nome: 'PetShop Feliz',
             distancia: '1.5 km',
             avaliacao: '4.8',
-            icone: require('../../assets/icon.png'),
+            icone: require('../../assets/LogoPetON.png'),
         },
         {
             id: '2',
             nome: 'Amigos do Pet',
             distancia: '2.0 km',
             avaliacao: '4.7',
-            icone: require('../../assets/icon.png'),
+            icone: require('../../assets/LogoPetON.png'),
         },
         {
             id: '3',
             nome: 'Banho & Brilho',
             distancia: '3.2 km',
             avaliacao: '4.6',
-            icone: require('../../assets/icon.png'),
+            icone: require('../../assets/LogoPetON.png'),
         },
     ];
 

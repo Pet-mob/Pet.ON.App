@@ -27,7 +27,11 @@ export default function Routes() {
                 component={Agendamento}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen name="ConsultaAgendamento" component={ConsultaAgendamento} options={{ title: 'Consulta de Agendamentos' }} />
+            <Stack.Screen
+                name="ConsultaAgendamento"
+                component={ConsultaAgendamento}
+                options={{ headerShown: false }}
+            />
             <Stack.Screen name="Usuario" component={Usuario} options={{ title: 'Dados do Usuário' }} />
         </Stack.Navigator>
     );

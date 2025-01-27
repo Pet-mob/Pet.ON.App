@@ -200,18 +200,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
     },
-    confirmButton: {
-        backgroundColor: '#28A745',
-        padding: 15,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginVertical: 20,
-    },
-    confirmButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     //cabeçalho
     header: {
         marginTop: '10%',
@@ -311,7 +299,18 @@ const styles = StyleSheet.create({
         flexDirection: "row", // Organiza a imagem e o texto em coluna
         alignItems: "center",   // Centraliza os itens horizontalmente
     },
-
+    confirmButton: {
+        backgroundColor: '#28A745',
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginVertical: 20,
+    },
+    confirmButtonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 });
 
 export default Agendamento;

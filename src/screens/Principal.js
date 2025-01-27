@@ -108,15 +108,15 @@ const TelaInicial = () => {
 
             {/* Menu na parte inferior */}
             <View style={estilos.menu}>
-                <TouchableOpacity style={estilos.menuItem} onPress={() => alert('Home')}>
+                <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Principal')}>
                     <Icon name="home-outline" size={24} color="#333" />
                     <Text style={estilos.menuTexto}>Home</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={estilos.menuItem} onPress={() => alert('Buscar')}>
+                <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('ConsultaAgendamento')}>
                     <Icon name="search-outline" size={24} color="#333" />
                     <Text style={estilos.menuTexto}>Buscar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={estilos.menuItem} onPress={() => alert('Perfil')}>
+                <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Usuario')}>
                     <Icon name="person-outline" size={24} color="#333" />
                     <Text style={estilos.menuTexto}>Perfil</Text>
                 </TouchableOpacity>

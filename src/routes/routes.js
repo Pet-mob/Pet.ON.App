@@ -14,7 +14,8 @@ const Stack = createStackNavigator();
 
 export default function Routes() {
     return (
-        <Stack.Navigator initialRouteName="Login">
+        <Stack.Navigator initialRouteName="Login"
+            screenOptions={{ gestureEnabled: false }}>
             <Stack.Screen
                 name="Login"
                 component={Login}

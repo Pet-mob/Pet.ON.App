@@ -1,8 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Image,
+    Alert,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'; // Importando o KeyboardAwareScrollView
 
 const DadosPets = () => {
     const [pets, setPets] = useState([
@@ -27,11 +36,11 @@ const DadosPets = () => {
     const [petNotes, setPetNotes] = useState('');
     const [petPhoto, setPetPhoto] = useState(null);
     const navigation = useNavigation();
-    const [foto, setFoto] = useState(null); // Placeholder para o envio de foto
+    const [foto, setFoto] = useState(null);
 
     const addPet = () => {
         if (petName && petAge && petBreed) {
-            setPets([...pets, { name: petName, age: petAge, breed: petBreed, notes: petNotes, photo: petPhoto }]);
+            setPets([...pets, { id: Date.now(), name: petName, age: petAge, breed: petBreed, notes: petNotes, photo: petPhoto }]);
             setPetName('');
             setPetAge('');
             setPetBreed('');
@@ -41,31 +50,25 @@ const DadosPets = () => {
     };
 
     const selecionarFoto = async () => {
-        // Solicitar permissão para acessar a galeria
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
             Alert.alert('Permissão necessária', 'Precisamos de acesso à galeria para alterar a foto.');
             return;
         }
 
-        // Abrir a galeria para selecionar uma imagem
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true, // Permite recortar a imagem
-            quality: 1, // Qualidade da imagem (1 é a máxima)
+            allowsEditing: true,
+            quality: 1,
         });
 
         if (!result.canceled) {
-            setFoto(result.assets[0].uri); // Atualiza o estado com a URI da imagem selecionada
+            setFoto(result.assets[0].uri);
         }
     };
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-            {/* <View style={styles.container}> */}
+        <View style={styles.container}>
             {/* Cabeçalho */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
@@ -74,10 +77,16 @@ const DadosPets = () => {
                 <Text style={styles.title}>Dados dos Pets</Text>
             </View>
 
-            <ScrollView style={styles.bodyContainer}>
+            {/* ScrollView com o conteúdo que pode ser rolado */}
+            <KeyboardAwareScrollView
+                style={styles.bodyContainer}
+                contentContainerStyle={{ flexGrow: 1, paddingTop: 10 }} // Garante o scroll correto
+                keyboardShouldPersistTaps="handled"
+                enableOnAndroid={true}
+            >
                 <TouchableOpacity style={styles.fotoContainer} onPress={selecionarFoto}>
                     <Image
-                        source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')} // Exibe a imagem padrão caso nenhuma tenha sido selecionada
+                        source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
                         style={styles.foto}
                     />
                     <Text style={styles.textoFoto}>Alterar Foto</Text>
@@ -129,7 +138,7 @@ const DadosPets = () => {
                     <Text style={styles.buttonText}>Adicionar</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.title}>Lista dos pets cadastrado</Text>
+                <Text style={styles.title}>Lista dos pets cadastrados</Text>
                 <View style={styles.petList}>
                     {pets.length === 0 ? (
                         <Text style={styles.noPetsText}>Nenhum pet cadastrado ainda.</Text>
@@ -150,10 +159,8 @@ const DadosPets = () => {
                         ))
                     )}
                 </View>
-            </ScrollView>
-            {/* </View> */}
-
-        </KeyboardAvoidingView>
+            </KeyboardAwareScrollView>
+        </View>
     );
 };
 
@@ -162,7 +169,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
     },
-    //cabecalho
+    // Cabeçalho
     header: {
         paddingTop: 50,
         flexDirection: "row",
@@ -171,7 +178,7 @@ const styles = StyleSheet.create({
         padding: 15,
         elevation: 9,
         position: "relative", // Para posicionar o botão "voltar"
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
     },
     backButton: {
         paddingTop: 50,
@@ -183,7 +190,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
     },
-    //corpo
+    // Corpo
     bodyContainer: {
         padding: 10,
     },
@@ -215,35 +222,6 @@ const styles = StyleSheet.create({
         color: '#007bff',
         marginTop: 10,
     },
-
-    // imageButton: {
-    //     alignItems: 'center',
-    //     justifyContent: 'center',
-    //     height: 150,
-    //     width: 150,
-    //     borderRadius: 75,
-    //     backgroundColor: '#e0e0e0',
-    //     alignSelf: 'center',
-    //     marginBottom: 20,
-    // },
-    // imageButtonSecondary: {
-    //     alignItems: 'center',
-    //     justifyContent: 'center',
-    //     padding: 10,
-    //     backgroundColor: '#007bff',
-    //     borderRadius: 8,
-    //     marginBottom: 20,
-    // },
-    // imageButtonText: {
-    //     color: '#fff',
-    //     fontSize: 16,
-    //     fontWeight: 'bold',
-    // },
-    // image: {
-    //     width: 150,
-    //     height: 150,
-    //     borderRadius: 75,
-    // },
     button: {
         backgroundColor: '#28A745',
         padding: 15,
@@ -294,7 +272,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 16,
         color: '#777',
-        marginTop: 20,
     },
 });
 

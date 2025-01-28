@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
@@ -9,6 +10,24 @@ const DadosContas = () => {
     const [telefone, setTelefone] = useState('(11) 98765-4321');
     const [foto, setFoto] = useState(null); // Placeholder para o envio de foto
     const navigation = useNavigation();
+
+    const selecionarFoto = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permissão necessária', 'Precisamos de acesso à galeria para alterar a foto.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setFoto(result.assets[0].uri);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -23,14 +42,14 @@ const DadosContas = () => {
             <View style={styles.bodyContainer}>
 
                 {/* Foto do usuário */}
-                <TouchableOpacity style={styles.fotoContainer}>
+                <TouchableOpacity style={styles.fotoContainer} onPress={selecionarFoto}>
                     <Image
-                        source={foto ? { uri: foto } : ''}
-                        // source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
+                        source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
                         style={styles.foto}
                     />
                     <Text style={styles.textoFoto}>Alterar Foto</Text>
                 </TouchableOpacity>
+
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Nome:</Text>

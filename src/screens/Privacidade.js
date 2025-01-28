@@ -1,4 +1,3 @@
-// privacidade.js
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,7 +16,7 @@ const Privacidade = () => {
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
                     <Ionicons name="arrow-back" size={30} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Privacidade</Text>
+                <Text style={styles.title}>Dados da Conta</Text>
             </View>
 
             <View style={styles.bodyContainer}>
@@ -65,7 +64,7 @@ const Privacidade = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#FFFFFF',
     },
     //cabecalho
     header: {
@@ -104,16 +103,17 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 8,
         padding: 10,
-        backgroundColor: '#fff',
+        backgroundColor: '#F9F9F9',
     },
     botaoSalvar: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#28A745',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
+        marginVertical: 20
     },
     textoBotao: {
-        color: '#fff',
+        color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
     },

@@ -6,6 +6,9 @@ import Principal from '../screens/Principal';
 import Agendamento from '../screens/Agendamento';
 import ConsultaAgendamento from '../screens/ConsultaAgendamento.js';
 import Usuario from '../screens/Usuario';
+import DadosContas from '../screens/DadosConta.js';
+import Privacidade from '../screens/Privacidade.js';
+import DadosPets from '../screens/DadosPets.js';
 
 const Stack = createStackNavigator();
 
@@ -32,7 +35,26 @@ export default function Routes() {
                 component={ConsultaAgendamento}
                 options={{ headerShown: false }}
             />
-            <Stack.Screen name="Usuario" component={Usuario} options={{ title: 'Dados do Usuário' }} />
+            <Stack.Screen
+                name="Usuario"
+                component={Usuario}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="DadosConta"
+                component={DadosContas}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Privacidade"
+                component={Privacidade}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="DadosPets"
+                component={DadosPets}
+                options={{ headerShown: false }}
+            />
         </Stack.Navigator>
     );
 }

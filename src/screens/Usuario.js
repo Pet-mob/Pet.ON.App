@@ -1,155 +1,100 @@
-import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    FlatList,
-    Image,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-} from 'react-native';
-// import * as ImagePicker from 'expo-image-picker';
-import { Ionicons } from '@expo/vector-icons';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons"; // Certifique-se de instalar: expo install @expo/vector-icons
 
-export default function UserProfileScreen({ navigation, route }) {
-    const parametrosRotas = route.params;
-
-    const titulo = parametrosRotas.EhUsuarioNovo ? 'Crie uma conta' : 'Dados da conta';
-    const tituloBotaoCriarConta = parametrosRotas.EhUsuarioNovo ? 'Criar conta' : 'Salvar conta';
-
-    const [forms, setForms] = useState({
-        Nome: 'Rennan Castanhehira',
-        Telefone: '(16) 99355-7709',
-        Endereco: 'Rua x.',
-        Senha: '1234',
-    });
-
-    const [pets, setPets] = useState([
-        {
-            id: '1',
-            name: 'Buddy',
-            age: '2 anos',
-            allergies: 'Nenhuma',
-            size: 'Médio',
-            // image: require('../../../assets/cachorro1.png'),
-        },
-    ]);
-
-    const [newPet, setNewPet] = useState({
-        name: '',
-        age: '',
-        allergies: '',
-        size: '',
-        image: null,
-    });
-
-    const handlePickImage = async () => {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('Permissão Negada', 'Precisamos de permissão para acessar a galeria!');
-            return;
-        }
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        });
-        if (!result.canceled) {
-            setNewPet({ ...newPet, image: result.assets[0].uri });
-        }
-    };
-
-    const handleAddPet = () => {
-        if (!newPet.name || !newPet.age || !newPet.size) {
-            Alert.alert('Erro', 'Por favor, preencha todas as informações obrigatórias.');
-            return;
-        }
-        setPets([...pets, { ...newPet, id: String(Date.now()) }]);
-        setNewPet({ name: '', age: '', allergies: '', size: '', image: null });
-        Alert.alert('Pet Adicionado', 'O pet foi cadastrado com sucesso!');
-    };
-
-    const handleRemovePet = (id) => {
-        Alert.alert('Remover Pet', 'Tem certeza que deseja remover este pet?', [
-            { text: 'Cancelar', style: 'cancel' },
-            { text: 'Remover', onPress: () => setPets(pets.filter((pet) => pet.id !== id)) },
-        ]);
-    };
-
-    const renderPet = ({ item }) => (
-        <View style={styles.petItem}>
-            <Image source={item.image} style={styles.petImage} />
-            <View style={styles.petDetails}>
-                <Text style={styles.petName}>{item.name}</Text>
-                <Text style={styles.petInfo}>Idade: {item.age}</Text>
-                <Text style={styles.petInfo}>Alergias: {item.allergies}</Text>
-                <Text style={styles.petInfo}>Porte: {item.size}</Text>
-            </View>
-            <TouchableOpacity onPress={() => handleRemovePet(item.id)} style={styles.removeButton}>
-                <Ionicons name="trash" size={20} color="#fff" />
-            </TouchableOpacity>
-        </View>
-    );
+const Usuario = () => {
+    const navigation = useNavigation();
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-            <ScrollView>
-                <View style={styles.headerContainer}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#333" />
-                    </TouchableOpacity>
-                    <Text style={styles.tituloCriaConta}>{titulo}</Text>
-                </View>
-                <View>
-                    {/* <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
-                        {newPet.image ? (
-                            <Image source={{ uri: newPet.image }} style={styles.profileImage} />
-                        ) : (
-                            <Ionicons name="camera" size={50} color="#aaa" />
-                        )}
-                    </TouchableOpacity> */}
-                    <Text style={styles.imagePickerText}>Adicionar foto do pet</Text>
-                </View>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nome do Pet"
-                    value={newPet.name}
-                    onChangeText={(text) => setNewPet({ ...newPet, name: text })}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Idade do Pet"
-                    value={newPet.age}
-                    onChangeText={(text) => setNewPet({ ...newPet, age: text })}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Alergias"
-                    value={newPet.allergies}
-                    onChangeText={(text) => setNewPet({ ...newPet, allergies: text })}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Porte do Pet (Pequeno, Médio, Grande)"
-                    value={newPet.size}
-                    onChangeText={(text) => setNewPet({ ...newPet, size: text })}
-                />
-                <TouchableOpacity style={styles.addButton} onPress={handleAddPet}>
-                    <Text style={styles.addButtonText}>Adicionar Pet</Text>
+        <View style={styles.container}>
+            {/* Cabeçalho */}
+            <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Principal")}>
+                    <Ionicons name="arrow-back" size={30} color="#000" />
                 </TouchableOpacity>
-            </ScrollView>
-        </KeyboardAvoidingView>
+                <Text style={styles.title}>Rennan</Text>
+            </View>
+
+            {/* Menu */}
+            <View style={styles.menuContainer}>
+                <Text style={styles.sectionTitle}>Conta</Text>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigation.navigate("DadosConta")}
+                >
+                    <Text style={styles.menuText}>Dados da Conta</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigation.navigate("Privacidade")}
+                >
+                    <Text style={styles.menuText}>Privacidade</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.sectionTitle}>Pets</Text>
+                <TouchableOpacity
+                    style={styles.menuItem}
+                    onPress={() => navigation.navigate("DadosPets")}
+                >
+                    <Text style={styles.menuText}>Dados dos Pets</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    // Estilizações atualizadas aqui...
+    container: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+    },
+    //cabecalho
+    header: {
+        paddingTop: 50,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center", // Centraliza o conteúdo horizontalmente
+        padding: 15,
+        elevation: 9,
+        position: "relative", // Para posicionar o botão "voltar"
+        borderBottomWidth: 1
+    },
+    backButton: {
+        paddingTop: 50,
+        padding: 15,
+        position: "absolute", // Deixa o botão "voltar" no canto esquerdo
+        left: 1,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    //corpo
+    menuContainer: {
+        padding: 10,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: "bold",
+        marginBottom: 10,
+        marginTop: 20,
+    },
+    menuItem: {
+        padding: 15,
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 5,
+        elevation: 3,
+    },
+    menuText: {
+        fontSize: 16,
+        color: "#333",
+    },
 });
+
+export default Usuario;

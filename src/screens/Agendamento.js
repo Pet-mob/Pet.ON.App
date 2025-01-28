@@ -13,8 +13,9 @@ import { Calendar } from "react-native-calendars";
 
 const Agendamento = ({ navigation }) => {
     const [isPacoteMensal, setIsPacoteMensal] = useState(false);
+    const [selectedDates, setSelectedDates] = useState({});
     const [selectedService, setSelectedService] = useState(null);
-    const [dataSelecionada, setDataSelecionada] = useState(null);
+    const [dataSelecionadas, setDataSelecionadas] = useState({});
     const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
     const [horariosSelecionados, setHorariosSelecionados] = useState([]);
     const horariosPorData = {
@@ -35,14 +36,44 @@ const Agendamento = ({ navigation }) => {
         { id: "2", nome: "Luna", imagem: "https://ufape.com.br/wp-content/uploads/2024/03/Ufape-Hospital-Veterinario-cachorro-braquicefalico-GS2-MKT-Freepik.jpg" },
         { id: "3", nome: "Max", imagem: "https://ufape.com.br/wp-content/uploads/2024/11/Ufape-Hospital-Veterinario-Chihuahua-posando-em-um-fundo-laranja-como-parte-das-racas-de-cachorro-pequeno-GS2-MKT-Freepik.jpg" },
     ];
-    const selecionarData = (data) => {
-        setDataSelecionada(data);
+    const selecionarDataParaExibirHorario = (data) => {
+        // setDataSelecionadas(data);
         setHorariosDisponiveis(horariosPorData[data] || []);
         setHorariosSelecionados([]); // Reseta os horários selecionados ao mudar de data
     };
     const handleSelectService = (serviceId) => {
         setSelectedService(serviceId === selectedService ? null : serviceId);
     };
+    const handleDayPress = (day) => {
+        const date = day.dateString;
+
+        if (isPacoteMensal) {
+            // Pacote Mensal: Permitir até 4 datas selecionadas
+            if (dataSelecionadas[date]) {
+                // Se a data já estiver selecionada, desmarcá-la
+                const updatedDates = { ...dataSelecionadas };
+                delete updatedDates[date];
+                setDataSelecionadas(updatedDates);
+            } else {
+                // Se ainda não atingiu o limite de 4 datas, adicionar a nova data
+                if (Object.keys(dataSelecionadas).length < 4) {
+                    setDataSelecionadas({
+                        ...dataSelecionadas,
+                        [date]: { selected: true, marked: true, selectedColor: '#81b0ff' },
+                    });
+                } else {
+                    alert('Você só pode selecionar até 4 datas para um pacote mensal.');
+                }
+            }
+        } else {
+            // Avulso: Selecionar apenas uma data
+            setDataSelecionadas({
+                [date]: { selected: true, marked: true, selectedColor: '#81b0ff' },
+            });
+            selecionarDataParaExibirHorario(date);
+        }
+    };
+
     const selecionarPet = (petId) => {
         setPetSelecionado(petId);
     };
@@ -66,15 +97,15 @@ const Agendamento = ({ navigation }) => {
                 </TouchableOpacity>
                 <Text style={styles.title}>Agendamento</Text>
             </View>
-            <Image
-                source={require('../../assets/loja1.png')}
-                style={styles.image}
-                resizeMode="contain"
-            />
             <FlatList
                 style={styles.scrollContainer}
                 ListHeaderComponent={
                     <>
+                        <Image
+                            source={require('../../assets/loja1.png')}
+                            style={styles.image}
+                            resizeMode="contain"
+                        />
                         <View style={styles.switchContainer}>
                             <Text style={styles.subtitle}>Tipo do agendamento:</Text>
                             <Text style={styles.subtitle}>
@@ -109,19 +140,10 @@ const Agendamento = ({ navigation }) => {
                     <>
                         <Text style={styles.subtitle}>Selecione data:</Text>
                         <Calendar
-                            onDayPress={(day) => selecionarData(day.dateString)}
-                            markedDates={{
-                                [dataSelecionada]: {
-                                    selected: true,
-                                    selectedColor: "#81b0ff",
-                                },
-                            }}
-                            theme={{
-                                todayTextColor: "#81b0ff",
-                                selectedDayBackgroundColor: "#81b0ff",
-                            }}
+                            onDayPress={handleDayPress}
+                            markedDates={dataSelecionadas}
                         />
-                        {dataSelecionada && (
+                        {dataSelecionadas && (
                             <>
                                 <Text style={styles.subtitle}>
                                     Horários disponíveis:
@@ -209,7 +231,7 @@ const styles = StyleSheet.create({
     },
     image: {
         width: '100%',
-        height: 276,
+        height: 280,
     },
     title: {
         alignItems: 'center',
@@ -226,7 +248,8 @@ const styles = StyleSheet.create({
     },
     //corpo
     scrollContainer: {
-        padding: 10
+        paddingLeft: 10,
+        paddingRight: 10
     },
     switchContainer: {
         flexDirection: 'row',
@@ -269,7 +292,6 @@ const styles = StyleSheet.create({
     },
     horarioItemSelecionado: { backgroundColor: "#81b0ff" },
     horarioText: { fontSize: 16, color: "#000" },
-    horarioTextSelecionado: { color: "#fff" },
     petItem: {
         flexDirection: "row",
         alignItems: "center",
@@ -288,7 +310,7 @@ const styles = StyleSheet.create({
     },
     petName: {
         fontSize: 16,
-        fontWeight: "bold",
+        // fontWeight: "bold",
         textAlign: "center", // Centraliza o texto
     },
     petItemSelecionado: {

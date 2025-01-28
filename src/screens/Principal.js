@@ -116,7 +116,10 @@ const TelaInicial = () => {
                     <Icon name="search-outline" size={24} color="#333" />
                     <Text style={estilos.menuTexto}>Buscar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Usuario')}>
+                <TouchableOpacity
+                    style={estilos.menuItem}
+                    onPress={() => navigation.navigate('Usuario', { EhUsuarioNovo: false })}
+                >
                     <Icon name="person-outline" size={24} color="#333" />
                     <Text style={estilos.menuTexto}>Perfil</Text>
                 </TouchableOpacity>

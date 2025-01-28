@@ -20,6 +20,9 @@ const TelaLogin = () => {
         // Redireciona para a tela "Principal"
         navigation.navigate('Principal');
     };
+    const handleEsqueceuSenha = () => {
+        navigation.navigate('EsqueceuSenha');
+    };
     return (
         <KeyboardAvoidingView
             style={estilos.container}
@@ -60,7 +63,7 @@ const TelaLogin = () => {
 
                     {/* Links */}
                     <View style={estilos.containerLinks}>
-                        <TouchableOpacity>
+                        <TouchableOpacity style={estilos.link} onPress={handleEsqueceuSenha}>
                             <Text style={estilos.link}>Esqueceu a senha?</Text>
                         </TouchableOpacity>
                         <TouchableOpacity>
@@ -76,7 +79,7 @@ const TelaLogin = () => {
 const estilos = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#FFFFFF',
     },
     containerInterno: {
         flex: 1,
@@ -89,8 +92,8 @@ const estilos = StyleSheet.create({
         alignItems: 'center',
     },
     logo: {
-        width: 200,
-        height: 200,
+        width: 230,
+        height: 230,
     },
     textoBoasVindas: {
         fontSize: 20,
@@ -106,7 +109,7 @@ const estilos = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 15,
         marginBottom: 15,
-        backgroundColor: '#fff',
+        backgroundColor: '#F9F9F9',
         fontSize: 16,
         shadowColor: '#000',
         shadowOpacity: 0.1,

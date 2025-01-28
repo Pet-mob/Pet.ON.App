@@ -9,6 +9,7 @@ import Usuario from '../screens/Usuario';
 import DadosContas from '../screens/DadosConta.js';
 import Privacidade from '../screens/Privacidade.js';
 import DadosPets from '../screens/DadosPets.js';
+import EsqueceuSenha from '../screens/EsqueceuSenha.js';
 
 const Stack = createStackNavigator();
 
@@ -54,6 +55,11 @@ export default function Routes() {
             <Stack.Screen
                 name="DadosPets"
                 component={DadosPets}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="EsqueceuSenha"
+                component={EsqueceuSenha}
                 options={{ headerShown: false }}
             />
         </Stack.Navigator>

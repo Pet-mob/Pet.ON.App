@@ -25,8 +25,8 @@ const DadosContas = () => {
                 {/* Foto do usuário */}
                 <TouchableOpacity style={styles.fotoContainer}>
                     <Image
-                        // source={foto ? { uri: foto } : require('../assets/placeholder.png')}
-                        source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
+                        source={foto ? { uri: foto } : ''}
+                        // source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
                         style={styles.foto}
                     />
                     <Text style={styles.textoFoto}>Alterar Foto</Text>
@@ -75,7 +75,7 @@ const DadosContas = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#FFFFFF',
     },
     //cabecalho
     header: {
@@ -107,9 +107,9 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     foto: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+        width: 150,
+        height: 150,
+        borderRadius: 70,
         backgroundColor: '#e0e0e0',
     },
     textoFoto: {
@@ -128,16 +128,17 @@ const styles = StyleSheet.create({
         borderColor: '#ccc',
         borderRadius: 8,
         padding: 10,
-        backgroundColor: '#fff',
+        backgroundColor: '#F9F9F9',
     },
     botaoSalvar: {
-        backgroundColor: '#007bff',
+        backgroundColor: '#28A745',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
+        marginVertical: 20
     },
     textoBotao: {
-        color: '#fff',
+        color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold',
     },

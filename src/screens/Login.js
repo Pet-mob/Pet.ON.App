@@ -12,13 +12,41 @@ import {
     Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import ApiPetshop from './apiPetshop';
 
 const TelaLogin = () => {
     const navigation = useNavigation(); // Hook para navegação
 
-    const handleLogin = () => {
-        // Redireciona para a tela "Principal"
-        navigation.navigate('Principal');
+    const [Telefone, setTelefone] = useState('');
+    const [Senha, setSenha] = useState('');
+
+    const handleLogin = async () => {
+        try {
+            //validar os atributos se exite valor no campo.
+            if (Telefone == '')
+                console.error('Preencher Telefone!');
+
+            if (Senha == '')
+                console.error('Preencher Senha!');
+
+            //Criar um objeto que chama dtoRequisicao com os atributos CNPJ e Senha
+            const dtoRequisicao = {
+                Telefone: Telefone,
+                Senha: Senha
+            }
+
+            //Enviar para api no metodo de login com o dtoRequisicao
+            const logado = await ApiPetshop.request('/Login/Login', 'post', dtoRequisicao);
+
+            if (logado)
+                // Redireciona para a tela "Principal"
+                navigation.navigate('Principal');
+            else
+                console.warn('Credenciais invalidas...');
+        } catch (error) {
+            console.error('Erro ao buscar usuario:', error);
+        }
+
     };
     const handleEsqueceuSenha = () => {
         navigation.navigate('EsqueceuSenha');
@@ -46,12 +74,17 @@ const TelaLogin = () => {
                     <TextInput
                         style={estilos.input}
                         placeholder="Digite seu celular"
+                        id='telefone'
+                        value={Telefone}
+                        onChangeText={(valor) => setTelefone(valor)}
                         keyboardType="phone-pad"
                         placeholderTextColor="#aaa"
                     />
                     <TextInput
                         style={estilos.input}
                         placeholder="Digite sua senha"
+                        value={Senha}
+                        onChangeText={(valor) => setSenha(valor)}
                         secureTextEntry
                         placeholderTextColor="#aaa"
                     />

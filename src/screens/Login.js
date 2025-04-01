@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -12,7 +12,7 @@ import {
     Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ApiPetshop from './apiPetshop';
+import ApiPetshop from '../Service/apiPetShop';
 
 const TelaLogin = () => {
     const navigation = useNavigation(); // Hook para navegação
@@ -22,32 +22,32 @@ const TelaLogin = () => {
 
     const handleLogin = async () => {
         try {
-            //validar os atributos se exite valor no campo.
-            if (Telefone == '')
+            if (!Telefone) {
                 console.error('Preencher Telefone!');
-
-            if (Senha == '')
+                return;
+            }
+            if (!Senha) {
                 console.error('Preencher Senha!');
-
-            //Criar um objeto que chama dtoRequisicao com os atributos CNPJ e Senha
-            const dtoRequisicao = {
-                Telefone: Telefone,
-                Senha: Senha
+                return;
             }
 
-            //Enviar para api no metodo de login com o dtoRequisicao
-            const logado = await ApiPetshop.request('/Login/Login', 'post', dtoRequisicao);
+            const dtoRequisicao = {
+                Telefone: Telefone || null,
+                Senha: Senha
+            };
 
-            if (logado)
-                // Redireciona para a tela "Principal"
+            const resposta = await ApiPetshop.request('/Usuario/login', 'post', dtoRequisicao);
+
+            if (resposta.loginAtivado) {
                 navigation.navigate('Principal');
-            else
-                console.warn('Credenciais invalidas...');
+            } else {
+                console.warn('Credenciais inválidas...');
+            }
         } catch (error) {
-            console.error('Erro ao buscar usuario:', error);
+            console.error('Erro ao buscar usuário:', error);
         }
-
     };
+
     const handleEsqueceuSenha = () => {
         navigation.navigate('EsqueceuSenha');
     };

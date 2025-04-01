@@ -7,7 +7,6 @@ class ApiPetshop {
     constructor() {
         this.api = axios.create({
             baseURL: BASE_URL,
-            timeout: 10000,
         });
     }
 
@@ -20,11 +19,13 @@ class ApiPetshop {
      */
     async request(rota, metodo, dtoRequisicao = {}) {
         try {
+            const params = metodo.toLowerCase() === 'get' ? dtoRequisicao : {};
+            const data = ['post', 'put'].includes(metodo.toLowerCase()) ? dtoRequisicao : {};
             const response = await this.api.request({
                 url: rota,
-                metodo: metodo,
-                data: ['post', 'put'].includes(metodo.toLowerCase()) ? dtoRequisicao : {},
-                params: metodo.toLowerCase() === 'get' ? dtoRequisicao : {},
+                method: metodo,
+                data: data,
+                params: params
             });
 
             return response.data;

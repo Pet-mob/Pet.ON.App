@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -7,60 +7,96 @@ import {
     Image,
     FlatList,
     StyleSheet,
+    ActivityIndicator
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'; // Importando ícones
-import { useNavigation } from '@react-navigation/native'; // Importação da navegação
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import ApiPetshop from '../Service/apiPetShop';
+
+// // Dados simulados para categorias e pet shops
+// const categorias = [
+//     { id: '1', nome: 'Banho e Tosa', icone: require('../../assets/adaptive-icon.png') },
+//     { id: '2', nome: 'Veterinário', icone: require('../../assets/adaptive-icon.png') },
+//     { id: '3', nome: 'Acessórios', icone: require('../../assets/adaptive-icon.png') },
+//     { id: '4', nome: 'Rações', icone: require('../../assets/adaptive-icon.png') },
+// ];
+
+// const petShops = [
+//     {
+//         id: '1',
+//         nome: 'PetShop Feliz',
+//         distancia: '1.5 km',
+//         avaliacao: '4.8',
+//         icone: require('../../assets/LogoPetON.png'),
+//     },
+//     {
+//         id: '2',
+//         nome: 'Amigos do Pet',
+//         distancia: '2.0 km',
+//         avaliacao: '4.7',
+//         icone: require('../../assets/LogoPetON.png'),
+//     },
+//     {
+//         id: '3',
+//         nome: 'Banho & Brilho',
+//         distancia: '3.2 km',
+//         avaliacao: '4.6',
+//         icone: require('../../assets/LogoPetON.png'),
+//     },
+// ];
 
 const TelaInicial = () => {
-    const navigation = useNavigation(); // Hook de navegação
+    const navigation = useNavigation();
+    const [empresas, setEmpresas] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
 
-    // Função para redirecionar para a tela de agendamento
+    const buscarTodasEmpresas = async () => {
+        try {
+            const resposta = await ApiPetshop.request('/Empresa', 'get');
+            setEmpresas(resposta);
+        } catch (error) {
+            console.error('Erro ao buscar empresas:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const buscarNaAPIPorNomePetShop = async () => {
+        try {
+            if (campoBuscarPorNomePetShop == "") return null;
+            const dtoRequisicao = {
+                DescricaoNomeFantasia: campoBuscarPorNomePetShop
+            };
+            const resposta = await ApiPetshop.request('/Empresa', 'get', dtoRequisicao);
+            setEmpresas(resposta);
+        } catch (error) {
+            console.error('Erro ao buscar empresas:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     const irParaAgendamento = (idPetShop) => {
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
     };
 
-    // Dados simulados para categorias e pet shops
-    const categorias = [
-        { id: '1', nome: 'Banho e Tosa', icone: require('../../assets/adaptive-icon.png') },
-        { id: '2', nome: 'Veterinário', icone: require('../../assets/adaptive-icon.png') },
-        { id: '3', nome: 'Acessórios', icone: require('../../assets/adaptive-icon.png') },
-        { id: '4', nome: 'Rações', icone: require('../../assets/adaptive-icon.png') },
-    ];
-
-    const petShops = [
-        {
-            id: '1',
-            nome: 'PetShop Feliz',
-            distancia: '1.5 km',
-            avaliacao: '4.8',
-            icone: require('../../assets/LogoPetON.png'),
-        },
-        {
-            id: '2',
-            nome: 'Amigos do Pet',
-            distancia: '2.0 km',
-            avaliacao: '4.7',
-            icone: require('../../assets/LogoPetON.png'),
-        },
-        {
-            id: '3',
-            nome: 'Banho & Brilho',
-            distancia: '3.2 km',
-            avaliacao: '4.6',
-            icone: require('../../assets/LogoPetON.png'),
-        },
-    ];
+    useEffect(() => {
+        buscarTodasEmpresas();
+    }, []);
 
     return (
         <View style={estilos.container}>
-            {/* Campo de busca */}
             <View style={estilos.containerBusca}>
                 <TextInput
+                    id='campoBuscarPorNomePetShop'
                     style={estilos.inputBusca}
-                    placeholder="Buscar serviços ou pet shops"
+                    placeholder="Buscar por nome do pet shop"
                     placeholderTextColor="#aaa"
+                    value={campoBuscarPorNomePetShop}
+                    onChangeText={(valor) => setCampoBuscarPorNomePetShop(valor)}
                 />
-                <TouchableOpacity style={estilos.botaoBusca}>
+                <TouchableOpacity style={estilos.botaoBusca} onPress={() => buscarNaAPIPorNomePetShop()}>
                     <Text style={estilos.textoBotaoBusca}>Buscar</Text>
                 </TouchableOpacity>
             </View>
@@ -85,25 +121,29 @@ const TelaInicial = () => {
 
             {/* Pet Shops Próximos */}
             <Text style={estilos.tituloSecao}>Pet Shops</Text>
-            <FlatList
-                data={petShops}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        onPress={() => irParaAgendamento(item.id)} // Chama a navegação ao pressionar
-                    >
-                        <View style={estilos.itemPetShop}>
-                            <Image source={item.icone} style={estilos.iconePetShop} />
-                            <View>
-                                <Text style={estilos.nomePetShop}>{item.nome}</Text>
-                                <Text style={estilos.detalhesPetShop}>
+
+            {loading ? (
+                <ActivityIndicator size="large" color="#28A745" />
+            ) : (
+                <FlatList
+                    data={empresas}
+                    keyExtractor={(item) => item.idEmpresa}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            onPress={() => irParaAgendamento(item.idEmpresa)} // Chama a navegação ao pressionar
+                        >
+                            <View style={estilos.itemPetShop}>
+                                <Image source={item.icone} style={estilos.iconePetShop} />
+                                <View>
+                                    <Text style={estilos.nomePetShop}>{item.descricaoNomeFisica}</Text>
+                                    {/* <Text style={estilos.detalhesPetShop}>
                                     {item.distancia} • {item.avaliacao}⭐
-                                </Text>
+                                </Text> */}
+                                </View>
                             </View>
-                        </View>
-                    </TouchableOpacity>
-                )}
-            />
+                        </TouchableOpacity>
+                    )}
+                />)}
 
 
             {/* Menu na parte inferior */}

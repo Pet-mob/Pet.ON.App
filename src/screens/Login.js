@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ApiPetshop from '../Service/apiPetShop';
+import { setUsuario, setUsuarioStore } from '../store/store';
 
 const TelaLogin = () => {
     const navigation = useNavigation(); // Hook para navegação
@@ -39,6 +40,7 @@ const TelaLogin = () => {
             const resposta = await ApiPetshop.request('/Usuario/login', 'post', dtoRequisicao);
 
             if (resposta.loginAtivado) {
+                setUsuarioStore(resposta.buscarUsuarioResDto);
                 navigation.navigate('Principal');
             } else {
                 console.warn('Credenciais inválidas...');

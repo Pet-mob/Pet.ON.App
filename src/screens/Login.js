@@ -10,31 +10,29 @@ import {
     TouchableWithoutFeedback,
     KeyboardAvoidingView,
     Platform,
+    ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ApiPetshop from '../Service/apiPetShop';
-import { setUsuario, setUsuarioStore } from '../store/store';
+import { setUsuarioStore } from '../store/store';
 
 const TelaLogin = () => {
-    const navigation = useNavigation(); // Hook para navegação
-
+    const navigation = useNavigation();
     const [Telefone, setTelefone] = useState('');
     const [Senha, setSenha] = useState('');
+    const [loading, setLoading] = useState(false); // <- NOVO
 
     const handleLogin = async () => {
-        try {
-            if (!Telefone) {
-                console.error('Preencher Telefone!');
-                return;
-            }
-            if (!Senha) {
-                console.error('Preencher Senha!');
-                return;
-            }
+        if (!Telefone || !Senha) {
+            console.error('Preencha todos os campos!');
+            return;
+        }
 
+        setLoading(true); // <- INICIA LOADING
+        try {
             const dtoRequisicao = {
-                Telefone: Telefone || null,
-                Senha: Senha
+                Telefone,
+                Senha
             };
 
             const resposta = await ApiPetshop.request('/Usuario/login', 'post', dtoRequisicao);
@@ -47,12 +45,15 @@ const TelaLogin = () => {
             }
         } catch (error) {
             console.error('Erro ao buscar usuário:', error);
+        } finally {
+            setLoading(false); // <- FINALIZA LOADING
         }
     };
 
     const handleEsqueceuSenha = () => {
         navigation.navigate('EsqueceuSenha');
     };
+
     return (
         <KeyboardAvoidingView
             style={estilos.container}
@@ -60,7 +61,6 @@ const TelaLogin = () => {
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={estilos.containerInterno}>
-                    {/* Logotipo */}
                     <View style={estilos.containerLogo}>
                         <Image
                             source={require('../../assets/LogoPetON.png')}
@@ -69,16 +69,13 @@ const TelaLogin = () => {
                         />
                     </View>
 
-                    {/* Texto de boas-vindas */}
                     <Text style={estilos.textoBoasVindas}>Bem-vindo</Text>
 
-                    {/* Campos de entrada */}
                     <TextInput
                         style={estilos.input}
                         placeholder="Digite seu celular"
-                        id='telefone'
                         value={Telefone}
-                        onChangeText={(valor) => setTelefone(valor)}
+                        onChangeText={setTelefone}
                         keyboardType="phone-pad"
                         placeholderTextColor="#aaa"
                     />
@@ -86,17 +83,23 @@ const TelaLogin = () => {
                         style={estilos.input}
                         placeholder="Digite sua senha"
                         value={Senha}
-                        onChangeText={(valor) => setSenha(valor)}
+                        onChangeText={setSenha}
                         secureTextEntry
                         placeholderTextColor="#aaa"
                     />
 
-                    {/* Botão de login */}
-                    <TouchableOpacity style={estilos.botao} onPress={handleLogin}>
-                        <Text style={estilos.textoBotao}>Entrar</Text>
+                    <TouchableOpacity
+                        style={[estilos.botao, loading && { backgroundColor: '#aaa' }]}
+                        onPress={handleLogin}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator size="small" color="#FFF" />
+                        ) : (
+                            <Text style={estilos.textoBotao}>Entrar</Text>
+                        )}
                     </TouchableOpacity>
 
-                    {/* Links */}
                     <View style={estilos.containerLinks}>
                         <TouchableOpacity style={estilos.link} onPress={handleEsqueceuSenha}>
                             <Text style={estilos.link}>Esqueceu a senha?</Text>

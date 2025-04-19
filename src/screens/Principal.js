@@ -12,6 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import ApiPetshop from '../Service/apiPetShop';
+import { buscarEmpresas } from '../Service/apiRequisicaoEmpresa';
 
 // // Dados simulados para categorias e pet shops
 // const categorias = [
@@ -51,17 +52,6 @@ const TelaInicial = () => {
     const [loading, setLoading] = useState(true);
     const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
 
-    const buscarTodasEmpresas = async () => {
-        try {
-            const resposta = await ApiPetshop.request('/Empresa', 'get');
-            setEmpresas(resposta);
-        } catch (error) {
-            console.error('Erro ao buscar empresas:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const buscarNaAPIPorNomePetShop = async () => {
         try {
             if (campoBuscarPorNomePetShop == "") return null;
@@ -81,8 +71,20 @@ const TelaInicial = () => {
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
     };
 
+
     useEffect(() => {
-        buscarTodasEmpresas();
+        const carregarEmpresa = async () => {
+            setLoading(true);  // Define o loading como true antes de fazer a requisição
+            try {
+                const dados = await buscarEmpresas();
+                setEmpresas(dados);
+                setLoading(false);
+            } catch (error) {
+                console.log('Erro ao carregar dados da empresa:', error);
+            }
+        };
+
+        carregarEmpresa();
     }, []);
 
     return (
@@ -101,50 +103,30 @@ const TelaInicial = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Categorias */}
-            {/* <Text style={estilos.tituloSecao}>Categorias</Text>
-            <View style={estilos.containerCategorias}>
-                {categorias.map((categoria) => (
-                    <View key={categoria.id} style={estilos.itemCategoria}>
-                        <Image source={categoria.icone} style={estilos.iconeCategoria} />
-                        <Text style={estilos.textoCategoria}>{categoria.nome}</Text>
-                    </View>
-                ))}
-            </View> */}
-
-            {/* Promoções */}
-            {/* <Text style={estilos.tituloSecao}>Promoções</Text>
-            <View style={estilos.containerPromocoes}>
-                <View style={estilos.cartaoPromocao}></View>
-                <View style={estilos.cartaoPromocao}></View>
-            </View> */}
-
-            {/* Pet Shops Próximos */}
+            {/* Título da seção */}
             <Text style={estilos.tituloSecao}>Pet Shops</Text>
 
+            {/* Condicional para mostrar o loading */}
             {loading ? (
-                <ActivityIndicator size="large" color="#28A745" />
+                <View style={estilos.overlay}>
+                    <ActivityIndicator size="large" color="#28A745" />
+                </View>
             ) : (
                 <FlatList
                     data={empresas}
                     keyExtractor={(item) => item.idEmpresa}
                     renderItem={({ item }) => (
-                        <TouchableOpacity
-                            onPress={() => irParaAgendamento(item.idEmpresa)} // Chama a navegação ao pressionar
-                        >
+                        <TouchableOpacity onPress={() => irParaAgendamento(item.idEmpresa)}>
                             <View style={estilos.itemPetShop}>
                                 <Image source={item.icone} style={estilos.iconePetShop} />
                                 <View>
                                     <Text style={estilos.nomePetShop}>{item.descricaoNomeFisica}</Text>
-                                    {/* <Text style={estilos.detalhesPetShop}>
-                                    {item.distancia} • {item.avaliacao}⭐
-                                </Text> */}
                                 </View>
                             </View>
                         </TouchableOpacity>
                     )}
-                />)}
-
+                />
+            )}
 
             {/* Menu na parte inferior */}
             <View style={estilos.menu}>
@@ -167,6 +149,89 @@ const TelaInicial = () => {
         </View>
     );
 };
+
+//     return (
+//         <View style={estilos.container}>
+//             <View style={estilos.containerBusca}>
+//                 <TextInput
+//                     id='campoBuscarPorNomePetShop'
+//                     style={estilos.inputBusca}
+//                     placeholder="Buscar por nome do pet shop"
+//                     placeholderTextColor="#aaa"
+//                     value={campoBuscarPorNomePetShop}
+//                     onChangeText={(valor) => setCampoBuscarPorNomePetShop(valor)}
+//                 />
+//                 <TouchableOpacity style={estilos.botaoBusca} onPress={() => buscarNaAPIPorNomePetShop()}>
+//                     <Text style={estilos.textoBotaoBusca}>Buscar</Text>
+//                 </TouchableOpacity>
+//             </View>
+
+//             {/* Categorias */}
+//             {/* <Text style={estilos.tituloSecao}>Categorias</Text>
+//             <View style={estilos.containerCategorias}>
+//                 {categorias.map((categoria) => (
+//                     <View key={categoria.id} style={estilos.itemCategoria}>
+//                         <Image source={categoria.icone} style={estilos.iconeCategoria} />
+//                         <Text style={estilos.textoCategoria}>{categoria.nome}</Text>
+//                     </View>
+//                 ))}
+//             </View> */}
+
+//             {/* Promoções */}
+//             {/* <Text style={estilos.tituloSecao}>Promoções</Text>
+//             <View style={estilos.containerPromocoes}>
+//                 <View style={estilos.cartaoPromocao}></View>
+//                 <View style={estilos.cartaoPromocao}></View>
+//             </View> */}
+
+//             {/* Pet Shops Próximos */}
+//             <Text style={estilos.tituloSecao}>Pet Shops</Text>
+
+//             {loading ? (
+//                 <ActivityIndicator size="large" color="#28A745" />
+//             ) : (
+//                 <FlatList
+//                     data={empresas}
+//                     keyExtractor={(item) => item.idEmpresa}
+//                     renderItem={({ item }) => (
+//                         <TouchableOpacity
+//                             onPress={() => irParaAgendamento(item.idEmpresa)} // Chama a navegação ao pressionar
+//                         >
+//                             <View style={estilos.itemPetShop}>
+//                                 <Image source={item.icone} style={estilos.iconePetShop} />
+//                                 <View>
+//                                     <Text style={estilos.nomePetShop}>{item.descricaoNomeFisica}</Text>
+//                                     {/* <Text style={estilos.detalhesPetShop}>
+//                                     {item.distancia} • {item.avaliacao}⭐
+//                                 </Text> */}
+//                                 </View>
+//                             </View>
+//                         </TouchableOpacity>
+//                     )}
+//                 />)}
+
+
+//             {/* Menu na parte inferior */}
+//             <View style={estilos.menu}>
+//                 <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Principal')}>
+//                     <Icon name="home" size={24} color="#333" />
+//                     <Text style={estilos.menuTexto}>Home</Text>
+//                 </TouchableOpacity>
+//                 <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('ConsultaAgendamento')}>
+//                     <Icon name="search-outline" size={24} color="#333" />
+//                     <Text style={estilos.menuTexto}>Buscar</Text>
+//                 </TouchableOpacity>
+//                 <TouchableOpacity
+//                     style={estilos.menuItem}
+//                     onPress={() => navigation.navigate('Usuario', { EhUsuarioNovo: false })}
+//                 >
+//                     <Icon name="person-outline" size={24} color="#333" />
+//                     <Text style={estilos.menuTexto}>Perfil</Text>
+//                 </TouchableOpacity>
+//             </View>
+//         </View>
+//     );
+// };
 
 const estilos = StyleSheet.create({
     container: {
@@ -279,6 +344,17 @@ const estilos = StyleSheet.create({
         fontSize: 12,
         color: '#333',
         marginTop: 5,
+    },
+    overlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999,
     },
 });
 

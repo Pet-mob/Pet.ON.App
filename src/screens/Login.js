@@ -24,7 +24,7 @@ const TelaLogin = () => {
 
     const handleLogin = async () => {
         if (!Telefone || !Senha) {
-            console.error('Preencha todos os campos!');
+            alert('Preencha todos os campos!');
             return;
         }
 
@@ -41,10 +41,10 @@ const TelaLogin = () => {
                 setUsuarioStore(resposta.buscarUsuarioResDto);
                 navigation.navigate('Principal');
             } else {
-                console.warn('Credenciais inválidas...');
+                alert('Credenciais inválidas...');
             }
         } catch (error) {
-            console.error('Erro ao buscar usuário:', error);
+            alert('Erro ao buscar usuário:');
         } finally {
             setLoading(false); // <- FINALIZA LOADING
         }

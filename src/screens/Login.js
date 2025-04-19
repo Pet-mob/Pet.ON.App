@@ -13,8 +13,8 @@ import {
     ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import ApiPetshop from '../Service/apiPetShop';
 import { setUsuarioStore } from '../store/store';
+import validarLogin from '../Service/apiRequisicaoUsuario';
 
 const TelaLogin = () => {
     const navigation = useNavigation();
@@ -30,13 +30,7 @@ const TelaLogin = () => {
 
         setLoading(true); // <- INICIA LOADING
         try {
-            const dtoRequisicao = {
-                Telefone,
-                Senha
-            };
-
-            const resposta = await ApiPetshop.request('/Usuario/login', 'post', dtoRequisicao);
-
+            const resposta = await validarLogin(Telefone, Senha);
             if (resposta.loginAtivado) {
                 setUsuarioStore(resposta.buscarUsuarioResDto);
                 navigation.navigate('Principal');

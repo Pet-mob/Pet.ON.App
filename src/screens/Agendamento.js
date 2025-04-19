@@ -13,6 +13,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Calendar } from "react-native-calendars";
 import ApiPetshop from '../Service/apiPetShop';
 import { getUsuarioStore } from '../store/store';
+import buscarHorariosDisponiveisNaApi from '../Service/apiRequisicaoAgendamento'
+import buscarAnimalUsuarioNaApi from '../Service/apiRequisicaoAnimal'
+import buscarServicosEmpresaNaApi from '../Service/apiRequisicaoServico'
 
 const Agendamento = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
@@ -37,59 +40,6 @@ const Agendamento = ({ navigation, route }) => {
 
     const SelecionarTipoAgendamento = () => {
         setehPacoteMensal((prev) => !prev);
-    };
-
-    const buscarServicosEmpresa = async (idEmpresaPetShop) => {
-        try {
-            const dtoRequisicao = {
-                IdEmpresa: idEmpresaPetShop
-            };
-            const resposta = await ApiPetshop.request('/Servicos/ListaServicosPetShop', 'get', dtoRequisicao);
-            setServicosDisponivelEmpresa(resposta);
-        } catch (error) {
-            console.error('Erro ao buscar serviços da empresa:', error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const buscarAnimaisUsuario = async (idUsuario) => {
-        try {
-            const dtoRequisicao = {
-                idUsuario: idUsuario
-            };
-            const resposta = await ApiPetshop.request('/Animal', 'get', dtoRequisicao);
-            setPetDisponivel(resposta);
-        } catch (error) {
-            console.error('Erro ao buscar animais do usuario:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const buscarHorariosDisponiveis = async (idEmpresa, listaDataAgendamento, duracaoEmMin) => {
-        if (listaDataAgendamento.length === 0) {
-            alert("Selecione pelo menos uma data para buscar horários.");
-            return;
-        }
-        try {
-            const dtoRequisicao = {
-                idEmpresa: idEmpresa,
-                listaDataAgendamento: listaDataAgendamento,
-                duracaoEmMinutos: duracaoEmMin
-            };
-            const resposta = await ApiPetshop.request('/Agendamento/HorariosDisponiveis', 'post', dtoRequisicao);
-            if (resposta && resposta.horarios?.length > 0) {
-                setHorariosDisponiveis(resposta.horarios);
-            } else {
-                alert("Não há horários disponíveis em comum nas datas selecionadas.");
-            }
-        } catch (error) {
-            console.error('Erro ao buscar horarios disponiveis:', error);
-            alert("Erro ao buscar horários. Tente novamente.");
-        } finally {
-            setLoading(false);
-        }
     };
 
     const SelecionarPet = (petId) => {
@@ -167,12 +117,56 @@ const Agendamento = ({ navigation, route }) => {
         }
     };
 
-    //rotinas que ja revisei - pra cima.
+    const buscarHorariosDisponiveis = async (idEmpresaPetShop, listaDataAgendamento, duracaoEmMin) => {
+        setLoading(true);  // Define o loading como true antes de fazer a requisição
+        try {
+            if (listaDataAgendamento.length === 0) {
+                alert("Selecione pelo menos uma data para buscar horários.");
+            }
+            const resposta = await buscarHorariosDisponiveisNaApi(idEmpresaPetShop, listaDataAgendamento, duracaoEmMin);
+            if (resposta && resposta.horarios?.length > 0) {
+                setHorariosDisponiveis(resposta.horarios);
+            } else {
+                alert("Não há horários disponíveis em comum nas datas selecionadas.");
+            }
+            setLoading(false);
+        } catch (error) {
+            alert('Erro ao carregar dados da empresa:');
+        }
+    };
+
+    const buscarAnimal = async (idUsuario) => {
+        try {
+            const resposta = await buscarAnimalUsuarioNaApi(idUsuario);
+            if (resposta) {
+                setPetDisponivel(resposta);
+            } else {
+                alert("Não há pet cadastrado.");
+            }
+        } catch (error) {
+            alert('Erro ao carregar dados do pet');
+        }
+    };
+
+    const buscarServicosEmpresa = async (idEmpresaPetShop) => {
+        try {
+            const resposta = await buscarServicosEmpresaNaApi(idEmpresaPetShop);
+            if (resposta) {
+                setServicosDisponivelEmpresa(resposta);
+            } else {
+                alert("Não há serviços cadastrado.");
+            }
+        } catch (error) {
+            alert('Erro ao carregar dados do serviço');
+        }
+    };
 
     const selecionarDataParaExibirHorario = async (listaDataAgendamento) => {
         await buscarHorariosDisponiveis(idEmpresaPetShop, listaDataAgendamento, 120)
         setHorariosSelecionados([]); // Reseta os horários selecionados ao mudar de data
     };
+
+    //rotinas que ja revisei - pra cima.
 
     const SelecionarHorario = (horario) => {
         setHorariosSelecionados((prev) =>
@@ -184,8 +178,10 @@ const Agendamento = ({ navigation, route }) => {
 
     useEffect(() => {
         const carregarDados = async () => {
+            setLoading(true);
             await buscarServicosEmpresa(idEmpresaPetShop);
-            await buscarAnimaisUsuario(idUsuario);
+            await buscarAnimal(idUsuario);
+            setLoading(false);
         };
 
         carregarDados();

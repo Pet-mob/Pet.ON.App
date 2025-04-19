@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import ApiPetshop from '../Service/apiPetShop';
 import { buscarEmpresas } from '../Service/apiRequisicaoEmpresa';
+import { buscarNaAPIPorNomePetShop } from '../Service/apiRequisicaoEmpresa';
 
 // // Dados simulados para categorias e pet shops
 // const categorias = [
@@ -52,25 +52,20 @@ const TelaInicial = () => {
     const [loading, setLoading] = useState(true);
     const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
 
-    const buscarNaAPIPorNomePetShop = async () => {
-        try {
-            if (campoBuscarPorNomePetShop == "") return null;
-            const dtoRequisicao = {
-                DescricaoNomeFantasia: campoBuscarPorNomePetShop
-            };
-            const resposta = await ApiPetshop.request('/Empresa', 'get', dtoRequisicao);
-            setEmpresas(resposta);
-        } catch (error) {
-            console.error('Erro ao buscar empresas:', error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     const irParaAgendamento = (idPetShop) => {
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
     };
 
+    const buscarNaAPIPorNome = async () => {
+        setLoading(true);  // Define o loading como true antes de fazer a requisição
+        try {
+            const dados = await buscarNaAPIPorNomePetShop();
+            setEmpresas(dados);
+            setLoading(false);
+        } catch (error) {
+            console.log('Erro ao carregar dados da empresa:', error);
+        }
+    };
 
     useEffect(() => {
         const carregarEmpresa = async () => {
@@ -98,7 +93,7 @@ const TelaInicial = () => {
                     value={campoBuscarPorNomePetShop}
                     onChangeText={(valor) => setCampoBuscarPorNomePetShop(valor)}
                 />
-                <TouchableOpacity style={estilos.botaoBusca} onPress={() => buscarNaAPIPorNomePetShop()}>
+                <TouchableOpacity style={estilos.botaoBusca} onPress={() => buscarNaAPIPorNome()}>
                     <Text style={estilos.textoBotaoBusca}>Buscar</Text>
                 </TouchableOpacity>
             </View>

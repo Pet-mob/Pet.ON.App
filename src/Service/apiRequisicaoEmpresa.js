@@ -1,11 +1,30 @@
 import api from './api'
 
-export const buscarEmpresas = async () => {
+const buscarEmpresas = async () => {
     try {
-        const response = await api.get(`/empresa`);
-        return response.data;
+        const resposta = await api.get(`/empresa`);
+        return resposta.data;
     } catch (error) {
         console.error('Erro ao buscar empresa:', error);
         throw error;
     }
 };
+
+const buscarNaAPIPorNomePetShop = async (campoBuscarPorNomePetShop) => {
+    try {
+        if (campoBuscarPorNomePetShop == "") return null;
+        const dtoRequisicao = {
+            DescricaoNomeFantasia: campoBuscarPorNomePetShop
+        };
+        const resposta = await api.get('/Empresa', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao buscar empresa:', error);
+        throw error;
+    }
+};
+
+export default {
+    buscarEmpresas,
+    buscarNaAPIPorNomePetShop
+}

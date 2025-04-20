@@ -1,6 +1,6 @@
 import api from './api';
 
-export const buscarServicosEmpresaNaApi = async (idEmpresaPetShop) => {
+const buscarServicosEmpresaNaApi = async (idEmpresaPetShop) => {
     try {
         const dtoRequisicao = {
             IdEmpresa: idEmpresaPetShop
@@ -10,4 +10,8 @@ export const buscarServicosEmpresaNaApi = async (idEmpresaPetShop) => {
     } catch (error) {
         console.error('Erro ao buscar serviços da empresa:', error);
     }
+}
+
+export default {
+    buscarServicosEmpresaNaApi
 }

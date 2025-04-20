@@ -1,6 +1,6 @@
 import api from './api';
 
-export const buscarAnimalUsuarioNaApi = async (idUsuario) => {
+const buscarAnimalUsuarioNaApi = async (idUsuario) => {
     try {
         const dtoRequisicao = {
             idUsuario: idUsuario
@@ -11,3 +11,7 @@ export const buscarAnimalUsuarioNaApi = async (idUsuario) => {
         console.error('Erro ao buscar animais do usuario:', error);
     };
 };
+
+export default {
+    buscarAnimalUsuarioNaApi
+}

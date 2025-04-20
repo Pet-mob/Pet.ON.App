@@ -13,9 +13,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Calendar } from "react-native-calendars";
 import ApiPetshop from '../Service/apiPetShop';
 import { getUsuarioStore } from '../store/store';
-import buscarHorariosDisponiveisNaApi from '../Service/apiRequisicaoAgendamento'
-import buscarAnimalUsuarioNaApi from '../Service/apiRequisicaoAnimal'
-import buscarServicosEmpresaNaApi from '../Service/apiRequisicaoServico'
+import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento.js'
+import apiRequisicaoAnimal from '../Service/apiRequisicaoAnimal'
+import apiRequisicaoServico from '../Service/apiRequisicaoServico'
 
 const Agendamento = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
@@ -123,7 +123,7 @@ const Agendamento = ({ navigation, route }) => {
             if (listaDataAgendamento.length === 0) {
                 alert("Selecione pelo menos uma data para buscar horários.");
             }
-            const resposta = await buscarHorariosDisponiveisNaApi(idEmpresaPetShop, listaDataAgendamento, duracaoEmMin);
+            const resposta = await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(idEmpresaPetShop, listaDataAgendamento, duracaoEmMin);
             if (resposta && resposta.horarios?.length > 0) {
                 setHorariosDisponiveis(resposta.horarios);
             } else {
@@ -137,7 +137,7 @@ const Agendamento = ({ navigation, route }) => {
 
     const buscarAnimal = async (idUsuario) => {
         try {
-            const resposta = await buscarAnimalUsuarioNaApi(idUsuario);
+            const resposta = await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario);
             if (resposta) {
                 setPetDisponivel(resposta);
             } else {
@@ -150,7 +150,7 @@ const Agendamento = ({ navigation, route }) => {
 
     const buscarServicosEmpresa = async (idEmpresaPetShop) => {
         try {
-            const resposta = await buscarServicosEmpresaNaApi(idEmpresaPetShop);
+            const resposta = await apiRequisicaoServico.buscarServicosEmpresaNaApi(idEmpresaPetShop);
             if (resposta) {
                 setServicosDisponivelEmpresa(resposta);
             } else {

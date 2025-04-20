@@ -11,8 +11,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
-import { buscarEmpresas } from '../Service/apiRequisicaoEmpresa';
-import { buscarNaAPIPorNomePetShop } from '../Service/apiRequisicaoEmpresa';
+import apiRequisicaoEmpresa from '../Service/apiRequisicaoEmpresa.js';
 
 // // Dados simulados para categorias e pet shops
 // const categorias = [
@@ -59,7 +58,7 @@ const TelaInicial = () => {
     const buscarNaAPIPorNome = async () => {
         setLoading(true);  // Define o loading como true antes de fazer a requisição
         try {
-            const dados = await buscarNaAPIPorNomePetShop();
+            const dados = await apiRequisicaoEmpresa.buscarNaAPIPorNomePetShop();
             setEmpresas(dados);
             setLoading(false);
         } catch (error) {
@@ -71,7 +70,8 @@ const TelaInicial = () => {
         const carregarEmpresa = async () => {
             setLoading(true);  // Define o loading como true antes de fazer a requisição
             try {
-                const dados = await buscarEmpresas();
+                const dados = await apiRequisicaoEmpresa.buscarEmpresas();
+
                 setEmpresas(dados);
                 setLoading(false);
             } catch (error) {

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { setUsuarioStore } from '../store/store';
-import validarLogin from '../Service/apiRequisicaoUsuario';
+import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
 
 const TelaLogin = () => {
     const navigation = useNavigation();
@@ -27,10 +27,10 @@ const TelaLogin = () => {
             alert('Preencha todos os campos!');
             return;
         }
-
         setLoading(true); // <- INICIA LOADING
         try {
-            const resposta = await validarLogin(Telefone, Senha);
+            const resposta = await apiRequisicaoUsuario.validarLogin(Telefone, Senha);
+
             if (resposta.loginAtivado) {
                 setUsuarioStore(resposta.buscarUsuarioResDto);
                 navigation.navigate('Principal');
@@ -38,7 +38,8 @@ const TelaLogin = () => {
                 alert('Credenciais inválidas...');
             }
         } catch (error) {
-            alert('Erro ao buscar usuário:');
+            alert('Erro ao buscar usuário');
+            // console.log(error);
         } finally {
             setLoading(false); // <- FINALIZA LOADING
         }

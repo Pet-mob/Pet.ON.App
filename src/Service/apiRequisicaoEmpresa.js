@@ -2,7 +2,7 @@ import api from './api'
 
 const buscarEmpresas = async () => {
     try {
-        const resposta = await api.get(`/empresa`);
+        const resposta = await api.get('/Empresa');
         return resposta.data;
     } catch (error) {
         console.error('Erro ao buscar empresa:', error);

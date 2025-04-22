@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Calendar } from "react-native-calendars";
-import ApiPetshop from '../Service/apiPetShop';
 import { getUsuarioStore } from '../store/store';
 import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento.js'
 import apiRequisicaoAnimal from '../Service/apiRequisicaoAnimal'
@@ -176,6 +175,57 @@ const Agendamento = ({ navigation, route }) => {
         );
     };
 
+    const ConfirmarAgendamento = async () => {
+        if (!petSelecionado || !servicoSelecionado || horariosSelecionados.length === 0 || Object.keys(dataSelecionadas).length === 0) {
+            alert("Preencha todos os campos antes de confirmar o agendamento.");
+            return;
+        }
+
+        const listaDataHoraAgendamento = [];
+
+        Object.keys(dataSelecionadas).forEach((data) => {
+            horariosSelecionados.forEach((horario) => {
+                const [hora, minuto] = horario.split(':');
+                const horarioTimeSpan = `${hora}:${minuto}:00`;
+
+                const horarioFinal = new Date(`${data}T${horario}`);
+                horarioFinal.setMinutes(horarioFinal.getMinutes() + 120); // duração fixa de 2h (120 min)
+
+                const horarioFinalStr = `${horarioFinal.getHours().toString().padStart(2, '0')}:${horarioFinal.getMinutes().toString().padStart(2, '0')}:00`;
+
+                listaDataHoraAgendamento.push({
+                    data: data,
+                    horarioInicial: horarioTimeSpan,
+                    horarioFinal: horarioFinalStr,
+                });
+            });
+        });
+
+        try {
+            for (const item of listaDataHoraAgendamento) {
+                const dto = {
+                    idServico: servicoSelecionado,
+                    idAnimal: petSelecionado,
+                    idUsuario: idUsuario,
+                    idEmpresa: idEmpresaPetShop,
+                    pacoteMensal: ehPacoteMensal,
+                    listaDatasAgendamento: [item.data],
+                    horario: item.horarioInicial,
+                    horarioFinal: item.horarioFinal,
+                    status: "Agendado"
+                };
+
+                await apiRequisicaoAgendamento.adicionarAgendamentoNaApi(dto);
+            }
+
+            alert("Agendamento realizado com sucesso!");
+            navigation.goBack();
+
+        } catch (error) {
+            alert("Erro ao confirmar agendamento.");
+        }
+    };
+
     useEffect(() => {
         const carregarDados = async () => {
             setLoading(true);
@@ -304,7 +354,7 @@ const Agendamento = ({ navigation, route }) => {
                         </View>
                         )}
 
-                        <TouchableOpacity style={estilos.botaoConfirmar}>
+                        <TouchableOpacity style={estilos.botaoConfirmar} onPress={() => ConfirmarAgendamento()}>
                             <Text style={estilos.botaoConfirmarTexto}>Confirmar agendamento</Text>
                         </TouchableOpacity>
                     </>

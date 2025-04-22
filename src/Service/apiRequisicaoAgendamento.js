@@ -14,6 +14,17 @@ const buscarHorariosDisponiveisNaApi = async (idEmpresa, listaDataAgendamento, d
     };
 }
 
+const adicionarAgendamentoNaApi = async (dtoRequisicao) => {
+    try {
+        const resposta = await api.post('/Agendamento', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao adicionar agendamento:', error);
+        throw error;
+    }
+};
+
 export default {
-    buscarHorariosDisponiveisNaApi
+    buscarHorariosDisponiveisNaApi,
+    adicionarAgendamentoNaApi
 }

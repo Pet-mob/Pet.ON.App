@@ -176,27 +176,24 @@ const Agendamento = ({ navigation, route }) => {
     };
 
     const ConfirmarAgendamento = async () => {
-        if (!petSelecionado || !servicoSelecionado || horariosSelecionados.length === 0 || Object.keys(dataSelecionadas).length === 0) {
-            alert("Preencha todos os campos antes de confirmar o agendamento.");
-            return;
-        }
-
         const listaDataHoraAgendamento = [];
 
         Object.keys(dataSelecionadas).forEach((data) => {
             horariosSelecionados.forEach((horario) => {
                 const [hora, minuto] = horario.split(':');
-                const horarioTimeSpan = `${hora}:${minuto}:00`;
 
-                const horarioFinal = new Date(`${data}T${horario}`);
-                horarioFinal.setMinutes(horarioFinal.getMinutes() + 120); // duração fixa de 2h (120 min)
+                // monta um objeto Date com data + hora
+                const dataHora = new Date(`${data}T${hora.padStart(2, '0')}:${minuto.padStart(2, '0')}:00`);
 
-                const horarioFinalStr = `${horarioFinal.getHours().toString().padStart(2, '0')}:${horarioFinal.getMinutes().toString().padStart(2, '0')}:00`;
+                // calcula horário final
+                const dataHoraFinal = new Date(dataHora);
+                dataHoraFinal.setMinutes(dataHoraFinal.getMinutes() + 120); // duração de 2h
 
+                // adiciona à lista com formatação correta
                 listaDataHoraAgendamento.push({
-                    data: data,
-                    horarioInicial: horarioTimeSpan,
-                    horarioFinal: horarioFinalStr,
+                    dataISO: dataHora.toISOString(),
+                    horarioInicial: `${hora.padStart(2, '0')}:${minuto.padStart(2, '0')}:00`,
+                    horarioFinal: `${dataHoraFinal.getHours().toString().padStart(2, '0')}:${dataHoraFinal.getMinutes().toString().padStart(2, '0')}:00`,
                 });
             });
         });
@@ -205,11 +202,11 @@ const Agendamento = ({ navigation, route }) => {
             for (const item of listaDataHoraAgendamento) {
                 const dto = {
                     idServico: servicoSelecionado,
-                    idAnimal: petSelecionado,
+                    idAnimal: petDisponivel[0].idAnimal,
                     idUsuario: idUsuario,
                     idEmpresa: idEmpresaPetShop,
                     pacoteMensal: ehPacoteMensal,
-                    listaDatasAgendamento: [item.data],
+                    listaDatasAgendamento: [item.dataISO], // agora data + hora
                     horario: item.horarioInicial,
                     horarioFinal: item.horarioFinal,
                     status: "Agendado"
@@ -222,9 +219,11 @@ const Agendamento = ({ navigation, route }) => {
             navigation.goBack();
 
         } catch (error) {
+            console.error(error);
             alert("Erro ao confirmar agendamento.");
         }
     };
+
 
     useEffect(() => {
         const carregarDados = async () => {

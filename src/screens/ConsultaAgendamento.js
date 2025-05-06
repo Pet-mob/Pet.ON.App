@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     View,
     Text,
@@ -8,106 +8,86 @@ import {
     Image,
     ScrollView,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { Picker } from "@react-native-picker/picker";
-import { Ionicons } from "@expo/vector-icons"; // Certifique-se de instalar: expo install @expo/vector-icons
+import { format } from 'date-fns'
+import { Ionicons } from "@expo/vector-icons";
+import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento.js'
+import { getUsuarioStore } from '../store/store';
 
 const ConsultaAgendamento = ({ navigation }) => {
+    const [loading, setLoading] = useState(true);
+    const usuarioStore = getUsuarioStore();
+    const idUsuario = usuarioStore.id;
+
+    const [consultaAgendamentos, setConsultaAgendamentos] = useState("");
+
     const [petSelecionado, setPetSelecionado] = useState("");
     const [petShopSelecionado, setPetShopSelecionado] = useState("");
     const [dataSelecionada, setDataSelecionada] = useState(null);
     const [servicoSelecionado, setServicoSelecionado] = useState("");
+
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [filtrosVisiveis, setFiltrosVisiveis] = useState(false);
 
-    const pets = [
-        { id: "1", nome: "Bolt", imagem: "https://love.doghero.com.br/wp-content/uploads/2018/12/golden-retriever-1.png" },
-        { id: "2", nome: "Luna", imagem: "https://ufape.com.br/wp-content/uploads/2024/03/Ufape-Hospital-Veterinario-cachorro-braquicefalico-GS2-MKT-Freepik.jpg" },
-        { id: "3", nome: "Max", imagem: "https://ufape.com.br/wp-content/uploads/2024/11/Ufape-Hospital-Veterinario-Chihuahua-posando-em-um-fundo-laranja-como-parte-das-racas-de-cachorro-pequeno-GS2-MKT-Freepik.jpg" },
-    ];
-
-    const petShops = [
-        { id: "1", nome: "Pet Shop Central" },
-        { id: "2", nome: "Amigo do Pet" },
-    ];
-
-    const servicos = [
-        { id: "1", nome: "Banho" },
-        { id: "2", nome: "Tosa" },
-        { id: "3", nome: "Consulta Veterinária" },
-    ];
-
-    const agendamentos = [
-        {
-            id: "1",
-            pet: "Bolt",
-            imagem: pets[0].imagem,
-            petShop: "Pet Shop Central",
-            servico: "Banho",
-            data: "2025-01-28",
-            horario: "11:00"
-        },
-        {
-            id: "2",
-            pet: "Luna",
-            imagem: pets[1].imagem,
-            petShop: "Amigo do Pet",
-            servico: "Tosa",
-            data: "2025-01-30",
-            horario: "14:00"
-        },
-        {
-            id: "3",
-            pet: "Max",
-            imagem: pets[2].imagem,
-            petShop: "Pet Shop Central",
-            servico: "Consulta Veterinária",
-            data: "2025-01-29",
-            horario: "17:00"
-        },
-    ];
-
-    const filtrarAgendamentos = () => {
-        return agendamentos.filter((agendamento) => {
-            return (
-                (!petSelecionado || agendamento.pet === petSelecionado) &&
-                (!petShopSelecionado || agendamento.petShop === petShopSelecionado) &&
-                (!servicoSelecionado || agendamento.servico === servicoSelecionado) &&
-                (!dataSelecionada ||
-                    agendamento.data === dataSelecionada.toISOString().split("T")[0])
-            );
-        });
+    const buscarAgendamentosPorUsuario = async (idUsuario) => {
+        try {
+            const resposta = await apiRequisicaoAgendamento.buscarAgendamentosPorUsuario(idUsuario);
+            if (resposta) {
+                setConsultaAgendamentos(resposta);
+            } else {
+                alert("Não há dados cadastrado.");
+            }
+        } catch (error) {
+            alert('Erro ao carregar dados do agendamentos');
+        }
     };
 
+    const formatarData = (dataParametro) => {
+        return format(dataParametro, 'dd/MM/yyyy');
+    };
+
+    const formatarHorario = (horarioParametro) => {
+        return horarioParametro.slice(0, 5);
+    };
+
+    useEffect(() => {
+        const carregarDados = async () => {
+            setLoading(true);
+            await buscarAgendamentosPorUsuario(idUsuario);
+            setLoading(false);
+        };
+
+        carregarDados();
+    }, []);
+
     return (
-        <View style={styles.container}>
+        <View style={estilos.container}>
             {/* Cabeçalho */}
-            <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+            <View style={estilos.cabecalho}>
+                <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={30} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Consulta de Agendamentos</Text>
+                <Text style={estilos.titulo}>Consulta de Agendamentos</Text>
             </View>
 
             {/* Lista de Agendamentos */}
             <FlatList
-                data={filtrarAgendamentos()}
-                keyExtractor={(item) => item.id}
+                data={consultaAgendamentos}
+                keyExtractor={(item) => item.idAgendamento}
                 renderItem={({ item }) => (
-                    <View style={styles.agendamentoItem}>
-                        <Image source={{ uri: item.imagem }} style={styles.petImage} />
+                    <View style={estilos.agendamentoLinha}>
+                        <Image source={{ uri: item.imagem }} style={estilos.imagemPet} />
                         <View>
-                            <Text style={styles.agendamentoText}>Pet: {item.pet}</Text>
-                            <Text style={styles.agendamentoText}>Serviço: {item.servico}</Text>
-                            <Text style={styles.agendamentoText}>Estabelecimento: {item.petShop}
+                            <Text style={estilos.textoAgendamento}>Pet: {item.nomeAnimal}</Text>
+                            <Text style={estilos.textoAgendamento}>Serviço: {item.descricaoServico}</Text>
+                            <Text style={estilos.textoAgendamento}>Estabelecimento: {item.nomeEmpresa}
                             </Text>
-                            <Text style={styles.agendamentoText}>Data: {item.data}</Text>
-                            <Text style={styles.agendamentoText}>Horários: {item.horario}</Text>
+                            <Text style={estilos.textoAgendamento}>Data: {formatarData(item.data)}</Text>
+                            <Text style={estilos.textoAgendamento}>Horários: {formatarHorario(item.horarioInicial)} - {formatarHorario(item.horarioFinal)}</Text>
                         </View>
                     </View>
                 )}
                 ListEmptyComponent={
-                    <Text style={styles.emptyText}>
+                    <Text style={estilos.textoVazio}>
                         Nenhum agendamento encontrado.
                     </Text>
                 }
@@ -116,54 +96,33 @@ const ConsultaAgendamento = ({ navigation }) => {
     );
 };
 
-const styles = StyleSheet.create({
+const estilos = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
     },
     //cabeçalho
-    header: {
+    cabecalho: {
         paddingTop: 50,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center", // Centraliza o conteúdo horizontalmente
-        padding: 15,
-        elevation: 9,
-        position: "relative", // Para posicionar o botão "voltar"
-        borderBottomWidth: 1
-    },
-    backButton: {
-        paddingTop: 50,
-        padding: 15,
-        position: "absolute", // Deixa o botão "voltar" no canto esquerdo
-        left: 1,
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-    //lista de agendamentos
-    filterButton: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#6200ee",
-        padding: 10,
-        margin: 10,
-        borderRadius: 5,
+        padding: 15,
+        elevation: 9,
+        position: "relative",
+        borderBottomWidth: 1
     },
-    filterButtonText: {
-        color: "#fff",
-        marginLeft: 5,
+    botaoVoltar: {
+        paddingTop: 50,
+        padding: 15,
+        position: "absolute",
+        left: 1,
     },
-    filters: {
-        paddingHorizontal: 15,
+    titulo: {
+        fontSize: 20,
+        fontWeight: "bold",
     },
-    picker: {
-        height: 50,
-        backgroundColor: "#fff",
-    },
-    agendamentoItem: {
+    agendamentoLinha: {
         flexDirection: "row",
         backgroundColor: '#F9F9F9',
         padding: 15,
@@ -175,17 +134,17 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderColor: '#EEEEEE',
     },
-    petImage: {
+    imagemPet: {
         width: 50,
         height: 50,
         borderRadius: 25,
         marginRight: 10,
     },
-    agendamentoText: {
+    textoAgendamento: {
         fontSize: 16,
         color: '#000000',
     },
-    emptyText: {
+    textoVazio: {
         textAlign: "center",
         fontSize: 16,
         marginTop: 20,

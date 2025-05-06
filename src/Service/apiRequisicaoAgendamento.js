@@ -24,7 +24,21 @@ const adicionarAgendamentoNaApi = async (dtoRequisicao) => {
     }
 };
 
+const buscarAgendamentosPorUsuario = async (idUsuarioLogado) => {
+    try {
+        const dtoRequestGetAgendamento = {
+            idUsuario: idUsuarioLogado
+        };
+        const resposta = await api.get('/Agendamento?IdUsuario=' + idUsuarioLogado);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao buscar agendamento:', error);
+        throw error;
+    }
+};
+
 export default {
     buscarHorariosDisponiveisNaApi,
-    adicionarAgendamentoNaApi
+    adicionarAgendamentoNaApi,
+    buscarAgendamentosPorUsuario
 }

@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-nativ
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
-
+import { getUsuarioStore } from '../store/store';
 const Privacidade = () => {
     const [senhaAtual, setSenhaAtual] = useState('');
     const [novaSenha, setNovaSenha] = useState('');
@@ -39,7 +39,6 @@ const Privacidade = () => {
 
     return (
         <View style={styles.container}>
-            {/* Cabeçalho */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
                     <Ionicons name="arrow-back" size={30} color="#000" />
@@ -94,28 +93,26 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
     },
-    //cabecalho
     header: {
         paddingTop: 50,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center", // Centraliza o conteúdo horizontalmente
+        justifyContent: "center",
         padding: 15,
         elevation: 9,
-        position: "relative", // Para posicionar o botão "voltar"
+        position: "relative",
         borderBottomWidth: 1
     },
     backButton: {
         paddingTop: 50,
         padding: 15,
-        position: "absolute", // Deixa o botão "voltar" no canto esquerdo
+        position: "absolute",
         left: 1,
     },
     title: {
         fontSize: 20,
         fontWeight: "bold",
     },
-    //corpo
     bodyContainer: {
         padding: 10,
     },

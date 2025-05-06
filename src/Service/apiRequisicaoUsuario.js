@@ -15,6 +15,21 @@ const validarLogin = async (telefone, senha) => {
     }
 };
 
+const alterarSenhaUsuario = async (senhaNovaParam, idUsuarioParam) => {
+    try {
+        const dtoRequisicao = {
+            senhaNova: senhaNovaParam,
+            idUsuario: idUsuarioParam
+        };
+        const resposta = await api.put('/Usuario/AlterarSenhaDoUsuario', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao alterar senha:', error);
+        throw error;
+    }
+};
+
 export default {
-    validarLogin
+    validarLogin,
+    alterarSenhaUsuario
 }

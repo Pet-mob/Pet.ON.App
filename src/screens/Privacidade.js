@@ -2,12 +2,40 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
 
 const Privacidade = () => {
     const [senhaAtual, setSenhaAtual] = useState('');
     const [novaSenha, setNovaSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
     const navigation = useNavigation();
+    const usuarioStore = getUsuarioStore();
+    const idUsuario = usuarioStore.id;
+
+    const alterarSenha = async () => {
+        if (!senhaAtual || !novaSenha || !confirmarSenha) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+
+        if (novaSenha !== confirmarSenha) {
+            alert('As senhas não coincidem.');
+            return;
+        }
+
+        try {
+            const sucesso = await apiRequisicaoUsuario.alterarSenhaUsuario(novaSenha, idUsuario);
+            if (sucesso) {
+                alert('Senha alterada com sucesso!');
+                navigation.navigate('Usuario');
+            } else {
+                alert('Falha ao alterar a senha. Verifique a senha atual.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Ocorreu um erro ao tentar alterar a senha.');
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -53,7 +81,7 @@ const Privacidade = () => {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.botaoSalvar}>
+                <TouchableOpacity style={styles.botaoSalvar} onPress={alterarSenha}>
                     <Text style={styles.textoBotao}>Salvar</Text>
                 </TouchableOpacity>
             </View>

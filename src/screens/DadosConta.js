@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
+import { getUsuarioStore } from '../store/store';
 
 const DadosContas = () => {
-    const [nome, setNome] = useState('Rennan');
-    const [email, setEmail] = useState('rennan@email.com');
-    const [telefone, setTelefone] = useState('(11) 98765-4321');
-    const [foto, setFoto] = useState(null); // Placeholder para o envio de foto
+    const [loading, setLoading] = useState(true);
+    const [nome, setNome] = useState('');
+    const [telefone, setTelefone] = useState('');
+    const [foto, setFoto] = useState(null);
     const navigation = useNavigation();
+
+    const usuarioStore = getUsuarioStore();
+    const idUsuario = usuarioStore.id;
+    const nomeUsuario = usuarioStore.nome;
+    const telefoneUsuario = usuarioStore.telefone;
 
     const selecionarFoto = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -29,9 +36,40 @@ const DadosContas = () => {
         }
     };
 
+    const alterarUsuario = async () => {
+        if (!nome || !telefone) {
+            alert('Por favor, preencha nome e telefone.');
+            return;
+        }
+
+        try {
+            const sucesso = await apiRequisicaoUsuario.alterarUsuario(idUsuario, nome, telefone);
+            if (sucesso) {
+                alert('Usuario alterado com sucesso!');
+                navigation.navigate('Usuario');
+            } else {
+                alert('Falha ao alterar o usuario.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Ocorreu um erro ao tentar alterar usuario.');
+        }
+    };
+
+    useEffect(() => {
+        const carregarDados = async () => {
+            setLoading(true);
+            setNome(nomeUsuario);
+            setTelefone(telefoneUsuario);
+            // setFoto(null);
+            setLoading(false);
+        };
+
+        carregarDados();
+    }, []);
+
     return (
         <View style={styles.container}>
-            {/* Cabeçalho */}
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
                     <Ionicons name="arrow-back" size={30} color="#000" />
@@ -40,8 +78,6 @@ const DadosContas = () => {
             </View>
 
             <View style={styles.bodyContainer}>
-
-                {/* Foto do usuário */}
                 <TouchableOpacity style={styles.fotoContainer} onPress={selecionarFoto}>
                     <Image
                         source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
@@ -62,17 +98,6 @@ const DadosContas = () => {
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Email:</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Digite seu email"
-                        keyboardType="email-address"
-                    />
-                </View>
-
-                <View style={styles.inputContainer}>
                     <Text style={styles.label}>Telefone:</Text>
                     <TextInput
                         style={styles.input}
@@ -83,7 +108,7 @@ const DadosContas = () => {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.botaoSalvar}>
+                <TouchableOpacity style={styles.botaoSalvar} onPress={alterarUsuario}>
                     <Text style={styles.textoBotao}>Salvar</Text>
                 </TouchableOpacity>
             </View>

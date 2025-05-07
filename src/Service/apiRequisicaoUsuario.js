@@ -29,7 +29,24 @@ const alterarSenhaUsuario = async (senhaNovaParam, idUsuarioParam) => {
     }
 };
 
+const alterarUsuario = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioParam) => {
+    try {
+        const dtoRequisicao = {
+            idUsuario: idUsuarioParam,
+            nome: nomeUsuarioParam,
+            telefone: telefoneUsuarioParam
+
+        };
+        const resposta = await api.put('/Usuario', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao alterar usuario:', error);
+        throw error;
+    }
+};
+
 export default {
     validarLogin,
-    alterarSenhaUsuario
+    alterarSenhaUsuario,
+    alterarUsuario
 }

@@ -2,9 +2,12 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons"; // Certifique-se de instalar: expo install @expo/vector-icons
+import { getUsuarioStore } from '../store/store';
 
 const Usuario = () => {
     const navigation = useNavigation();
+    const usuarioStore = getUsuarioStore();
+    const nomeUsuario = usuarioStore.nome;
 
     return (
         <View style={styles.container}>
@@ -13,7 +16,7 @@ const Usuario = () => {
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Principal")}>
                     <Ionicons name="arrow-back" size={30} color="#000" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Rennan</Text>
+                <Text style={styles.title}>{nomeUsuario}</Text>
             </View>
 
             {/* Menu */}

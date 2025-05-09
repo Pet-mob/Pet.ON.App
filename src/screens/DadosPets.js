@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -12,12 +12,94 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'; // Importando o KeyboardAwareScrollView
+import { getUsuarioStore } from '../store/store';
+import { apiRequisicaoAnimal } from '../Service/apiRequisicaoAnimal';
 
 const DadosPets = () => {
-    const [pets, setPets] = useState([
-        { id: 1, photo: 'https://via.placeholder.com/100', name: 'Rex', age: 2, breed: 'Labrador', notes: 'Muito dócil' },
-        { id: 2, photo: 'https://via.placeholder.com/100', name: 'Bella', age: 3, breed: 'Golden Retriever', notes: 'Adora brincar' },
-    ]);
+    // const [pets, setPets] = useState([
+    //     { id: 1, photo: 'https://via.placeholder.com/100', name: 'Rex', age: 2, breed: 'Labrador', notes: 'Muito dócil' },
+    //     { id: 2, photo: 'https://via.placeholder.com/100', name: 'Bella', age: 3, breed: 'Golden Retriever', notes: 'Adora brincar' },
+    // ]);
+
+    const [loading, setLoading] = useState(true);
+    const [nomePet, setNomePet] = useState('');
+    const [idade, setIdade] = useState('');
+    const [raca, setRaca] = useState('');
+    const [observacoes, setObservacoes] = useState('');
+    const navigation = useNavigation();
+    const [foto, setFoto] = useState(null);
+    const usuarioStore = getUsuarioStore();
+    const idUsuario = usuarioStore.id;
+    const [consultaPets, setConsultaPets] = useState("");
+
+    const buscarPetsPorUsuario = async (idUsuario) => {
+        try {
+            const resposta = await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario);
+            if (resposta) {
+                setConsultaPets(resposta);
+            } else {
+                alert("Não há dados cadastrado.");
+            }
+        } catch (error) {
+            alert('Erro ao carregar dados dos pets');
+        }
+    };
+
+    const alterarPet = async () => {
+        try {
+            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idUsuario, nome, telefone);
+            if (sucesso) {
+                alert('Usuario alterado com sucesso!');
+                navigation.navigate('Usuario');
+            } else {
+                alert('Falha ao alterar o usuario.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Ocorreu um erro ao tentar alterar usuario.');
+        }
+    };
+
+    const inserirPet = async () => {
+        try {
+            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idUsuario, nome, telefone);
+            if (sucesso) {
+                alert('Usuario alterado com sucesso!');
+                navigation.navigate('Usuario');
+            } else {
+                alert('Falha ao alterar o usuario.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Ocorreu um erro ao tentar alterar usuario.');
+        }
+    };
+
+    const excluirPetApi = async () => {
+        try {
+            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idUsuario, nome, telefone);
+            if (sucesso) {
+                alert('Usuario alterado com sucesso!');
+                navigation.navigate('Usuario');
+            } else {
+                alert('Falha ao alterar o usuario.');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Ocorreu um erro ao tentar alterar usuario.');
+        }
+    };
+
+    const addPet = () => {
+        if (nomePet && idade && raca) {
+            setPets([...pets, { id: Date.now(), name: nomePet, age: idade, breed: raca, notes: observacoes, photo: foto }]);
+            setNomePet('');
+            setIdade('');
+            setRaca('');
+            setObservacoes('');
+            setFoto(null);
+        }
+    };
 
     const excluirPet = (id) => {
         Alert.alert(
@@ -28,25 +110,6 @@ const DadosPets = () => {
                 { text: 'Excluir', onPress: () => setPets((prevPets) => prevPets.filter((pet) => pet.id !== id)) },
             ]
         );
-    };
-
-    const [petName, setPetName] = useState('');
-    const [petAge, setPetAge] = useState('');
-    const [petBreed, setPetBreed] = useState('');
-    const [petNotes, setPetNotes] = useState('');
-    const [petPhoto, setPetPhoto] = useState(null);
-    const navigation = useNavigation();
-    const [foto, setFoto] = useState(null);
-
-    const addPet = () => {
-        if (petName && petAge && petBreed) {
-            setPets([...pets, { id: Date.now(), name: petName, age: petAge, breed: petBreed, notes: petNotes, photo: petPhoto }]);
-            setPetName('');
-            setPetAge('');
-            setPetBreed('');
-            setPetNotes('');
-            setPetPhoto(null);
-        }
     };
 
     const selecionarFoto = async () => {
@@ -66,6 +129,16 @@ const DadosPets = () => {
             setFoto(result.assets[0].uri);
         }
     };
+
+    useEffect(() => {
+        const carregarDados = async () => {
+            setLoading(true);
+            await buscarPetsPorUsuario(idUsuario);
+            setLoading(false);
+        };
+
+        carregarDados();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -96,8 +169,8 @@ const DadosPets = () => {
                     <Text style={styles.label}>Nome do Pet:</Text>
                     <TextInput
                         style={styles.input}
-                        value={petName}
-                        onChangeText={setPetName}
+                        value={nomePet}
+                        onChangeText={setNomePet}
                         placeholder="Digite o nome do pet"
                     />
                 </View>
@@ -106,8 +179,8 @@ const DadosPets = () => {
                     <Text style={styles.label}>Idade:</Text>
                     <TextInput
                         style={styles.input}
-                        value={petAge}
-                        onChangeText={setPetAge}
+                        value={idade}
+                        onChangeText={setIdade}
                         placeholder="Digite a idade do pet"
                         keyboardType="numeric"
                     />
@@ -117,8 +190,8 @@ const DadosPets = () => {
                     <Text style={styles.label}>Raça:</Text>
                     <TextInput
                         style={styles.input}
-                        value={petBreed}
-                        onChangeText={setPetBreed}
+                        value={raca}
+                        onChangeText={setRaca}
                         placeholder="Digite a raça do pet"
                     />
                 </View>
@@ -127,8 +200,8 @@ const DadosPets = () => {
                     <Text style={styles.label}>Observações:</Text>
                     <TextInput
                         style={styles.input}
-                        value={petNotes}
-                        onChangeText={setPetNotes}
+                        value={observacoes}
+                        onChangeText={setObservacoes}
                         placeholder="Observações sobre o pet"
                         multiline
                     />

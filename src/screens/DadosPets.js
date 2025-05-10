@@ -13,16 +13,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'; // Importando o KeyboardAwareScrollView
 import { getUsuarioStore } from '../store/store';
-import { apiRequisicaoAnimal } from '../Service/apiRequisicaoAnimal';
+import apiRequisicaoAnimal from '../Service/apiRequisicaoAnimal.js';
 
 const DadosPets = () => {
-    // const [pets, setPets] = useState([
-    //     { id: 1, photo: 'https://via.placeholder.com/100', name: 'Rex', age: 2, breed: 'Labrador', notes: 'Muito dócil' },
-    //     { id: 2, photo: 'https://via.placeholder.com/100', name: 'Bella', age: 3, breed: 'Golden Retriever', notes: 'Adora brincar' },
-    // ]);
-
     const [loading, setLoading] = useState(true);
-    const [nomePet, setNomePet] = useState('');
+    const [idAnimal, setIdAnimal] = useState('');
+    const [nome, setNome] = useState('');
     const [idade, setIdade] = useState('');
     const [raca, setRaca] = useState('');
     const [observacoes, setObservacoes] = useState('');
@@ -30,75 +26,80 @@ const DadosPets = () => {
     const [foto, setFoto] = useState(null);
     const usuarioStore = getUsuarioStore();
     const idUsuario = usuarioStore.id;
-    const [consultaPets, setConsultaPets] = useState("");
+    const [listaDePets, setListaDePets] = useState("");
 
-    const buscarPetsPorUsuario = async (idUsuario) => {
+    const buscarPetsPorUsuario = async (idUsuarioParam) => {
         try {
-            const resposta = await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario);
+            const resposta = await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuarioParam);
             if (resposta) {
-                setConsultaPets(resposta);
+                setListaDePets(resposta);
             } else {
                 alert("Não há dados cadastrado.");
             }
         } catch (error) {
-            alert('Erro ao carregar dados dos pets');
+            alert('Erro ao carregar dados dos listaDePets');
         }
     };
 
     const alterarPet = async () => {
         try {
-            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idUsuario, nome, telefone);
+            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idAnimal, nome, idade, raca, observacoes, idUsuario);
             if (sucesso) {
-                alert('Usuario alterado com sucesso!');
+                alert('Pet alterado com sucesso!');
                 navigation.navigate('Usuario');
             } else {
-                alert('Falha ao alterar o usuario.');
+                alert('Falha ao alterar o pet.');
             }
         } catch (error) {
             console.error(error);
-            alert('Ocorreu um erro ao tentar alterar usuario.');
+            alert('Ocorreu um erro ao tentar alterar pet.');
         }
     };
 
     const inserirPet = async () => {
         try {
-            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idUsuario, nome, telefone);
+            const sucesso = await apiRequisicaoAnimal.inserirAnimal(nome, idade, raca, observacoes, idUsuario);
             if (sucesso) {
-                alert('Usuario alterado com sucesso!');
+                alert('pet inserido com sucesso!');
                 navigation.navigate('Usuario');
             } else {
-                alert('Falha ao alterar o usuario.');
+                alert('Falha ao inseir o pet.');
             }
         } catch (error) {
             console.error(error);
-            alert('Ocorreu um erro ao tentar alterar usuario.');
+            alert('Ocorreu um erro ao tentar inserir pet.');
         }
     };
 
-    const excluirPetApi = async () => {
+    const excluirPetApi = async (idUsuarioParam, idAnimalParam) => {
         try {
-            const sucesso = await apiRequisicaoAnimal.alterarUsuario(idUsuario, nome, telefone);
+            const sucesso = await apiRequisicaoAnimal.excluirAnimal(idUsuarioParam, idAnimalParam);
             if (sucesso) {
-                alert('Usuario alterado com sucesso!');
+                alert('pet excluido com sucesso!');
                 navigation.navigate('Usuario');
             } else {
-                alert('Falha ao alterar o usuario.');
+                alert('Falha ao excluir o pet.');
             }
         } catch (error) {
             console.error(error);
-            alert('Ocorreu um erro ao tentar alterar usuario.');
+            alert('Ocorreu um erro ao tentar excluir pet.');
         }
     };
 
     const addPet = () => {
-        if (nomePet && idade && raca) {
-            setPets([...pets, { id: Date.now(), name: nomePet, age: idade, breed: raca, notes: observacoes, photo: foto }]);
-            setNomePet('');
+        if (nome && idade && raca) {
+            setPets([...listaDePets, { id: Date.now(), name: nome, age: idade, breed: raca, notes: observacoes, photo: foto }]);
+            setNome('');
             setIdade('');
             setRaca('');
             setObservacoes('');
             setFoto(null);
         }
+    };
+
+    const processoExcluirPet = async (idAnimal) => {
+        setPets((prevPets) => prevPets.filter((pet) => pet.id !== idAnimal));
+        excluirPetApi(idUsuario, idAnimal);
     };
 
     const excluirPet = (id) => {
@@ -107,7 +108,7 @@ const DadosPets = () => {
             'Tem certeza de que deseja excluir este pet?',
             [
                 { text: 'Cancelar', style: 'cancel' },
-                { text: 'Excluir', onPress: () => setPets((prevPets) => prevPets.filter((pet) => pet.id !== id)) },
+                { text: 'Excluir', onPress: () => processoExcluirPet(id) },
             ]
         );
     };
@@ -169,8 +170,8 @@ const DadosPets = () => {
                     <Text style={styles.label}>Nome do Pet:</Text>
                     <TextInput
                         style={styles.input}
-                        value={nomePet}
-                        onChangeText={setNomePet}
+                        value={nome}
+                        onChangeText={setNome}
                         placeholder="Digite o nome do pet"
                     />
                 </View>
@@ -208,22 +209,29 @@ const DadosPets = () => {
                 </View>
 
                 <TouchableOpacity onPress={addPet} style={styles.button}>
-                    <Text style={styles.buttonText}>Adicionar</Text>
+                    {
+                        listaDePets.length === 0 ? (
+                            <Text style={styles.buttonText}>Adicionar</Text>
+                        ) :
+                            (
+                                <Text style={styles.buttonText}>Alterar</Text>
+                            )
+                    }
                 </TouchableOpacity>
 
                 <Text style={styles.title}>Lista dos pets cadastrados</Text>
                 <View style={styles.petList}>
-                    {pets.length === 0 ? (
+                    {listaDePets.length === 0 ? (
                         <Text style={styles.noPetsText}>Nenhum pet cadastrado ainda.</Text>
                     ) : (
-                        pets.map((pet) => (
-                            <View key={pet.id} style={styles.petItem}>
+                        listaDePets.map((pet) => (
+                            <View key={pet.idAnimal} style={styles.petItem}>
                                 <Image source={{ uri: pet.photo }} style={styles.petImage} />
                                 <View style={styles.petDetails}>
-                                    <Text style={styles.petText}>Nome: {pet.name}</Text>
-                                    <Text style={styles.petText}>Idade: {pet.age}</Text>
-                                    <Text style={styles.petText}>Raça: {pet.breed}</Text>
-                                    <Text style={styles.petText}>Observações: {pet.notes}</Text>
+                                    <Text style={styles.petText}>Nome: {pet.nome}</Text>
+                                    <Text style={styles.petText}>Idade: {pet.idade}</Text>
+                                    <Text style={styles.petText}>Raça: {pet.raca}</Text>
+                                    <Text style={styles.petText}>Observações: {pet.observacoes}</Text>
                                 </View>
                                 <TouchableOpacity style={styles.deleteButton} onPress={() => excluirPet(pet.id)}>
                                     <Ionicons name="remove-circle" size={24} color="#ff4d4d" />

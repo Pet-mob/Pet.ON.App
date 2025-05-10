@@ -12,13 +12,15 @@ const buscarAnimalUsuarioNaApi = async (idUsuario) => {
     };
 };
 
-const alterarAnimal = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioParam) => {
+const alterarAnimal = async (idAnimalParam, nomeParam, idadeParam, racaParam, observacoesParam, idUsuarioParam) => {
     try {
         const dtoRequisicao = {
-            idUsuario: idUsuarioParam,
-            nome: nomeUsuarioParam,
-            telefone: telefoneUsuarioParam
-
+            idAnimal: idAnimalParam,
+            nome: nomeParam,
+            idade: idadeParam,
+            raca: racaParam,
+            observacoes: observacoesParam,
+            idUsuario: idUsuarioParam
         };
         const resposta = await api.put('/Animal', dtoRequisicao);
         return resposta.data;
@@ -28,34 +30,30 @@ const alterarAnimal = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioPa
     }
 };
 
-const inserirAnimal = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioParam) => {
+const inserirAnimal = async (nomeParam, idadeParam, racaParam, observacoesParam, idUsuarioParam) => {
     try {
         const dtoRequisicao = {
-            idUsuario: idUsuarioParam,
-            nome: nomeUsuarioParam,
-            telefone: telefoneUsuarioParam
-
+            nome: nomeParam,
+            idade: idadeParam,
+            raca: racaParam,
+            observacoes: observacoesParam,
+            idUsuario: idUsuarioParam
         };
         const resposta = await api.post('/Animal', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao alterar animal:', error);
+        console.error('Erro ao adicionar animal:', error);
         throw error;
     }
 };
 
-const excluirAnimal = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioParam) => {
+const excluirAnimal = async (idUsuarioParam, idAnimalParam) => {
     try {
-        const dtoRequisicao = {
-            idUsuario: idUsuarioParam,
-            nome: nomeUsuarioParam,
-            telefone: telefoneUsuarioParam
-
-        };
-        const resposta = await api.delete('/Animal', dtoRequisicao);
+        const uri = `/Animal?IdUsuario=${idUsuarioParam}&IdAnimal=${idAnimalParam}`;
+        const resposta = await api.delete(uri);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao alterar animal:', error);
+        console.error('Erro ao excluir animal:', error);
         throw error;
     }
 };

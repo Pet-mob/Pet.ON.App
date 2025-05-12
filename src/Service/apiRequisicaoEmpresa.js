@@ -24,7 +24,18 @@ const buscarNaAPIPorNomePetShop = async (campoBuscarPorNomePetShop) => {
     }
 };
 
+const buscarLogosEmpresas = async () => {
+    try {
+        const resposta = await api.get('/Empresa/Logos');
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao buscar logos da empresa:', error);
+        throw error;
+    }
+};
+
 export default {
     buscarEmpresas,
-    buscarNaAPIPorNomePetShop
+    buscarNaAPIPorNomePetShop,
+    buscarLogosEmpresas
 }

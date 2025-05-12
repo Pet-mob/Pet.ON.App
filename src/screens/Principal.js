@@ -50,6 +50,7 @@ const TelaInicial = () => {
     const [empresas, setEmpresas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
+    const [listaLogos, setListaLogos] = useState([]);
 
     const irParaAgendamento = (idPetShop) => {
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
@@ -67,19 +68,24 @@ const TelaInicial = () => {
     };
 
     useEffect(() => {
-        const carregarEmpresa = async () => {
-            setLoading(true);  // Define o loading como true antes de fazer a requisição
+        const carregarDados = async () => {
+            setLoading(true);
             try {
-                const dados = await apiRequisicaoEmpresa.buscarEmpresas();
+                const [empresasResp, logosResp] = await Promise.all([
+                    apiRequisicaoEmpresa.buscarEmpresas(),
+                    apiRequisicaoEmpresa.buscarLogosEmpresas()
+                ]);
 
-                setEmpresas(dados);
-                setLoading(false);
+                setEmpresas(empresasResp);
+                setListaLogos(logosResp);
             } catch (error) {
-                console.log('Erro ao carregar dados da empresa:', error);
+                console.log('Erro ao carregar dados:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        carregarEmpresa();
+        carregarDados();
     }, []);
 
     return (
@@ -101,7 +107,6 @@ const TelaInicial = () => {
             {/* Título da seção */}
             <Text style={estilos.tituloSecao}>Pet Shops</Text>
 
-            {/* Condicional para mostrar o loading */}
             {loading ? (
                 <View style={estilos.overlay}>
                     <ActivityIndicator size="large" color="#28A745" />
@@ -109,17 +114,25 @@ const TelaInicial = () => {
             ) : (
                 <FlatList
                     data={empresas}
-                    keyExtractor={(item) => item.idEmpresa}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => irParaAgendamento(item.idEmpresa)}>
-                            <View style={estilos.itemPetShop}>
-                                <Image source={item.icone} style={estilos.iconePetShop} />
-                                <View>
-                                    <Text style={estilos.nomePetShop}>{item.descricaoNomeFisica}</Text>
+                    keyExtractor={(item) => item.idEmpresa.toString()}
+                    renderItem={({ item }) => {
+                        const logo = listaLogos.find(logo => logo.idEmpresa === item.idEmpresa);
+                        const imagemLogo = logo?.url || 'https://via.placeholder.com/80x80?text=Logo';
+
+                        return (
+                            <TouchableOpacity onPress={() => irParaAgendamento(item.idEmpresa)}>
+                                <View style={estilos.itemPetShop}>
+                                    <Image
+                                        source={{ uri: imagemLogo }}
+                                        style={estilos.iconePetShop}
+                                    />
+                                    <View>
+                                        <Text style={estilos.nomePetShop}>{item.descricaoNomeFisica}</Text>
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                    )}
+                            </TouchableOpacity>
+                        );
+                    }}
                 />
             )}
 

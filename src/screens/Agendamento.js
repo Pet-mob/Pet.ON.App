@@ -256,7 +256,7 @@ const Agendamento = ({ navigation, route }) => {
                         <View style={estilos.switchContainer}>
                             <Text style={estilos.subTitulo}>Tipo do agendamento:</Text>
                             <Text style={estilos.subTitulo}>
-                                {ehPacoteMensal ? 'Pacote mensal' : 'Avulso'}
+                                {ehPacoteMensal ? 'Plano mensal' : 'Único'}
                             </Text>
                             <Switch
                                 trackColor={{ false: '#767577', true: '#81b0ff' }}

@@ -45,8 +45,37 @@ const alterarUsuario = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioP
     }
 };
 
+const buscarFotoUsuario = async (idUsuarioParam) => {
+    try {
+        const dtoRequisicao = {
+            idUsuario: idUsuarioParam
+        };
+        const resposta = await api.get('/Usuario/BuscarFotosUsuario', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao buscar foto do usuario:', error);
+        throw error;
+    }
+};
+
+const enviarFotoUsuario = async (arquivoParam, idUsuarioParam) => {
+    try {
+        const dtoRequisicao = {
+            arquivo: arquivoParam,
+            idUsuario: idUsuarioParam
+        };
+        const resposta = await api.post('/Usuario/EnviarFotoDoUSuario', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao anviar foto do usuario:', error);
+        throw error;
+    }
+};
+
 export default {
     validarLogin,
     alterarSenhaUsuario,
-    alterarUsuario
+    alterarUsuario,
+    buscarFotoUsuario,
+    enviarFotoUsuario
 }

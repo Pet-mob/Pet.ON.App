@@ -58,9 +58,41 @@ const excluirAnimal = async (idUsuarioParam, idAnimalParam) => {
     }
 };
 
+const buscarFotosAnimalPorUsuario = async (idUsuarioParam) => {
+    try {
+        const dtoRequisicao = {
+            idUsuario: idUsuarioParam
+        };
+        const uri = '/Animal/BuscarFotosAnimaisPorUsuario';
+        const resposta = await api.get(uri, dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao buscar fotos animais:', error);
+        throw error;
+    }
+};
+
+const enviarFotosAnimalPorUsuario = async (arquivoParam, idUsuarioParam, idAnimalParam) => {
+    try {
+        const dtoRequisicao = {
+            arquivo: arquivoParam,
+            idUsuario: idUsuarioParam,
+            idAnimal: idAnimalParam
+        };
+        const uri = '/Animal/EnviarFotoAnimal';
+        const resposta = await api.post(uri, dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        console.error('Erro ao enviar foto do animal:', error);
+        throw error;
+    }
+};
+
 export default {
     buscarAnimalUsuarioNaApi,
     inserirAnimal,
     alterarAnimal,
-    excluirAnimal
+    excluirAnimal,
+    buscarFotosAnimalPorUsuario,
+    enviarFotosAnimalPorUsuario
 }

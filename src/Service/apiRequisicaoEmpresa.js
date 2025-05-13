@@ -26,7 +26,7 @@ const buscarNaAPIPorNomePetShop = async (campoBuscarPorNomePetShop) => {
 
 const buscarLogosEmpresas = async () => {
     try {
-        const resposta = await api.get('/Empresa/Logos');
+        const resposta = await api.get('/Empresa/BuscarLogosEmpresas');
         return resposta.data;
     } catch (error) {
         console.error('Erro ao buscar logos da empresa:', error);
@@ -34,12 +34,16 @@ const buscarLogosEmpresas = async () => {
     };
 };
 
-const envioLogoEmpresa = async (arquivoParam, idEmpresaParam) => {
+const enviarLogoEmpresa = async (arquivoParam, idEmpresaParam) => {
     try {
-        const resposta = await api.post('/Empresa/Logos');
+        const dtoRequisicao = {
+            arquivo: arquivoParam,
+            idEmpresa: idEmpresaParam
+        };
+        const resposta = await api.post('/Empresa/EnviarLogoEmpresa', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao buscar logos da empresa:', error);
+        console.error('Erro ao enviar logo da empresa:', error);
         throw error;
     };
 };
@@ -48,5 +52,5 @@ export default {
     buscarEmpresas,
     buscarNaAPIPorNomePetShop,
     buscarLogosEmpresas,
-    envioLogoEmpresa
+    enviarLogoEmpresa
 }

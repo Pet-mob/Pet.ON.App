@@ -224,10 +224,30 @@ const Agendamento = ({ navigation, route }) => {
         }
     };
 
+    const carregarFotoAnimal = async () => {
+        try {
+            const resposta = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
+
+            if (resposta && Array.isArray(resposta)) {
+                const petsComImagem = petDisponivel.map(pet => {
+                    const foto = resposta.find(f => f.idUsuario === pet.idUsuario && f.idAnimal === pet.idAnimal);
+                    return {
+                        ...pet,
+                        imagem: foto ? foto.url : "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D"
+                    };
+                });
+
+                setPetDisponivel(petsComImagem); // atualiza o estado com as imagens
+            }
+        } catch (error) {
+            console.error('Erro ao carregar foto:', error);
+        }
+    };
 
     useEffect(() => {
         const carregarDados = async () => {
             setLoading(true);
+            await carregarFotoAnimal();
             await buscarServicosEmpresa(idEmpresaPetShop);
             await buscarAnimal(idUsuario);
             setLoading(false);
@@ -325,16 +345,16 @@ const Agendamento = ({ navigation, route }) => {
                         )}
 
                         {/* pets */}
-                        {petDisponivel.length > 2 && (<View>
+                        {petDisponivel.length > 1 && (<View>
                             <Text style={estilos.subTitulo}>Qual pet irá realizar o agendamento?:</Text>
                             <FlatList
                                 data={petDisponivel}
-                                keyExtractor={(item) => item.id}
+                                keyExtractor={(item) => item.idAnimal}
                                 renderItem={({ item }) => (
                                     <TouchableOpacity
                                         style={[
                                             estilos.petLinha,
-                                            petSelecionado.id === item.id && estilos.petLinhaSelecionado,
+                                            petSelecionado === item.idAnimal && estilos.petLinhaSelecionado,
                                         ]}
                                         onPress={() => SelecionarPet(item)}
                                     >

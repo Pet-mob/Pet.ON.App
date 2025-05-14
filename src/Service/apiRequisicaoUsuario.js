@@ -1,4 +1,6 @@
 import api from './api';
+import { Platform } from 'react-native';
+import axios from 'axios';
 
 const validarLogin = async (telefone, senha) => {
     try {
@@ -58,16 +60,33 @@ const buscarFotoUsuario = async (idUsuarioParam) => {
     }
 };
 
-const enviarFotoUsuario = async (arquivoParam, idUsuarioParam) => {
+const enviarFotoUsuario = async (imagem, idUsuario) => {
+    const formData = new FormData();
+
+    if (Platform.OS === 'web') {
+        // `imagem` aqui é um File (do input file)
+        formData.append('arquivo', imagem);
+    } else {
+        // `imagem` aqui é um objeto com uri, type, name
+        formData.append('arquivo', {
+            uri: imagem.uri,
+            name: imagem.name || 'foto.jpg',
+            type: imagem.type || 'image/jpeg',
+        });
+    }
+
+    formData.append('idUsuario', idUsuario);
+
     try {
-        const dtoRequisicao = {
-            arquivo: arquivoParam,
-            idUsuario: idUsuarioParam
-        };
-        const resposta = await api.post('/Usuario/EnviarFotoDoUSuario', dtoRequisicao);
+        const resposta = await api.post('/Usuario/EnviarFotoDoUsuario', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao anviar foto do usuario:', error);
+        console.error('Erro ao enviar foto do usuário:', error.response?.data || error.message);
         throw error;
     }
 };

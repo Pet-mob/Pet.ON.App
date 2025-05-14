@@ -117,7 +117,7 @@ const TelaInicial = () => {
                     keyExtractor={(item) => item.idEmpresa.toString()}
                     renderItem={({ item }) => {
                         const logo = listaLogos.find(logo => logo.idEmpresa === item.idEmpresa);
-                        const imagemLogo = logo?.url || 'https://via.placeholder.com/80x80?text=Logo';
+                        const imagemLogo = logo?.url || "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D";
 
                         return (
                             <TouchableOpacity onPress={() => irParaAgendamento(item.idEmpresa)}>
@@ -320,11 +320,13 @@ const estilos = StyleSheet.create({
         shadowRadius: 5,
         elevation: 3,
     },
-    iconePetShop: {
-        width: 50,
-        height: 50,
-        marginRight: 10,
-    },
+    iconePetShop: { width: 50, marginRight: 10, height: 50, borderRadius: 60 },
+
+    // iconePetShop: {
+    //     width: 50,
+    //     height: 50,
+    //     marginRight: 10,
+    // },
     nomePetShop: {
         fontSize: 16,
         fontWeight: 'bold',

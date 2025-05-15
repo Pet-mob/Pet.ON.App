@@ -229,15 +229,17 @@ const Agendamento = ({ navigation, route }) => {
             const resposta = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
 
             if (resposta) {
-                const petsComImagem = petDisponivel.map(pet => {
-                    const foto = resposta.find(f => f.idUsuario === pet.idUsuario && f.idAnimal === pet.idAnimal);
-                    return {
-                        ...pet,
-                        imagem: foto ? foto.url : "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D"
-                    };
-                });
+                if (petDisponivel.length > 0) {
+                    const petsComImagem = petDisponivel.map(pet => {
+                        const foto = resposta.find(f => f.idUsuario === pet.idUsuario && f.idAnimal === pet.idAnimal);
+                        return {
+                            ...pet,
+                            imagem: foto ? foto.url : "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D"
+                        };
+                    });
+                    setPetDisponivel(petsComImagem); // atualiza o estado com as imagens
+                };
 
-                setPetDisponivel(petsComImagem); // atualiza o estado com as imagens
             }
         } catch (error) {
             console.error('Erro ao carregar foto:', error);

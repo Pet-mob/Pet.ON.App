@@ -228,7 +228,7 @@ const Agendamento = ({ navigation, route }) => {
         try {
             const resposta = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
 
-            if (resposta && Array.isArray(resposta)) {
+            if (resposta) {
                 const petsComImagem = petDisponivel.map(pet => {
                     const foto = resposta.find(f => f.idUsuario === pet.idUsuario && f.idAnimal === pet.idAnimal);
                     return {
@@ -243,16 +243,15 @@ const Agendamento = ({ navigation, route }) => {
             console.error('Erro ao carregar foto:', error);
         }
     };
+    const carregarDados = async () => {
+        setLoading(true);
+        await buscarServicosEmpresa(idEmpresaPetShop);
+        await buscarAnimal(idUsuario);
+        carregarFotoAnimal();
+        setLoading(false);
+    };
 
     useEffect(() => {
-        const carregarDados = async () => {
-            setLoading(true);
-            await carregarFotoAnimal();
-            await buscarServicosEmpresa(idEmpresaPetShop);
-            await buscarAnimal(idUsuario);
-            setLoading(false);
-        };
-
         carregarDados();
     }, []);
 
@@ -345,7 +344,7 @@ const Agendamento = ({ navigation, route }) => {
                         )}
 
                         {/* pets */}
-                        {petDisponivel.length > 1 && (<View>
+                        <View>
                             <Text style={estilos.subTitulo}>Qual pet irá realizar o agendamento?:</Text>
                             <FlatList
                                 data={petDisponivel}
@@ -356,7 +355,7 @@ const Agendamento = ({ navigation, route }) => {
                                             estilos.petLinha,
                                             petSelecionado === item.idAnimal && estilos.petLinhaSelecionado,
                                         ]}
-                                        onPress={() => SelecionarPet(item)}
+                                        onPress={() => SelecionarPet(item.idAnimal)}
                                     >
                                         <View style={estilos.petGrupo}>
                                             <Image
@@ -371,7 +370,7 @@ const Agendamento = ({ navigation, route }) => {
                                 nestedScrollEnabled
                             />
                         </View>
-                        )}
+
 
                         <TouchableOpacity style={estilos.botaoConfirmar} onPress={() => ConfirmarAgendamento()}>
                             <Text style={estilos.botaoConfirmarTexto}>Confirmar agendamento</Text>
@@ -453,13 +452,14 @@ const estilos = StyleSheet.create({
     horarioLinha: {
         padding: 15,
         marginHorizontal: 8,
+        marginBottom: 14,
         borderRadius: 8,
         backgroundColor: "#e0e0e0",
         alignItems: "center"
     },
     horarioLinhaSelecionado: { backgroundColor: "#81b0ff" },
     horarioTexto: { fontSize: 16, color: "#000" },
-    horarioTextoSelecionado: { fontSize: 16, color: "#81b0ff" },
+    horarioTextoSelecionado: { fontSize: 16, color: "#000" },
     petLinha: {
         flexDirection: "row",
         alignItems: "center",

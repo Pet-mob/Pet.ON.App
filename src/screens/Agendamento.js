@@ -249,7 +249,7 @@ const Agendamento = ({ navigation, route }) => {
         setLoading(true);
         await buscarServicosEmpresa(idEmpresaPetShop);
         await buscarAnimal(idUsuario);
-        carregarFotoAnimal();
+        await carregarFotoAnimal();
         setLoading(false);
     };
 

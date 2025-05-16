@@ -6,27 +6,17 @@ import {
     TouchableOpacity,
     StyleSheet,
     Image,
-    ScrollView,
 } from "react-native";
-import { format } from 'date-fns'
+import { format } from 'date-fns';
 import { Ionicons } from "@expo/vector-icons";
-import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento.js'
+import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento.js';
 import { getUsuarioStore } from '../store/store';
 
 const ConsultaAgendamento = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const usuarioStore = getUsuarioStore();
     const idUsuario = usuarioStore.id;
-
-    const [consultaAgendamentos, setConsultaAgendamentos] = useState("");
-
-    const [petSelecionado, setPetSelecionado] = useState("");
-    const [petShopSelecionado, setPetShopSelecionado] = useState("");
-    const [dataSelecionada, setDataSelecionada] = useState(null);
-    const [servicoSelecionado, setServicoSelecionado] = useState("");
-
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [filtrosVisiveis, setFiltrosVisiveis] = useState(false);
+    const [consultaAgendamentos, setConsultaAgendamentos] = useState([]);
 
     const buscarAgendamentosPorUsuario = async (idUsuario) => {
         try {
@@ -34,15 +24,15 @@ const ConsultaAgendamento = ({ navigation }) => {
             if (resposta) {
                 setConsultaAgendamentos(resposta);
             } else {
-                alert("Não há dados cadastrado.");
+                alert("Não há dados cadastrados.");
             }
         } catch (error) {
-            alert('Erro ao carregar dados do agendamentos');
+            alert('Erro ao carregar dados dos agendamentos');
         }
     };
 
     const formatarData = (dataParametro) => {
-        return format(dataParametro, 'dd/MM/yyyy');
+        return format(new Date(dataParametro), 'dd/MM/yyyy');
     };
 
     const formatarHorario = (horarioParametro) => {
@@ -64,32 +54,39 @@ const ConsultaAgendamento = ({ navigation }) => {
             {/* Cabeçalho */}
             <View style={estilos.cabecalho}>
                 <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navigation.goBack()}>
-                    <Ionicons name="arrow-back" size={30} color="#000" />
+                    <Ionicons name="arrow-back" size={28} color="#FFF" />
                 </TouchableOpacity>
-                <Text style={estilos.titulo}>Consulta de Agendamentos</Text>
+                <Text style={estilos.titulo}>Meus Agendamentos</Text>
             </View>
 
             {/* Lista de Agendamentos */}
             <FlatList
                 data={consultaAgendamentos}
-                keyExtractor={(item) => item.idAgendamento}
+                keyExtractor={(item) => item.idAgendamento.toString()}
                 renderItem={({ item }) => (
                     <View style={estilos.agendamentoLinha}>
                         <Image source={{ uri: item.imagem }} style={estilos.imagemPet} />
-                        <View>
-                            <Text style={estilos.textoAgendamento}>Pet: {item.nomeAnimal}</Text>
-                            <Text style={estilos.textoAgendamento}>Serviço: {item.descricaoServico}</Text>
-                            <Text style={estilos.textoAgendamento}>Estabelecimento: {item.nomeEmpresa}
-                            </Text>
-                            <Text style={estilos.textoAgendamento}>Data: {formatarData(item.data)}</Text>
-                            <Text style={estilos.textoAgendamento}>Horários: {formatarHorario(item.horarioInicial)} - {formatarHorario(item.horarioFinal)}</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={estilos.textoAgendamentoNegrito}>🐶 {item.nomeAnimal}</Text>
+                            <Text style={estilos.textoAgendamento}>✂️ Serviço: {item.descricaoServico}</Text>
+                            <Text style={estilos.textoAgendamento}>🏢 Estabelecimento: {item.nomeEmpresa}</Text>
+                            <Text style={estilos.textoAgendamento}>📅 Data: {formatarData(item.data)}</Text>
+                            <Text style={estilos.textoAgendamento}>⏰ Horário: {formatarHorario(item.horarioInicial)} - {formatarHorario(item.horarioFinal)}</Text>
+
+                            {/* Badge de status (ex: Confirmado/Pendente) - opcional */}
+                            {item.status && (
+                                <View style={[
+                                    estilos.badgeStatus,
+                                    { backgroundColor: item.status === 'Confirmado' ? '#10B981' : '#F59E0B' }
+                                ]}>
+                                    <Text style={estilos.badgeTexto}>{item.status}</Text>
+                                </View>
+                            )}
                         </View>
                     </View>
                 )}
                 ListEmptyComponent={
-                    <Text style={estilos.textoVazio}>
-                        Nenhum agendamento encontrado.
-                    </Text>
+                    <Text style={estilos.textoVazio}>Nenhum agendamento encontrado.</Text>
                 }
             />
         </View>
@@ -99,56 +96,78 @@ const ConsultaAgendamento = ({ navigation }) => {
 const estilos = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#F3F4F6',
     },
-    //cabeçalho
     cabecalho: {
         paddingTop: 50,
+        paddingBottom: 20,
+        backgroundColor: '#4F46E5',
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        padding: 15,
-        elevation: 9,
         position: "relative",
-        borderBottomWidth: 1
     },
     botaoVoltar: {
-        paddingTop: 50,
-        padding: 15,
         position: "absolute",
-        left: 1,
+        left: 16,
+        top: 50,
+        // padding: 10,
     },
     titulo: {
         fontSize: 20,
         fontWeight: "bold",
+        color: "#FFFFFF",
     },
     agendamentoLinha: {
         flexDirection: "row",
-        backgroundColor: '#F9F9F9',
-        padding: 15,
-        marginTop: 4,
-        marginLeft: 15,
-        marginBottom: 10,
-        borderRadius: 8,
+        backgroundColor: '#FFFFFF',
+        padding: 16,
+        marginHorizontal: 16,
+        marginVertical: 8,
+        borderRadius: 12,
         borderWidth: 1,
+        borderColor: '#E5E7EB',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
         alignItems: "center",
-        borderColor: '#EEEEEE',
     },
     imagemPet: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 10,
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginRight: 12,
+        borderWidth: 2,
+        borderColor: '#E5E7EB',
     },
     textoAgendamento: {
-        fontSize: 16,
-        color: '#000000',
+        fontSize: 14,
+        color: '#374151',
+    },
+    textoAgendamentoNegrito: {
+        fontSize: 15,
+        color: '#1F2937',
+        fontWeight: "bold",
     },
     textoVazio: {
         textAlign: "center",
         fontSize: 16,
         marginTop: 20,
-        color: '#000000',
+        color: '#6B7280',
+    },
+    badgeStatus: {
+        marginTop: 6,
+        alignSelf: 'flex-start',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    badgeTexto: {
+        color: '#FFF',
+        fontSize: 12,
+        fontWeight: 'bold',
     },
 });
 

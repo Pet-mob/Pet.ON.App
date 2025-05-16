@@ -1,508 +1,361 @@
 import React, { useEffect, useState } from 'react';
 import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    FlatList,
-    Image,
-    Switch,
-    ActivityIndicator
+    View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Switch, ActivityIndicator, Alert
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Calendar } from "react-native-calendars";
+import { Calendar } from 'react-native-calendars';
 import { getUsuarioStore } from '../store/store';
-import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento.js'
-import apiRequisicaoAnimal from '../Service/apiRequisicaoAnimal'
-import apiRequisicaoServico from '../Service/apiRequisicaoServico'
+import apiRequisicaoAgendamento from '../Service/apiRequisicaoAgendamento';
+import apiRequisicaoAnimal from '../Service/apiRequisicaoAnimal';
+import apiRequisicaoServico from '../Service/apiRequisicaoServico';
 
 const Agendamento = ({ navigation, route }) => {
     const [loading, setLoading] = useState(true);
+    const [confirmando, setConfirmando] = useState(false);
+
     const { idEmpresaPetShop } = route.params;
-    const usuarioStore = getUsuarioStore();
-    const idUsuario = usuarioStore.id;
+    const { id: idUsuario } = getUsuarioStore();
 
-    const [servicosDisponivelEmpresa, setServicosDisponivelEmpresa] = useState([]);
-
-    const [petDisponivel, setPetDisponivel] = useState([]);
+    const [servicos, setServicos] = useState([]);
+    const [pets, setPets] = useState([]);
     const [petSelecionado, setPetSelecionado] = useState(null);
+    const [servicoSelecionado, setServicoSelecionado] = useState(null);
+    const [ehPacoteMensal, setEhPacoteMensal] = useState(false);
 
+    const [datasSelecionadas, setDatasSelecionadas] = useState({});
     const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
     const [horariosSelecionados, setHorariosSelecionados] = useState([]);
-
-    const [ehPacoteMensal, setehPacoteMensal] = useState(false);
-
-    const [servicoSelecionado, setServicoSelecionado] = useState(null);
-    const [dataSelecionadas, setDataSelecionadas] = useState({});
-
-    // falta olhar variaveis
-
-    const SelecionarTipoAgendamento = () => {
-        setehPacoteMensal((prev) => !prev);
-    };
-
-    const SelecionarPet = (petId) => {
-        setPetSelecionado(petId);
-    };
-
-    const SelecionarServico = (idServico) => {
-        setServicoSelecionado(idServico === servicoSelecionado ? null : idServico);
-    };
-
-    const ehDataAnteriorHoje = (dataSelecionada) => {
-        const hoje = new Date().toISOString().split('T')[0];
-        return dataSelecionada < hoje;
-    };
-
-    const existeDataComIntervaloMenorQue7Dias = (dataSelecionada, datasSelecionadas) => {
-        const novaData = new Date(dataSelecionada);
-        return Object.keys(datasSelecionadas).some((data) => {
-            const dataExistente = new Date(data);
-            const diffEmDias = Math.abs((novaData - dataExistente) / (1000 * 60 * 60 * 24));
-            return diffEmDias < 7;
-        });
-    };
-
-    const desmarcarData = (dataSelecionada, datasSelecionadas, setDataSelecionadas) => {
-        const atualizarDatas = { ...datasSelecionadas };
-        delete atualizarDatas[dataSelecionada];
-        setDataSelecionadas(atualizarDatas);
-    };
-
-    const marcarDataPacoteMensal = (dataSelecionada, datasSelecionadas, setDataSelecionadas, selecionarDataParaExibirHorario) => {
-        setDataSelecionadas({
-            ...datasSelecionadas,
-            [dataSelecionada]: { selected: true, marked: true, selectedColor: '#81b0ff' },
-        });
-        const listaDataAgendamento = Object.keys(dataSelecionadas);
-        selecionarDataParaExibirHorario(listaDataAgendamento);
-    };
-
-    const marcarDataAvulsa = (dataSelecionada, setDataSelecionadas, selecionarDataParaExibirHorario) => {
-        setDataSelecionadas({
-            [dataSelecionada]: { selected: true, marked: true, selectedColor: '#81b0ff' },
-        });
-        selecionarDataParaExibirHorario([dataSelecionada]);
-    };
-
-    const SelecionarData = (dia) => {
-        const dataSelecionada = dia.dateString;
-
-        if (ehDataAnteriorHoje(dataSelecionada)) {
-            alert('Data inválida', 'Não é possível selecionar uma data anterior a hoje.');
-            return;
-        }
-
-        if (ehPacoteMensal) {
-            setHorariosDisponiveis([]);
-
-            if (dataSelecionadas[dataSelecionada]) {
-                desmarcarData(dataSelecionada, dataSelecionadas, setDataSelecionadas);
-            } else {
-                if (existeDataComIntervaloMenorQue7Dias(dataSelecionada, dataSelecionadas)) {
-                    alert('Intervalo inválido', 'As datas selecionadas devem ter no mínimo 7 dias de diferença.');
-                    return;
-                }
-
-                if (Object.keys(dataSelecionadas).length >= 4) {
-                    alert('Limite atingido', 'Você só pode selecionar até 4 datas para um pacote mensal.');
-                    return;
-                }
-
-                marcarDataPacoteMensal(dataSelecionada, dataSelecionadas, setDataSelecionadas, selecionarDataParaExibirHorario);
-            }
-        } else {
-            marcarDataAvulsa(dataSelecionada, setDataSelecionadas, selecionarDataParaExibirHorario);
-        }
-    };
-
-    const buscarHorariosDisponiveis = async (idEmpresaPetShop, listaDataAgendamento, duracaoEmMin) => {
-        setLoading(true);  // Define o loading como true antes de fazer a requisição
-        try {
-            if (listaDataAgendamento.length === 0) {
-                alert("Selecione pelo menos uma data para buscar horários.");
-            }
-            const resposta = await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(idEmpresaPetShop, listaDataAgendamento, duracaoEmMin);
-            if (resposta && resposta.horarios?.length > 0) {
-                setHorariosDisponiveis(resposta.horarios);
-            } else {
-                alert("Não há horários disponíveis em comum nas datas selecionadas.");
-            }
-            setLoading(false);
-        } catch (error) {
-            alert('Erro ao carregar dados da empresa:');
-        }
-    };
-
-    const buscarAnimal = async (idUsuario) => {
-        try {
-            const resposta = await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario);
-            if (resposta) {
-                setPetDisponivel(resposta);
-            } else {
-                alert("Não há pet cadastrado.");
-            }
-        } catch (error) {
-            alert('Erro ao carregar dados do pet');
-        }
-    };
-
-    const buscarServicosEmpresa = async (idEmpresaPetShop) => {
-        try {
-            const resposta = await apiRequisicaoServico.buscarServicosEmpresaNaApi(idEmpresaPetShop);
-            if (resposta) {
-                setServicosDisponivelEmpresa(resposta);
-            } else {
-                alert("Não há serviços cadastrado.");
-            }
-        } catch (error) {
-            alert('Erro ao carregar dados do serviço');
-        }
-    };
-
-    const selecionarDataParaExibirHorario = async (listaDataAgendamento) => {
-        await buscarHorariosDisponiveis(idEmpresaPetShop, listaDataAgendamento, 120)
-        setHorariosSelecionados([]); // Reseta os horários selecionados ao mudar de data
-    };
-
-    //rotinas que ja revisei - pra cima.
-
-    const SelecionarHorario = (horario) => {
-        setHorariosSelecionados((prev) =>
-            prev.includes(horario)
-                ? prev.filter((item) => item !== horario)
-                : [...prev, horario]
-        );
-    };
-
-    const ConfirmarAgendamento = async () => {
-        const listaDataHoraAgendamento = [];
-
-        Object.keys(dataSelecionadas).forEach((data) => {
-            horariosSelecionados.forEach((horario) => {
-                const [hora, minuto] = horario.split(':');
-
-                // monta um objeto Date com data + hora
-                const dataHora = new Date(`${data}T${hora.padStart(2, '0')}:${minuto.padStart(2, '0')}:00`);
-
-                // calcula horário final
-                const dataHoraFinal = new Date(dataHora);
-                dataHoraFinal.setMinutes(dataHoraFinal.getMinutes() + 120); // duração de 2h
-
-                // adiciona à lista com formatação correta
-                listaDataHoraAgendamento.push({
-                    dataISO: dataHora.toISOString(),
-                    horarioInicial: `${hora.padStart(2, '0')}:${minuto.padStart(2, '0')}:00`,
-                    horarioFinal: `${dataHoraFinal.getHours().toString().padStart(2, '0')}:${dataHoraFinal.getMinutes().toString().padStart(2, '0')}:00`,
-                });
-            });
-        });
-
-        try {
-            for (const item of listaDataHoraAgendamento) {
-                const dto = {
-                    idServico: servicoSelecionado,
-                    idAnimal: petDisponivel[0].idAnimal,
-                    idUsuario: idUsuario,
-                    idEmpresa: idEmpresaPetShop,
-                    pacoteMensal: ehPacoteMensal,
-                    listaDatasAgendamento: [item.dataISO], // agora data + hora
-                    horario: item.horarioInicial,
-                    horarioFinal: item.horarioFinal,
-                    status: "Agendado"
-                };
-
-                await apiRequisicaoAgendamento.adicionarAgendamentoNaApi(dto);
-            }
-
-            alert("Agendamento realizado com sucesso!");
-            navigation.goBack();
-
-        } catch (error) {
-            console.error(error);
-            alert("Erro ao confirmar agendamento.");
-        }
-    };
-
-    const carregarFotoAnimal = async () => {
-        try {
-            const resposta = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
-
-            if (resposta) {
-                if (petDisponivel.length > 0) {
-                    const petsComImagem = petDisponivel.map(pet => {
-                        const foto = resposta.find(f => f.idUsuario === pet.idUsuario && f.idAnimal === pet.idAnimal);
-                        return {
-                            ...pet,
-                            imagem: foto ? foto.url : "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D"
-                        };
-                    });
-                    setPetDisponivel(petsComImagem); // atualiza o estado com as imagens
-                };
-
-            }
-        } catch (error) {
-            console.error('Erro ao carregar foto:', error);
-        }
-    };
-    const carregarDados = async () => {
-        setLoading(true);
-        await buscarServicosEmpresa(idEmpresaPetShop);
-        await buscarAnimal(idUsuario);
-        await carregarFotoAnimal();
-        setLoading(false);
-    };
 
     useEffect(() => {
         carregarDados();
     }, []);
 
-    return (
-        <View style={estilos.container}>
-            <View style={estilos.cabecalho}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={estilos.botaoVoltar}>
-                    <Icon name="arrow-back" size={30} color="#000" style={estilos.iconeBotaoVoltar} />
-                </TouchableOpacity>
-                <Text style={estilos.titulo}>Agendamento</Text>
-            </View>
-            <FlatList
-                style={estilos.scrollContainer}
-                ListHeaderComponent={
-                    <>
-                        {/* <Image
-                            source={require('../../assets/loja1.png')}
-                            style={estilos.imagem}
-                            resizeMode="contain"
-                        /> */}
-                        <View style={estilos.switchContainer}>
-                            <Text style={estilos.subTitulo}>Tipo do agendamento:</Text>
-                            <Text style={estilos.subTitulo}>
-                                {ehPacoteMensal ? 'Plano mensal' : 'Único'}
-                            </Text>
-                            <Switch
-                                trackColor={{ false: '#767577', true: '#81b0ff' }}
-                                thumbColor={ehPacoteMensal ? '#007aff' : '#f4f3f4'}
-                                ios_backgroundColor="#3e3e3e"
-                                onValueChange={SelecionarTipoAgendamento}
-                                value={ehPacoteMensal}
-                            />
-                        </View>
-                        <Text style={estilos.subTitulo}>Escolha serviço:</Text>
-                    </>
-                }
-                data={servicosDisponivelEmpresa}
-                keyExtractor={(item) => item.idServico}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        onPress={() => SelecionarServico(item.idServico)}
-                        style={[
-                            estilos.servicoLinha,
-                            servicoSelecionado === item.idServico && estilos.servicoSelecionado,
-                        ]}
-                    >
-                        <Text style={estilos.descricaoServico}>{item.descricao}</Text>
-                        <Text style={estilos.valorServico}>{item.valor}</Text>
-                    </TouchableOpacity>
-                )}
-                ListFooterComponent={
-                    <>
-                        <Text style={estilos.subTitulo}>Selecione data:</Text>
-                        <Calendar
-                            onDayPress={SelecionarData}
-                            markedDates={dataSelecionadas}
-                        />
-                        {dataSelecionadas && horariosDisponiveis.length >= 1 && (
-                            <>
-                                <Text style={estilos.subTitulo}>
-                                    Horários disponíveis:
-                                </Text>
-                                <FlatList
-                                    data={horariosDisponiveis}
-                                    keyExtractor={(item) => item}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity
-                                            style={[
-                                                estilos.horarioLinha,
-                                                horariosSelecionados.includes(item) &&
-                                                estilos.horarioLinhaSelecionado,
-                                            ]}
-                                            onPress={() => SelecionarHorario(item)}
-                                        >
-                                            <Text
-                                                style={[
-                                                    estilos.horarioTexto,
-                                                    horariosSelecionados.includes(item) &&
-                                                    estilos.horarioTextoSelecionado,
-                                                ]}
-                                            >
-                                                {item}
-                                            </Text>
-                                        </TouchableOpacity>
-                                    )}
-                                    horizontal
-                                    nestedScrollEnabled
-                                />
-                            </>
-                        )}
+    const carregarDados = async () => {
+        setLoading(true);
+        try {
+            const [servicosApi, petsApi] = await Promise.all([
+                apiRequisicaoServico.buscarServicosEmpresaNaApi(idEmpresaPetShop),
+                apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario)
+            ]);
 
-                        {/* pets */}
-                        <View>
-                            <Text style={estilos.subTitulo}>Qual pet irá realizar o agendamento?:</Text>
+            if (servicosApi) setServicos(servicosApi);
+
+            // Carregar fotos dos pets
+            const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
+            const petsComFoto = petsApi.map(pet => {
+                const foto = fotos?.find(f => f.idAnimal === pet.idAnimal);
+                return {
+                    ...pet,
+                    imagem: foto?.url || 'https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D'
+                };
+            });
+            setPets(petsComFoto);
+            const dataHoje = new Date().toISOString().split('T')[0];
+            selecionarData({ dateString: dataHoje });
+        } catch (error) {
+            Alert.alert('Erro', 'Erro ao carregar serviços ou pets.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const selecionarData = async ({ dateString }) => {
+        const hoje = new Date().toISOString().split('T')[0];
+        if (dateString < hoje) {
+            Alert.alert('Atenção', 'Não é possível selecionar uma data anterior a hoje.');
+            return;
+        }
+
+        if (ehPacoteMensal) {
+            if (datasSelecionadas[dateString]) {
+                const atualizadas = { ...datasSelecionadas };
+                delete atualizadas[dateString];
+                setDatasSelecionadas(atualizadas);
+                await buscarHorarios(Object.keys(atualizadas));
+                return;
+            }
+
+            const datas = Object.keys(datasSelecionadas);
+            if (datas.length >= 4) {
+                Alert.alert('Atenção', 'Máximo de 4 datas para plano mensal.');
+                return;
+            }
+
+            const conflito = datas.some(data => {
+                const diff = Math.abs((new Date(dateString) - new Date(data)) / (1000 * 60 * 60 * 24));
+                return diff < 7;
+            });
+
+            if (conflito) {
+                Alert.alert('Atenção', 'Datas devem ter pelo menos 7 dias de diferença.');
+                return;
+            }
+
+            const novasDatas = {
+                ...datasSelecionadas,
+                [dateString]: { selected: true, marked: true, selectedColor: '#81b0ff' },
+            };
+            setDatasSelecionadas(novasDatas);
+            await buscarHorarios(Object.keys(novasDatas));
+        } else {
+            const novaData = {
+                [dateString]: { selected: true, marked: true, selectedColor: '#81b0ff' }
+            };
+            setDatasSelecionadas(novaData);
+            await buscarHorarios([dateString]);
+        }
+    };
+
+    const buscarHorarios = async (datas) => {
+        if (!datas.length) {
+            setHorariosDisponiveis([]);
+            setHorariosSelecionados([]);
+            return;
+        }
+        const servico = servicos.find(s => s.idServico === servicoSelecionado);
+        if (!servico) return;
+
+        const duracao = servico?.duracao || 120;
+
+        setLoading(true);
+        try {
+            const { horarios } = await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(
+                idEmpresaPetShop, datas, duracao
+            );
+            setHorariosDisponiveis(horarios || []);
+            setHorariosSelecionados([]);
+        } catch {
+            Alert.alert('Erro', 'Erro ao buscar horários.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const confirmarAgendamento = async () => {
+        if (confirmando) return;
+        if (!petSelecionado || !servicoSelecionado || horariosSelecionados.length === 0 || Object.keys(datasSelecionadas).length === 0) {
+            Alert.alert('Atenção', 'Preencha todos os campos antes de confirmar o agendamento.');
+            return;
+        }
+
+        setConfirmando(true);
+        try {
+            const servico = servicos.find(s => s.idServico === servicoSelecionado);
+            const duracao = servico?.duracao || 120;
+
+            const agendamentos = Object.keys(datasSelecionadas).flatMap(data => {
+                return horariosSelecionados.map(horario => {
+                    const [h, m] = horario.split(':');
+                    const inicio = new Date(`${data}T${h}:${m}:00`);
+                    const fim = new Date(inicio);
+                    fim.setMinutes(fim.getMinutes() + duracao);
+
+                    return {
+                        idServico: servicoSelecionado,
+                        idAnimal: petSelecionado,
+                        idUsuario,
+                        idEmpresa: idEmpresaPetShop,
+                        pacoteMensal: ehPacoteMensal,
+                        listaDatasAgendamento: [inicio.toISOString()],
+                        horario: `${horario}:00`,
+                        horarioFinal: `${fim.getHours().toString().padStart(2, '0')}:${fim.getMinutes().toString().padStart(2, '0')}:00`,
+                        status: 'Agendado'
+                    };
+                });
+            });
+
+            for (const dto of agendamentos) {
+                await apiRequisicaoAgendamento.adicionarAgendamentoNaApi(dto);
+            }
+
+            Alert.alert('Sucesso', 'Agendamento realizado com sucesso!');
+            navigation.goBack();
+        } catch {
+            Alert.alert('Erro', 'Erro ao confirmar agendamento.');
+        } finally {
+            setConfirmando(false);
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Icon name="arrow-back" size={30} color="#000" />
+                </TouchableOpacity>
+                <Text style={styles.title}>Agendamento</Text>
+            </View>
+
+            {loading ? <ActivityIndicator size="large" color="#007aff" /> : (
+                <FlatList
+                    style={styles.scrollContainer}
+                    ListHeaderComponent={
+                        <>
+                            <View style={styles.switchContainer}>
+                                <Text style={styles.label}>Tipo do agendamento:</Text>
+                                <Text>{ehPacoteMensal ? 'Plano mensal' : 'Único'}</Text>
+                                <Switch
+                                    value={ehPacoteMensal}
+                                    onValueChange={() => {
+                                        setEhPacoteMensal(v => !v);
+                                        setDatasSelecionadas({});
+                                        setHorariosSelecionados([]);
+                                    }}
+                                    trackColor={{ false: '#767577', true: '#81b0ff' }}
+                                    thumbColor={ehPacoteMensal ? '#007aff' : '#f4f3f4'}
+                                />
+                            </View>
+
+                            <Text style={styles.label}>Escolha serviço:</Text>
+                        </>
+                    }
+                    data={servicos}
+                    keyExtractor={item => String(item.idServico)}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity
+                            style={[styles.itemBox, servicoSelecionado === item.idServico && styles.itemSelected]}
+                            onPress={async () => {
+                                const novoServico = servicoSelecionado === item.idServico ? null : item.idServico;
+                                setServicoSelecionado(novoServico);
+                                if (Object.keys(datasSelecionadas).length && novoServico) {
+                                    await buscarHorarios(Object.keys(datasSelecionadas));
+                                } else {
+                                    setHorariosDisponiveis([]);
+                                    setHorariosSelecionados([]);
+                                }
+                            }}
+                        >
+                            <Text>{item.descricao}</Text>
+                            <Text>R$ {item.valor}</Text>
+                        </TouchableOpacity>
+                    )}
+                    ListFooterComponent={
+                        <>
+                            <Text style={styles.label}>Selecione data:</Text>
+                            <Calendar
+                                markedDates={datasSelecionadas}
+                                onDayPress={selecionarData}
+                                minDate={new Date().toISOString().split('T')[0]}
+                            />
+
+                            {horariosDisponiveis.length > 0 && (
+                                <>
+                                    <Text style={styles.label}>Horários disponíveis:</Text>
+                                    <FlatList
+                                        data={horariosDisponiveis}
+                                        keyExtractor={item => item}
+                                        horizontal
+                                        renderItem={({ item }) => (
+                                            <TouchableOpacity
+                                                style={[styles.horarioBox, horariosSelecionados.includes(item) && styles.horarioSelecionado]}
+                                                onPress={() => {
+                                                    if (horariosSelecionados.includes(item)) {
+                                                        setHorariosSelecionados(horariosSelecionados.filter(h => h !== item));
+                                                    } else {
+                                                        setHorariosSelecionados([...horariosSelecionados, item]);
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{ color: horariosSelecionados.includes(item) ? '#fff' : '#000' }}>{item}</Text>
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                </>
+                            )}
+
+                            <Text style={styles.label}>Escolha o pet:</Text>
                             <FlatList
-                                data={petDisponivel}
-                                keyExtractor={(item) => item.idAnimal}
+                                data={pets}
+                                keyExtractor={item => String(item.idAnimal)}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
                                 renderItem={({ item }) => (
                                     <TouchableOpacity
-                                        style={[
-                                            estilos.petLinha,
-                                            petSelecionado === item.idAnimal && estilos.petLinhaSelecionado,
-                                        ]}
-                                        onPress={() => SelecionarPet(item.idAnimal)}
+                                        style={[styles.petBox, petSelecionado === item.idAnimal && styles.petSelecionado]}
+                                        onPress={() => setPetSelecionado(item.idAnimal)}
                                     >
-                                        <View style={estilos.petGrupo}>
-                                            <Image
-                                                source={{ uri: item.imagem }}
-                                                style={estilos.petImagem}
-                                            />
-                                            <Text style={estilos.nomePet}>{item.nome}</Text>
-                                        </View>
+                                        <Image
+                                            source={{ uri: item.imagem }}
+                                            style={styles.petImage}
+                                            resizeMode="cover"
+                                        />
+                                        <Text style={styles.petName}>{item.nome}</Text>
                                     </TouchableOpacity>
                                 )}
-                                horizontal
-                                nestedScrollEnabled
                             />
-                        </View>
 
-
-                        <TouchableOpacity style={estilos.botaoConfirmar} onPress={() => ConfirmarAgendamento()}>
-                            <Text style={estilos.botaoConfirmarTexto}>Confirmar agendamento</Text>
-                        </TouchableOpacity>
-                    </>
-                }
-            />
+                            <TouchableOpacity
+                                style={styles.btnConfirmar}
+                                onPress={confirmarAgendamento}
+                                disabled={confirmando}
+                            >
+                                <Text style={styles.textBtnConfirmar}>
+                                    {confirmando ? 'Confirmando...' : 'Confirmar Agendamento'}
+                                </Text>
+                            </TouchableOpacity>
+                        </>
+                    }
+                />
+            )}
         </View>
     );
 };
 
-
-const estilos = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-    },
-    //cabeçalho
-    cabecalho: {
-        marginTop: '10%',
-        flexDirection: 'row',
-        padding: 10,
-        borderBottomWidth: 1,
-    },
-    imagem: {
-        width: '100%',
-        height: 280,
-    },
-    titulo: {
-        alignItems: 'center',
-        left: '25%',
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
-    iconeBotaoVoltar: {
-        position: 'absolute',
-    },
-    botaoVoltar: {
-        flexDirection: 'column',
-        width: 30,
-    },
-    //corpo
-    scrollContainer: {
-        paddingLeft: 10,
-        paddingRight: 10
-    },
-    switchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    subTitulo: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginVertical: 10,
-    },
-    servicoSelecionado: {
-        backgroundColor: '#81b0ff',
-    },
-    servicoLinha: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 15,
-        backgroundColor: '#F9F9F9',
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#EEEEEE',
-        marginBottom: 10,
-    },
-    descricaoServico: {
-        fontSize: 16,
-        color: '#000000',
-    },
-    valorServico: {
-        fontSize: 16,
-        color: '#28A745',
-        fontWeight: '600',
-    },
-    horarioLinha: {
-        padding: 15,
-        marginHorizontal: 8,
-        marginBottom: 14,
-        borderRadius: 8,
-        backgroundColor: "#e0e0e0",
-        alignItems: "center"
-    },
-    horarioLinhaSelecionado: { backgroundColor: "#81b0ff" },
-    horarioTexto: { fontSize: 16, color: "#000" },
-    horarioTextoSelecionado: { fontSize: 16, color: "#000" },
-    petLinha: {
+const styles = StyleSheet.create({
+    container: { flex: 1, padding: 10, backgroundColor: '#fff' },
+    header: {
         flexDirection: "row",
+        paddingTop: 50,
         alignItems: "center",
-        marginHorizontal: 10,
-        padding: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: "#ccc",
-        backgroundColor: "#f9f9f9",
+        // justifyContent: "center",
+        // padding: 15,
+        // elevation: 9,
+        // position: "relative",
+        // borderBottomWidth: 1
     },
-    petImagem: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginRight: 15,
+    // botaoVoltar: {
+    //     paddingTop: 50,
+    //     padding: 15,
+    //     position: "absolute",
+    //     left: 1,
+    // },
+
+    // header: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+    title: { fontSize: 20, fontWeight: 'bold', marginLeft: 10 },
+    scrollContainer: { marginBottom: 20 },
+    switchContainer: {
+        flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15
     },
-    nomePet: {
-        fontSize: 16,
-        // fontWeight: "bold",
-        textAlign: "center", // Centraliza o texto
+    label: { fontSize: 16, fontWeight: '600', marginVertical: 10 },
+    itemBox: {
+        padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 6, marginBottom: 10,
+        flexDirection: 'row', justifyContent: 'space-between'
     },
-    petLinhaSelecionado: {
-        backgroundColor: "#81b0ff",
-        borderColor: "#007bff",
+    itemSelected: { backgroundColor: '#cce4ff', borderColor: '#007aff' },
+    horarioBox: {
+        padding: 10, marginRight: 10, borderRadius: 5, borderWidth: 1, borderColor: '#ccc'
     },
-    petGrupo: {
-        flexDirection: "row", // Organiza a imagem e o texto em coluna
-        alignItems: "center",   // Centraliza os itens horizontalmente
+    horarioSelecionado: {
+        backgroundColor: '#007aff', borderColor: '#005bb5'
     },
-    botaoConfirmar: {
-        backgroundColor: '#28A745',
-        padding: 15,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginVertical: 20,
+    petBox: {
+        alignItems: 'center', marginRight: 15,
     },
-    botaoConfirmarTexto: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
+    petSelecionado: {
+        borderWidth: 2, borderColor: '#007aff', borderRadius: 50, padding: 2,
     },
+    petImage: {
+        width: 70, height: 70, borderRadius: 35,
+    },
+    petName: {
+        marginTop: 5, fontSize: 14, maxWidth: 70, textAlign: 'center'
+    },
+    btnConfirmar: {
+        backgroundColor: '#007aff', padding: 15, borderRadius: 6, marginTop: 20, alignItems: 'center',
+    },
+    textBtnConfirmar: {
+        color: '#fff', fontWeight: 'bold', fontSize: 16,
+    }
 });
 
 export default Agendamento;

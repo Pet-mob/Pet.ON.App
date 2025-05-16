@@ -51,7 +51,7 @@ const Agendamento = ({ navigation, route }) => {
             });
             setPets(petsComFoto);
             const dataHoje = new Date().toISOString().split('T')[0];
-            selecionarData({ dateString: dataHoje });
+            selecionarData(dataHoje);
         } catch (error) {
             Alert.alert('Erro', 'Erro ao carregar serviços ou pets.');
         } finally {
@@ -59,7 +59,7 @@ const Agendamento = ({ navigation, route }) => {
         }
     };
 
-    const selecionarData = async ({ dateString }) => {
+    const selecionarData = async (dateString) => {
         const hoje = new Date().toISOString().split('T')[0];
         if (dateString < hoje) {
             Alert.alert('Atenção', 'Não é possível selecionar uma data anterior a hoje.');
@@ -113,7 +113,6 @@ const Agendamento = ({ navigation, route }) => {
             return;
         }
         const servico = servicos.find(s => s.idServico === servicoSelecionado);
-        if (!servico) return;
 
         const duracao = servico?.duracao || 120;
 

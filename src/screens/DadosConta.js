@@ -101,7 +101,7 @@ const DadosContas = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
-                    <Ionicons name="arrow-back" size={28} color="#333" />
+                    <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Dados da Conta</Text>
             </View>
@@ -151,24 +151,23 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingTop: 50,
-        paddingBottom: 15,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderColor: '#e0e0e0',
+        paddingBottom: 20,
+        backgroundColor: '#4F46E5',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
     },
     backButton: {
-        position: 'absolute',
-        left: 15,
+        position: "absolute",
+        left: 16,
         top: 50,
+        // padding: 10,
     },
     title: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#FFFFFF",
     },
     bodyContainer: {
         padding: 20,

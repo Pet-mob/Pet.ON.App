@@ -56,7 +56,7 @@ const ConsultaAgendamento = ({ navigation }) => {
                 <TouchableOpacity style={estilos.botaoVoltar} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#FFF" />
                 </TouchableOpacity>
-                <Text style={estilos.titulo}>Meus Agendamentos</Text>
+                <Text style={estilos.titulo}>Meus agendamentos</Text>
             </View>
 
             {/* Lista de Agendamentos */}
@@ -65,7 +65,7 @@ const ConsultaAgendamento = ({ navigation }) => {
                 keyExtractor={(item) => item.idAgendamento.toString()}
                 renderItem={({ item }) => (
                     <View style={estilos.agendamentoLinha}>
-                        <Image source={{ uri: item.imagem }} style={estilos.imagemPet} />
+                        <Image source={{ uri: item.urlFotoAnimal }} style={estilos.imagemPet} />
                         <View style={{ flex: 1 }}>
                             <Text style={estilos.textoAgendamentoNegrito}>🐶 {item.nomeAnimal}</Text>
                             <Text style={estilos.textoAgendamento}>✂️ Serviço: {item.descricaoServico}</Text>
@@ -75,9 +75,17 @@ const ConsultaAgendamento = ({ navigation }) => {
 
                             {/* Badge de status (ex: Confirmado/Pendente) - opcional */}
                             {item.status && (
+                                // <View style={[
+                                //     estilos.badgeStatus,
+                                //     { backgroundColor: item.status === 'Concluído' ? item.status === 'Cancelado' ? '#10B981' : '#F59E0B' : '#F59E0B'  }
+                                // ]}>
+                                //     <Text style={estilos.badgeTexto}>{item.status}</Text>
+                                // </View>
                                 <View style={[
                                     estilos.badgeStatus,
-                                    { backgroundColor: item.status === 'Confirmado' ? '#10B981' : '#F59E0B' }
+                                    item.status === 'Concluído' ? estilos.statusConfirmado :
+                                        item.status === 'Agendado' ? estilos.statusPendente :
+                                            estilos.statusCancelado
                                 ]}>
                                     <Text style={estilos.badgeTexto}>{item.status}</Text>
                                 </View>
@@ -94,6 +102,22 @@ const ConsultaAgendamento = ({ navigation }) => {
 };
 
 const estilos = StyleSheet.create({
+    badgeStatus: {
+        marginTop: 6,
+        alignSelf: 'flex-start',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    statusConfirmado: {
+        backgroundColor: '#10B981',
+    },
+    statusPendente: {
+        backgroundColor: '#F59E0B',
+    },
+    statusCancelado: {
+        backgroundColor: '#EF4444',
+    },
     container: {
         flex: 1,
         backgroundColor: '#F3F4F6',

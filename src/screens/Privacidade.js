@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    ScrollView
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
 import { getUsuarioStore } from '../store/store';
+
 const Privacidade = () => {
     const [senhaAtual, setSenhaAtual] = useState('');
     const [novaSenha, setNovaSenha] = useState('');
@@ -41,12 +49,12 @@ const Privacidade = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
-                    <Ionicons name="arrow-back" size={30} color="#000" />
+                    <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
                 </TouchableOpacity>
-                <Text style={styles.title}>Dados da Conta</Text>
+                <Text style={styles.title}>Privacidade</Text>
             </View>
 
-            <View style={styles.bodyContainer}>
+            <ScrollView contentContainerStyle={styles.bodyContainer} keyboardShouldPersistTaps="handled">
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Senha Atual:</Text>
                     <TextInput
@@ -55,6 +63,7 @@ const Privacidade = () => {
                         onChangeText={setSenhaAtual}
                         placeholder="Digite sua senha atual"
                         secureTextEntry
+                        placeholderTextColor="#999"
                     />
                 </View>
 
@@ -66,6 +75,7 @@ const Privacidade = () => {
                         onChangeText={setNovaSenha}
                         placeholder="Digite a nova senha"
                         secureTextEntry
+                        placeholderTextColor="#999"
                     />
                 </View>
 
@@ -77,13 +87,14 @@ const Privacidade = () => {
                         onChangeText={setConfirmarSenha}
                         placeholder="Confirme a nova senha"
                         secureTextEntry
+                        placeholderTextColor="#999"
                     />
                 </View>
 
                 <TouchableOpacity style={styles.botaoSalvar} onPress={alterarSenha}>
                     <Text style={styles.textoBotao}>Salvar</Text>
                 </TouchableOpacity>
-            </View>
+            </ScrollView>
         </View>
     );
 };
@@ -91,54 +102,57 @@ const Privacidade = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#F9F9F9',
     },
     header: {
         paddingTop: 50,
+        paddingBottom: 20,
+        backgroundColor: '#4F46E5',
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        padding: 15,
-        elevation: 9,
         position: "relative",
-        borderBottomWidth: 1
     },
     backButton: {
-        paddingTop: 50,
-        padding: 15,
         position: "absolute",
-        left: 1,
+        left: 16,
+        top: 50,
+        // padding: 10,
     },
     title: {
         fontSize: 20,
         fontWeight: "bold",
+        color: "#FFFFFF",
     },
     bodyContainer: {
-        padding: 10,
+        padding: 20,
     },
     inputContainer: {
         marginBottom: 15,
     },
     label: {
         fontSize: 16,
-        marginBottom: 5,
+        fontWeight: '600',
+        color: '#555',
+        marginBottom: 6,
     },
     input: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 12,
         borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 10,
-        backgroundColor: '#F9F9F9',
+        borderColor: '#ddd',
+        fontSize: 16,
     },
     botaoSalvar: {
         backgroundColor: '#28A745',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
-        marginVertical: 20
+        marginTop: 20,
     },
     textoBotao: {
-        color: '#FFFFFF',
+        color: '#FFF',
         fontSize: 16,
         fontWeight: 'bold',
     },

@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     Image,
+    ActivityIndicator,
     Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -17,6 +18,7 @@ import apiRequisicaoAnimal from '../Service/apiRequisicaoAnimal.js';
 import { colors, spacing, fontSizes, radii } from '../theme/theme1.js';
 
 const DadosPets = () => {
+    const [loading, setLoading] = useState(true);
     const [idAnimal, setIdAnimal] = useState('');
     const [nome, setNome] = useState('');
     const [idade, setIdade] = useState('');
@@ -27,10 +29,35 @@ const DadosPets = () => {
     const navigation = useNavigation();
     const usuarioStore = getUsuarioStore();
     const idUsuario = usuarioStore.id;
+    const urlFotoPadrao = 'https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D';
 
     useEffect(() => {
-        buscarPetsPorUsuario(idUsuario);
+        carregarDados();
     }, []);
+
+    const carregarDados = async () => {
+        setLoading(true);
+        try {
+            const [petsApi] = await Promise.all([
+                apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario)
+            ]);
+            setListaDePets(petsApi);
+            // Carregar fotos dos pets
+            const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
+            const petsComFoto = petsApi.map(pet => {
+                const foto = fotos?.find(f => f.idAnimal === pet.idAnimal);
+                return {
+                    ...pet,
+                    imagem: foto?.url || 'https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D'
+                };
+            });
+            setListaDePets(petsComFoto);
+        } catch (error) {
+            Alert.alert('Erro', 'Erro ao carregar serviços ou pets.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const buscarPetsPorUsuario = async (idUsuarioParam) => {
         try {
@@ -154,96 +181,100 @@ const DadosPets = () => {
                 <Text style={styles.title}>Dados dos Pets</Text>
             </View>
 
-            <KeyboardAwareScrollView
-                style={styles.bodyContainer}
-                contentContainerStyle={{ paddingBottom: 20 }}
-                keyboardShouldPersistTaps="handled"
-                enableOnAndroid
-            >
-                <TouchableOpacity style={styles.fotoContainer} onPress={selecionarFoto}>
-                    <Image
-                        source={foto ? { uri: foto } : require('../../assets/LogoPetON.png')}
-                        style={styles.foto}
-                    />
-                    <Text style={styles.textoFoto}>Selecionar Foto</Text>
-                </TouchableOpacity>
+            {loading ? <ActivityIndicator size="large" color="#007aff" /> : (
+                <KeyboardAwareScrollView
+                    style={styles.bodyContainer}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    keyboardShouldPersistTaps="handled"
+                    enableOnAndroid
+                >
+                    <TouchableOpacity style={styles.fotoContainer} onPress={selecionarFoto}>
+                        <Image
+                            source={foto ? { uri: foto } : { uri: urlFotoPadrao }}
+                            style={styles.foto}
+                        />
+                        <Text style={styles.textoFoto}>Selecionar Foto</Text>
+                    </TouchableOpacity>
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Nome do Pet</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={nome}
-                        onChangeText={setNome}
-                        placeholder="Digite o nome"
-                    />
-                </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Nome do Pet</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={nome}
+                            onChangeText={setNome}
+                            placeholder="Digite o nome"
+                        />
+                    </View>
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Idade</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={idade}
-                        onChangeText={setIdade}
-                        placeholder="Digite a idade"
-                        keyboardType="numeric"
-                    />
-                </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Idade</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={idade}
+                            onChangeText={setIdade}
+                            placeholder="Digite a idade"
+                            keyboardType="numeric"
+                        />
+                    </View>
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Raça</Text>
-                    <TextInput
-                        style={styles.input}
-                        value={raca}
-                        onChangeText={setRaca}
-                        placeholder="Digite a raça"
-                    />
-                </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Raça</Text>
+                        <TextInput
+                            style={styles.input}
+                            value={raca}
+                            onChangeText={setRaca}
+                            placeholder="Digite a raça"
+                        />
+                    </View>
 
-                <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Observações</Text>
-                    <TextInput
-                        style={[styles.input, { height: 80 }]}
-                        value={observacoes}
-                        onChangeText={setObservacoes}
-                        placeholder="Informações adicionais"
-                        multiline
-                    />
-                </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Observações</Text>
+                        <TextInput
+                            style={[styles.input, { height: 80 }]}
+                            value={observacoes}
+                            onChangeText={setObservacoes}
+                            placeholder="Informações adicionais"
+                            multiline
+                        />
+                    </View>
 
-                <TouchableOpacity onPress={salvarPet} style={styles.button}>
-                    <Text style={styles.buttonText}>
-                        {idAnimal ? 'Alterar' : 'Adicionar'}
-                    </Text>
-                </TouchableOpacity>
+                    <TouchableOpacity onPress={salvarPet} style={styles.button}>
+                        <Text style={styles.buttonText}>
+                            {idAnimal ? 'Alterar' : 'Adicionar'}
+                        </Text>
+                    </TouchableOpacity>
 
-                <Text style={[styles.titleList, { marginTop: 15 }]}>Pets Cadastrados</Text>
-                {listaDePets.length === 0 ? (
-                    <Text style={styles.noPetsText}>Nenhum pet cadastrado.</Text>
-                ) : (
-                    listaDePets.map((pet) => (
-                        <View key={pet.idAnimal} style={styles.petItem}>
-                            <Image
-                                source={pet.photo ? { uri: pet.photo } : require('../../assets/LogoPetON.png')}
-                                style={styles.petImage}
-                            />
-                            <View style={styles.petDetails}>
-                                <Text style={styles.petText}>Nome: {pet.nome}</Text>
-                                <Text style={styles.petText}>Idade: {pet.idade}</Text>
-                                <Text style={styles.petText}>Raça: {pet.raca}</Text>
-                                <Text style={styles.petText}>Obs: {pet.observacoes}</Text>
+                    <Text style={[styles.titleList, { marginTop: 15 }]}>Pets Cadastrados</Text>
+                    {listaDePets.length === 0 ? (
+                        <Text style={styles.noPetsText}>Nenhum pet cadastrado.</Text>
+                    ) : (
+                        listaDePets.map((pet) => (
+                            <View key={pet.idAnimal} style={styles.petItem}>
+                                <Image
+                                    source={{ uri: pet.imagem }}
+                                    style={styles.petImage}
+                                />
+                                <View style={styles.petDetails}>
+                                    <Text style={styles.petText}>Nome: {pet.nome}</Text>
+                                    <Text style={styles.petText}>Idade: {pet.idade}</Text>
+                                    <Text style={styles.petText}>Raça: {pet.raca}</Text>
+                                    <Text style={styles.petText}>Obs: {pet.observacoes}</Text>
+                                </View>
+                                <View style={styles.actions}>
+                                    <TouchableOpacity onPress={() => editarPet(pet)}>
+                                        <Ionicons name="create-outline" size={24} color={colors.secondary} />
+                                    </TouchableOpacity>
+                                    {/*                                                                    
+                                    <TouchableOpacity onPress={() => excluirPet(pet.idAnimal)} style={{ marginTop: 10 }}>
+                                        <Ionicons name="trash-outline" size={24} color="#ff4d4d" />
+                                    </TouchableOpacity>
+                                    */}
+                                </View>
                             </View>
-                            <View style={styles.actions}>
-                                <TouchableOpacity onPress={() => editarPet(pet)}>
-                                    <Ionicons name="create-outline" size={24} color={colors.secondary} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => excluirPet(pet.idAnimal)} style={{ marginTop: 10 }}>
-                                    <Ionicons name="trash-outline" size={24} color="#ff4d4d" />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    ))
-                )}
-            </KeyboardAwareScrollView>
+                        ))
+                    )}
+                </KeyboardAwareScrollView>
+            )}
         </View>
     );
 };

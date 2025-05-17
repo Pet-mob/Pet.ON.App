@@ -75,12 +75,6 @@ const ConsultaAgendamento = ({ navigation }) => {
 
                             {/* Badge de status (ex: Confirmado/Pendente) - opcional */}
                             {item.status && (
-                                // <View style={[
-                                //     estilos.badgeStatus,
-                                //     { backgroundColor: item.status === 'Concluído' ? item.status === 'Cancelado' ? '#10B981' : '#F59E0B' : '#F59E0B'  }
-                                // ]}>
-                                //     <Text style={estilos.badgeTexto}>{item.status}</Text>
-                                // </View>
                                 <View style={[
                                     estilos.badgeStatus,
                                     item.status === 'Concluído' ? estilos.statusConfirmado :

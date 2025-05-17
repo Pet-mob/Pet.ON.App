@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import * as ImagePicker from 'expo-image-picker';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Image, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
 import { getUsuarioStore } from '../store/store';
-import { Platform } from 'react-native';
 
 const DadosContas = () => {
     const [loading, setLoading] = useState(true);
@@ -30,7 +29,6 @@ const DadosContas = () => {
                     try {
                         const resposta = await apiRequisicaoUsuario.enviarFotoUsuario(file, idUsuario);
                         setFoto(resposta);
-                        console.log('Resposta (web):', resposta);
                     } catch (error) {
                         console.error('Erro ao enviar foto do usuário:', error);
                     }
@@ -46,11 +44,9 @@ const DadosContas = () => {
 
             if (!resultado.canceled && resultado.assets?.length > 0) {
                 const imagem = resultado.assets[0];
-
                 try {
                     const resposta = await apiRequisicaoUsuario.enviarFotoUsuario(imagem, idUsuario);
                     setFoto(resposta);
-                    console.log('Resposta (mobile):', resposta);
                 } catch (error) {
                     console.error('Erro ao enviar foto do usuário:', error);
                 }
@@ -105,7 +101,7 @@ const DadosContas = () => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
-                    <Ionicons name="arrow-back" size={30} color="#000" />
+                    <Ionicons name="arrow-back" size={28} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Dados da Conta</Text>
             </View>
@@ -113,14 +109,14 @@ const DadosContas = () => {
             <View style={styles.bodyContainer}>
                 <TouchableOpacity style={styles.fotoContainer} onPress={selecionarFoto}>
                     <Image
-                        source={foto ? { uri: foto } : "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D"}
+                        source={foto ? { uri: foto } : { uri: "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D" }}
                         style={styles.foto}
                     />
                     <Text style={styles.textoFoto}>Alterar Foto</Text>
                 </TouchableOpacity>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Nome:</Text>
+                    <Text style={styles.label}>Nome</Text>
                     <TextInput
                         style={styles.input}
                         value={nome}
@@ -130,7 +126,7 @@ const DadosContas = () => {
                 </View>
 
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Telefone:</Text>
+                    <Text style={styles.label}>Telefone</Text>
                     <TextInput
                         style={styles.input}
                         value={telefone}
@@ -141,7 +137,7 @@ const DadosContas = () => {
                 </View>
 
                 <TouchableOpacity style={styles.botaoSalvar} onPress={alterarUsuario}>
-                    <Text style={styles.textoBotao}>Salvar</Text>
+                    <Text style={styles.textoBotao}>Salvar Alterações</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -149,108 +145,83 @@ const DadosContas = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
-    header: { flexDirection: 'row', alignItems: 'center', padding: 16 },
-    backButton: { marginRight: 10 },
-    title: { fontSize: 22, fontWeight: 'bold' },
-    bodyContainer: { padding: 20 },
-    fotoContainer: { alignItems: 'center', marginBottom: 20 },
-    foto: { width: 120, height: 120, borderRadius: 60 },
-    textoFoto: { marginTop: 10, color: '#007bff' },
-    inputContainer: { marginBottom: 15 },
-    label: { fontWeight: 'bold' },
+    container: {
+        flex: 1,
+        backgroundColor: '#F9F9F9',
+    },
+    header: {
+        paddingTop: 50,
+        paddingBottom: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderColor: '#e0e0e0',
+    },
+    backButton: {
+        position: 'absolute',
+        left: 15,
+        top: 50,
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    bodyContainer: {
+        padding: 20,
+    },
+    fotoContainer: {
+        alignItems: 'center',
+        marginBottom: 25,
+    },
+    foto: {
+        width: 140,
+        height: 140,
+        borderRadius: 70,
+        backgroundColor: '#e0e0e0',
+    },
+    textoFoto: {
+        color: '#007bff',
+        marginTop: 10,
+        fontSize: 16,
+    },
+    inputContainer: {
+        marginBottom: 20,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#555',
+        marginBottom: 6,
+    },
     input: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 12,
         borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        padding: 10,
-        marginTop: 5
+        borderColor: '#ddd',
+        fontSize: 16,
     },
     botaoSalvar: {
         backgroundColor: '#28a745',
         padding: 15,
+        borderRadius: 10,
         alignItems: 'center',
-        borderRadius: 8,
-        marginTop: 10
+        marginTop: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+        elevation: 3,
     },
     textoBotao: {
         color: '#fff',
-        fontWeight: 'bold'
+        fontSize: 16,
+        fontWeight: 'bold',
     }
 });
 
 export default DadosContas;
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         backgroundColor: '#FFFFFF',
-//     },
-//     //cabecalho
-//     header: {
-//         paddingTop: 50,
-//         flexDirection: "row",
-//         alignItems: "center",
-//         justifyContent: "center", // Centraliza o conteúdo horizontalmente
-//         padding: 15,
-//         elevation: 9,
-//         position: "relative", // Para posicionar o botão "voltar"
-//         borderBottomWidth: 1
-//     },
-//     backButton: {
-//         paddingTop: 50,
-//         padding: 15,
-//         position: "absolute", // Deixa o botão "voltar" no canto esquerdo
-//         left: 1,
-//     },
-//     title: {
-//         fontSize: 20,
-//         fontWeight: "bold",
-//     },
-//     //corpo
-//     bodyContainer: {
-//         padding: 10,
-//     },
-//     fotoContainer: {
-//         alignItems: 'center',
-//         marginBottom: 20,
-//     },
-//     foto: {
-//         width: 150,
-//         height: 150,
-//         borderRadius: 70,
-//         backgroundColor: '#e0e0e0',
-//     },
-//     textoFoto: {
-//         color: '#007bff',
-//         marginTop: 10,
-//     },
-//     inputContainer: {
-//         marginBottom: 15,
-//     },
-//     label: {
-//         fontSize: 16,
-//         marginBottom: 5,
-//     },
-//     input: {
-//         borderWidth: 1,
-//         borderColor: '#ccc',
-//         borderRadius: 8,
-//         padding: 10,
-//         backgroundColor: '#F9F9F9',
-//     },
-//     botaoSalvar: {
-//         backgroundColor: '#28A745',
-//         padding: 15,
-//         borderRadius: 8,
-//         alignItems: 'center',
-//         marginVertical: 20
-//     },
-//     textoBotao: {
-//         color: '#FFFFFF',
-//         fontSize: 16,
-//         fontWeight: 'bold',
-//     },
-// });
-
-// export default DadosContas;

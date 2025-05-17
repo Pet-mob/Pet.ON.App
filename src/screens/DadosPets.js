@@ -73,20 +73,38 @@ const DadosPets = () => {
     };
 
     const selecionarFoto = async () => {
-        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('Permissão necessária', 'Precisamos de acesso à galeria para alterar a foto.');
-            return;
-        }
+        if (Platform.OS === 'web') {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    try {
+                        const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(file, idUsuario);
+                        setFoto(resposta);
+                    } catch (error) {
+                        console.error('Erro ao enviar foto do animal:', error);
+                    }
+                }
+            };
+            input.click();
+        } else {
+            const resultado = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: true,
+                quality: 1,
+            });
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-
-        if (!result.canceled) {
-            setFoto(result.assets[0].uri);
+            if (!resultado.canceled && resultado.assets?.length > 0) {
+                const imagem = resultado.assets[0];
+                try {
+                    const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(imagem, idUsuario);
+                    setFoto(resposta);
+                } catch (error) {
+                    console.error('Erro ao enviar foto do animal:', error);
+                }
+            }
         }
     };
 

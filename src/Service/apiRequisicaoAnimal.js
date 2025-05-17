@@ -72,18 +72,34 @@ const buscarFotosAnimalPorUsuario = async (idUsuarioParam) => {
     }
 };
 
-const enviarFotosAnimalPorUsuario = async (arquivoParam, idUsuarioParam, idAnimalParam) => {
+const enviarFotosAnimalPorUsuario = async (imagem, idUsuario) => {
+    const formData = new FormData();
+
+    if (Platform.OS === 'web') {
+        // `imagem` aqui é um File (do input file)
+        formData.append('arquivo', imagem);
+    } else {
+        // `imagem` aqui é um objeto com uri, type, name
+        formData.append('arquivo', {
+            uri: imagem.uri,
+            name: imagem.name || 'foto.jpg',
+            type: imagem.type || 'image/jpeg',
+        });
+    }
+
+    formData.append('idUsuario', idUsuario);
+    const uri = '/Animal/EnviarFotoAnimal';
+
     try {
-        const dtoRequisicao = {
-            arquivo: arquivoParam,
-            idUsuario: idUsuarioParam,
-            idAnimal: idAnimalParam
-        };
-        const uri = '/Animal/EnviarFotoAnimal';
-        const resposta = await api.post(uri, dtoRequisicao);
+        const resposta = await api.post(uri, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao enviar foto do animal:', error);
+        console.error('Erro ao enviar foto do animal:', error.response?.data || error.message);
         throw error;
     }
 };

@@ -1,4 +1,5 @@
 import api from './api';
+import { Platform } from 'react-native';
 
 const buscarAnimalUsuarioNaApi = async (idUsuario) => {
     try {
@@ -72,7 +73,7 @@ const buscarFotosAnimalPorUsuario = async (idUsuarioParam) => {
     }
 };
 
-const enviarFotosAnimalPorUsuario = async (imagem, idUsuario) => {
+const enviarFotosAnimalPorUsuario = async (imagem, idUsuario, idAnimal) => {
     const formData = new FormData();
 
     if (Platform.OS === 'web') {
@@ -88,6 +89,8 @@ const enviarFotosAnimalPorUsuario = async (imagem, idUsuario) => {
     }
 
     formData.append('idUsuario', idUsuario);
+    formData.append('idAnimal', idAnimal);
+
     const uri = '/Animal/EnviarFotoAnimal';
 
     try {

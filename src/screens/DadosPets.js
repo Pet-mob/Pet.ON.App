@@ -8,6 +8,7 @@ import {
     Image,
     ActivityIndicator,
     Alert,
+    Platform
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -72,7 +73,7 @@ const DadosPets = () => {
         }
     };
 
-    const selecionarFoto = async () => {
+    const enviarFotoDetalhadamente = async (idGeradoAnimal) => {
         if (Platform.OS === 'web') {
             const input = document.createElement('input');
             input.type = 'file';
@@ -81,8 +82,9 @@ const DadosPets = () => {
                 const file = event.target.files[0];
                 if (file) {
                     try {
-                        const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(file, idUsuario);
+                        const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(file, idUsuario, idGeradoAnimal);
                         setFoto(resposta);
+                        return resposta;
                     } catch (error) {
                         console.error('Erro ao enviar foto do animal:', error);
                     }
@@ -90,21 +92,39 @@ const DadosPets = () => {
             };
             input.click();
         } else {
-            const resultado = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                quality: 1,
-            });
+            // const resultado = await ImagePicker.launchImageLibraryAsync({
+            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            //     allowsEditing: true,
+            //     quality: 1,
+            // });
 
-            if (!resultado.canceled && resultado.assets?.length > 0) {
-                const imagem = resultado.assets[0];
+            if (foto) {
                 try {
-                    const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(imagem, idUsuario);
+                    const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(foto, idUsuario, idGeradoAnimal);
                     setFoto(resposta);
+                    return resposta;
                 } catch (error) {
                     console.error('Erro ao enviar foto do animal:', error);
                 }
             }
+        }
+    };
+
+    const selecionarFoto = async () => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permissão necessária', 'Precisamos de acesso à galeria para alterar a foto.');
+            return;
+        }
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!result.canceled) {
+            setFoto(result.assets[0].uri);
         }
     };
 
@@ -119,7 +139,7 @@ const DadosPets = () => {
             let idGerado = idAnimal;
 
             if (idAnimal) {
-                sucesso = await apiRequisicaoAnimal.alterarUsuario(idAnimal, nome, idade, raca, observacoes, idUsuario);
+                sucesso = await apiRequisicaoAnimal.alterarAnimal(idAnimal, nome, idade, raca, observacoes, idUsuario);
             } else {
                 const novoPet = await apiRequisicaoAnimal.inserirAnimal(nome, idade, raca, observacoes, idUsuario);
                 sucesso = novoPet?.idAnimal > 0;
@@ -128,7 +148,7 @@ const DadosPets = () => {
 
             if (sucesso) {
                 if (foto && idGerado) {
-                    const uploadSucesso = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(idGerado, foto);
+                    const uploadSucesso = await enviarFotoDetalhadamente(idGerado);
                     if (!uploadSucesso) {
                         Alert.alert('Pet salvo, mas houve erro ao enviar a imagem.');
                     }

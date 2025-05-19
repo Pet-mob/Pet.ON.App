@@ -1,7 +1,13 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons"; // Certifique-se de instalar: expo install @expo/vector-icons
+import React from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    ScrollView
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { getUsuarioStore } from '../store/store';
 
 const Usuario = () => {
@@ -13,90 +19,121 @@ const Usuario = () => {
         <View style={styles.container}>
             {/* Cabeçalho */}
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Principal")}>
-                    <Ionicons name="arrow-back" size={30} color="#000" />
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Principal')}>
+                    <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
                 <Text style={styles.title}>{nomeUsuario}</Text>
             </View>
 
-            {/* Menu */}
-            <View style={styles.menuContainer}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
                 <Text style={styles.sectionTitle}>Conta</Text>
                 <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => navigation.navigate("DadosConta")}
+                    style={styles.card}
+                    onPress={() => navigation.navigate('DadosConta')}
                 >
-                    <Text style={styles.menuText}>Dados da Conta</Text>
+                    <Text style={styles.cardText}>Dados da Conta</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => navigation.navigate("Privacidade")}
+                    style={styles.card}
+                    onPress={() => navigation.navigate('Privacidade')}
                 >
-                    <Text style={styles.menuText}>Privacidade</Text>
+                    <Text style={styles.cardText}>Privacidade</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
                 </TouchableOpacity>
 
                 <Text style={styles.sectionTitle}>Pets</Text>
                 <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={() => navigation.navigate("DadosPets")}
+                    style={styles.card}
+                    onPress={() => navigation.navigate('DadosPets')}
                 >
-                    <Text style={styles.menuText}>Dados dos Pets</Text>
+                    <Text style={styles.cardText}>Dados dos Pets</Text>
+                    <Ionicons name="chevron-forward" size={20} color="#888" />
                 </TouchableOpacity>
-            </View>
+            </ScrollView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
+    // container: {
+    // },
+    // header: {
+    // },
+    // backButton: {
+    // },
+    // title: {
+    // },
+
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#F9F9F9',
     },
-    //cabecalho
     header: {
         paddingTop: 50,
+        paddingBottom: 20,
+        backgroundColor: '#4F46E5',
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center", // Centraliza o conteúdo horizontalmente
-        padding: 15,
-        elevation: 9,
-        position: "relative", // Para posicionar o botão "voltar"
-        borderBottomWidth: 1
+        justifyContent: "center",
+        position: "relative",
+        // flexDirection: 'row',
+        // alignItems: 'center',
+        // paddingTop: 50,
+        // paddingBottom: 15,
+        // paddingHorizontal: 20,
+        // backgroundColor: '#FFF',
+        // elevation: 4,
+        // borderBottomWidth: 1,
+        // borderColor: '#E0E0E0',
     },
     backButton: {
-        paddingTop: 50,
-        padding: 15,
-        position: "absolute", // Deixa o botão "voltar" no canto esquerdo
-        left: 1,
+        position: "absolute",
+        left: 16,
+        top: 50,
+        // padding: 10,
+        // position: 'absolute',
+        // left: 20,
+        // top: 50,
+        // padding: 5,
     },
     title: {
         fontSize: 20,
         fontWeight: "bold",
+        color: "#FFFFFF",
+        // flex: 1,
+        // textAlign: 'center',
+        // fontSize: 20,
+        // fontWeight: 'bold',
+        // color: '#333',
     },
-    //corpo
-    menuContainer: {
-        padding: 10,
+    scrollContainer: {
+        padding: 20,
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: "bold",
+        fontWeight: '600',
         marginBottom: 10,
-        marginTop: 20,
+        color: '#333',
     },
-    menuItem: {
+    card: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         padding: 15,
-        backgroundColor: "#fff",
-        borderRadius: 8,
-        marginBottom: 10,
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
         shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 5,
-        elevation: 3,
+        shadowRadius: 4,
+        elevation: 2,
     },
-    menuText: {
+    cardText: {
         fontSize: 16,
-        color: "#333",
+        color: '#333',
     },
 });
 

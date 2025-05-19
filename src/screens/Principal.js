@@ -12,6 +12,8 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import apiRequisicaoEmpresa from '../Service/apiRequisicaoEmpresa.js';
+import { setEmpresaStore } from '../store/store.js';
+
 //import apiRequisicaoNotificacao from '../Service/apiRequisicaoNotificacao.js';
 
 // // Dados simulados para categorias e pet shops
@@ -55,6 +57,9 @@ const TelaInicial = () => {
     // const [quantidadeNaoLidas, setQuantidadeNaoLidas] = useState('');
 
     const irParaAgendamento = (idPetShop) => {
+        const empresaSelecionada = empresas.find(e => e.idEmpresa === idPetShop);
+        setEmpresaStore(empresaSelecionada);
+
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
     };
 

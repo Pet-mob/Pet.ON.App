@@ -12,6 +12,7 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import apiRequisicaoEmpresa from '../Service/apiRequisicaoEmpresa.js';
+//import apiRequisicaoNotificacao from '../Service/apiRequisicaoNotificacao.js';
 
 // // Dados simulados para categorias e pet shops
 // const categorias = [
@@ -51,6 +52,7 @@ const TelaInicial = () => {
     const [loading, setLoading] = useState(true);
     const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
     const [listaLogos, setListaLogos] = useState([]);
+    // const [quantidadeNaoLidas, setQuantidadeNaoLidas] = useState('');
 
     const irParaAgendamento = (idPetShop) => {
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
@@ -66,6 +68,12 @@ const TelaInicial = () => {
             console.log('Erro ao carregar dados da empresa:', error);
         }
     };
+
+    // const buscarQuantidadeNaoLidas = async () => {
+    //     const resposta = await apiRequisicaoNotificacao.buscarNotificacao(idUsuario);
+    //     const naoLidas = resposta.data.filter(n => !n.lida).length;
+    //     setQuantidadeNaoLidas(naoLidas);
+    // };
 
     useEffect(() => {
         const carregarDados = async () => {
@@ -90,6 +98,22 @@ const TelaInicial = () => {
 
     return (
         <View style={estilos.container}>
+            {/*<TouchableOpacity onPress={() => navigation.navigate("Notificacoes")} style={{ marginRight: 20 }}>
+                <Icon name="notifications-outline" size={28} color="#000" />
+                {quantidadeNaoLidas > 0 && (
+                    <View style={{
+                        position: 'absolute',
+                        top: -4,
+                        right: -4,
+                        backgroundColor: 'red',
+                        borderRadius: 10,
+                        paddingHorizontal: 4,
+                    }}>
+                        <Text style={{ color: '#fff', fontSize: 12 }}>{quantidadeNaoLidas}</Text>
+                    </View>
+                )}
+            </TouchableOpacity>
+            */}
             <View style={estilos.containerBusca}>
                 <TextInput
                     id='campoBuscarPorNomePetShop'

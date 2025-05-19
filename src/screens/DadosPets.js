@@ -241,7 +241,7 @@ const DadosPets = () => {
                         />
                     </View>
 
-                    <View style={styles.inputContainer}>
+                    {/*       <View style={styles.inputContainer}>
                         <Text style={styles.label}>Idade</Text>
                         <TextInput
                             style={styles.input}
@@ -251,6 +251,7 @@ const DadosPets = () => {
                             keyboardType="numeric"
                         />
                     </View>
+            */}
 
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Raça</Text>
@@ -291,7 +292,7 @@ const DadosPets = () => {
                                 />
                                 <View style={styles.petDetails}>
                                     <Text style={styles.petText}>Nome: {pet.nome}</Text>
-                                    <Text style={styles.petText}>Idade: {pet.idade}</Text>
+                                    {/*<Text style={styles.petText}>Idade: {pet.idade}</Text>*/}
                                     <Text style={styles.petText}>Raça: {pet.raca}</Text>
                                     <Text style={styles.petText}>Obs: {pet.observacoes}</Text>
                                 </View>

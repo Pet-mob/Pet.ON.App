@@ -91,10 +91,8 @@ const enviarFotosAnimalPorUsuario = async (imagem, idUsuario, idAnimal) => {
     formData.append('idUsuario', idUsuario);
     formData.append('idAnimal', idAnimal);
 
-    const uri = '/Animal/EnviarFotoAnimal';
-
     try {
-        const resposta = await api.post(uri, formData, {
+        const resposta = await api.post('/Animal/EnviarFotoAnimal', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

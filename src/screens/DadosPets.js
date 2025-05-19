@@ -26,6 +26,7 @@ const DadosPets = () => {
     const [raca, setRaca] = useState('');
     const [observacoes, setObservacoes] = useState('');
     const [foto, setFoto] = useState(null);
+    const [arquivoFoto, setArquivoFoto] = useState({});
     const [listaDePets, setListaDePets] = useState([]);
     const navigation = useNavigation();
     const usuarioStore = getUsuarioStore();
@@ -92,15 +93,9 @@ const DadosPets = () => {
             };
             input.click();
         } else {
-            // const resultado = await ImagePicker.launchImageLibraryAsync({
-            //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            //     allowsEditing: true,
-            //     quality: 1,
-            // });
-
-            if (foto) {
+            if (arquivoFoto) {
                 try {
-                    const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(foto, idUsuario, idGeradoAnimal);
+                    const resposta = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(arquivoFoto, idUsuario, idGeradoAnimal);
                     setFoto(resposta);
                     return resposta;
                 } catch (error) {
@@ -117,16 +112,17 @@ const DadosPets = () => {
             return;
         }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
+        const resultado = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
         });
 
-        if (!result.canceled) {
-            setFoto(result.assets[0].uri);
-        }
-    };
+        if (!resultado.canceled && resultado.assets?.length > 0) {
+            setFoto(resultado.assets[0].uri);
+            setArquivoFoto(resultado.assets[0]);
+        };
+    }
 
     const salvarPet = async () => {
         if (!nome || !idade || !raca) {
@@ -156,7 +152,7 @@ const DadosPets = () => {
 
                 alert(idAnimal ? 'Pet alterado com sucesso!' : 'Pet inserido com sucesso!');
                 resetarFormulario();
-                buscarPetsPorUsuario(idUsuario);
+                carregarDados();
             } else {
                 alert('Falha ao salvar pet.');
             }
@@ -165,13 +161,14 @@ const DadosPets = () => {
             alert('Erro ao salvar pet.');
         }
     };
+
     const resetarFormulario = () => {
         setIdAnimal('');
         setNome('');
         setIdade('');
         setRaca('');
         setObservacoes('');
-        setFoto(null);
+        setFoto('https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D');
     };
 
     const excluirPet = (idAnimalParam) => {
@@ -207,7 +204,7 @@ const DadosPets = () => {
         setIdade(pet.idade);
         setRaca(pet.raca);
         setObservacoes(pet.observacoes);
-        setFoto(pet.photo || null);
+        setFoto(pet.imagem || null);
     };
 
     return (

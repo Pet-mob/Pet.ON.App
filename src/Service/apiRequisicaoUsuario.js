@@ -70,7 +70,7 @@ const enviarFotoUsuario = async (imagem, idUsuario) => {
         // `imagem` aqui é um objeto com uri, type, name
         formData.append('arquivo', {
             uri: imagem.uri,
-            name: imagem.name || 'foto.jpg',
+            name: imagem.name || 'fotoAnimal.jpg',
             type: imagem.type || 'image/jpeg',
         });
     }

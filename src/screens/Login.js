@@ -45,6 +45,10 @@ const TelaLogin = () => {
         }
     };
 
+    const redirecionarParaRegistraNovoUsuario = () => {
+        navigation.navigate('RegistrarNovoUsuario');
+    }
+
     const handleEsqueceuSenha = () => {
         navigation.navigate('EsqueceuSenha');
     };
@@ -99,7 +103,7 @@ const TelaLogin = () => {
                         <TouchableOpacity style={estilos.link} onPress={handleEsqueceuSenha}>
                             <Text style={estilos.link}>Esqueceu a senha?</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={redirecionarParaRegistraNovoUsuario}>
                             <Text style={estilos.link}>Registrar-se</Text>
                         </TouchableOpacity>
                     </View>

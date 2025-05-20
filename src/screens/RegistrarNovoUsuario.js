@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { Ionicons } from '@expo/vector-icons';
 // import { api } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
+import { colors, spacing, fontSizes, radii } from '../theme/theme1.js';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const RegistrarUsuarioNovo = () => {
     const navigation = useNavigation();
@@ -91,36 +94,49 @@ const RegistrarUsuarioNovo = () => {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.titulo}>Cadastro do Usuário</Text>
+            <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
+                </TouchableOpacity>
+                <Text style={styles.title}>Criar conta</Text>
+            </View>
 
-            <TouchableOpacity onPress={() => escolherImagem(setFotoUsuario)} style={styles.imagePicker}>
-                {fotoUsuario ? (
-                    <Image source={{ uri: fotoUsuario.uri }} style={styles.imagePreview} />
-                ) : (
-                    <Text style={styles.imageText}>Selecionar Foto do Usuário</Text>
-                )}
-            </TouchableOpacity>
+            <KeyboardAwareScrollView
+                style={styles.bodyContainer}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                keyboardShouldPersistTaps="handled"
+                enableOnAndroid
+            >
+                <Text style={styles.subtitulo}>Cadastro do Usuário</Text>
+                <TouchableOpacity onPress={() => escolherImagem(setFotoUsuario)} style={styles.imagePicker}>
+                    {fotoUsuario ? (
+                        <Image source={{ uri: fotoUsuario.uri }} style={styles.imagePreview} />
+                    ) : (
+                        <Text style={styles.imageText}>Selecionar Foto do Usuário</Text>
+                    )}
+                </TouchableOpacity>
 
-            <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
-            <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
-            <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} style={styles.input} secureTextEntry />
+                <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
+                <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
+                <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} style={styles.input} secureTextEntry />
 
-            <Text style={styles.titulo}>Cadastro do Pet</Text>
+                <Text style={styles.subtitulo}>Cadastro do Pet</Text>
 
-            <TouchableOpacity onPress={() => escolherImagem(setFotoPet)} style={styles.imagePicker}>
-                {fotoPet ? (
-                    <Image source={{ uri: fotoPet.uri }} style={styles.imagePreview} />
-                ) : (
-                    <Text style={styles.imageText}>Selecionar Foto do Pet</Text>
-                )}
-            </TouchableOpacity>
+                <TouchableOpacity onPress={() => escolherImagem(setFotoPet)} style={styles.imagePicker}>
+                    {fotoPet ? (
+                        <Image source={{ uri: fotoPet.uri }} style={styles.imagePreview} />
+                    ) : (
+                        <Text style={styles.imageText}>Selecionar Foto do Pet</Text>
+                    )}
+                </TouchableOpacity>
 
-            <TextInput placeholder="Nome do Pet" value={nomePet} onChangeText={setNomePet} style={styles.input} />
-            <TextInput placeholder="Raça do Pet" value={raca} onChangeText={setRaca} style={styles.input} />
+                <TextInput placeholder="Nome do Pet" value={nomePet} onChangeText={setNomePet} style={styles.input} />
+                <TextInput placeholder="Raça do Pet" value={raca} onChangeText={setRaca} style={styles.input} />
 
-            <TouchableOpacity onPress={salvar} style={styles.botao}>
-                <Text style={styles.botaoTexto}>Registrar</Text>
-            </TouchableOpacity>
+                <TouchableOpacity onPress={salvar} style={styles.botao}>
+                    <Text style={styles.botaoTexto}>Registrar</Text>
+                </TouchableOpacity>
+            </KeyboardAwareScrollView>
         </ScrollView>
     );
 };
@@ -128,24 +144,70 @@ const RegistrarUsuarioNovo = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: "#FFF",
+        backgroundColor: '#F9F9F9',
     },
-    titulo: {
+    header: {
+        paddingTop: 50,
+        paddingBottom: 20,
+        backgroundColor: '#4F46E5',
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+    },
+    backButton: {
+        position: "absolute",
+        left: 16,
+        top: 50,
+        // padding: 10,
+    },
+    title: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "#FFFFFF",
+    },
+    bodyContainer: {
+        padding: spacing.md,
+    },
+    inputContainer: {
+        marginBottom: spacing.md,
+    },
+    label: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#555',
+        marginBottom: 6,
+    },
+    input: {
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        fontSize: 16,
+        paddingHorizontal: 15,
+        marginBottom: 15,
+        height: 50,
+    },
+    // container: {
+    //     flex: 1,
+    //     padding: 20,
+    //     backgroundColor: "#FFF",
+    // },
+    subtitulo: {
         fontSize: 22,
         fontWeight: "bold",
         marginBottom: 15,
         marginTop: 25,
     },
-    input: {
-        height: 50,
-        borderWidth: 1,
-        borderColor: "#CCC",
-        borderRadius: 10,
-        paddingHorizontal: 15,
-        marginBottom: 15,
-        backgroundColor: "#FFF",
-    },
+    // input: {
+    //     height: 50,
+    //     borderWidth: 1,
+    //     borderColor: "#CCC",
+    //     borderRadius: 10,
+    //     paddingHorizontal: 15,
+    //     marginBottom: 15,
+    //     backgroundColor: "#FFF",
+    // },
     botao: {
         backgroundColor: "#4CAF50",
         paddingVertical: 15,

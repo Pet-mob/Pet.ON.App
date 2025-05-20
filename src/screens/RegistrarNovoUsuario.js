@@ -9,6 +9,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 const RegistrarUsuarioNovo = () => {
     const navigation = useNavigation();
+    const urlFotoPadrao = 'https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D';
 
     // Dados do usuário
     const [nome, setNome] = useState("");
@@ -108,13 +109,21 @@ const RegistrarUsuarioNovo = () => {
                 enableOnAndroid
             >
                 <Text style={styles.subtitulo}>Cadastro do Usuário</Text>
-                <TouchableOpacity onPress={() => escolherImagem(setFotoUsuario)} style={styles.imagePicker}>
+                <TouchableOpacity style={styles.fotoContainer} onPress={() => escolherImagem(setFotoUsuario)}>
+                    <Image
+                        source={fotoUsuario ? { uri: fotoUsuario } : { uri: urlFotoPadrao }}
+                        style={styles.foto}
+                    />
+                    <Text style={styles.textoFoto}>Selecionar Foto</Text>
+                </TouchableOpacity>
+
+                {/* <TouchableOpacity onPress={() => escolherImagem(setFotoUsuario)} style={styles.imagePicker}>
                     {fotoUsuario ? (
                         <Image source={{ uri: fotoUsuario.uri }} style={styles.imagePreview} />
                     ) : (
                         <Text style={styles.imageText}>Selecionar Foto do Usuário</Text>
                     )}
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
                 <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
@@ -122,13 +131,20 @@ const RegistrarUsuarioNovo = () => {
 
                 <Text style={styles.subtitulo}>Cadastro do Pet</Text>
 
-                <TouchableOpacity onPress={() => escolherImagem(setFotoPet)} style={styles.imagePicker}>
+                <TouchableOpacity style={styles.fotoContainer} onPress={() => escolherImagem(setFotoPet)}>
+                    <Image
+                        source={fotoPet ? { uri: fotoPet } : { uri: urlFotoPadrao }}
+                        style={styles.foto}
+                    />
+                    <Text style={styles.textoFoto}>Selecionar Foto</Text>
+                </TouchableOpacity>
+                {/* <TouchableOpacity onPress={() => escolherImagem(setFotoPet)} style={styles.imagePicker}>
                     {fotoPet ? (
                         <Image source={{ uri: fotoPet.uri }} style={styles.imagePreview} />
                     ) : (
                         <Text style={styles.imageText}>Selecionar Foto do Pet</Text>
                     )}
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <TextInput placeholder="Nome do Pet" value={nomePet} onChangeText={setNomePet} style={styles.input} />
                 <TextInput placeholder="Raça do Pet" value={raca} onChangeText={setRaca} style={styles.input} />
@@ -221,13 +237,17 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
     imagePicker: {
+        width: 150,
         height: 150,
-        borderRadius: 10,
+        borderRadius: radii.full,
+        // borderRadius: 10,
         borderWidth: 1,
         borderColor: "#CCC",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: 20,
+        // height: 120,
+        // backgroundColor: '#e0e0e0',
     },
     imagePreview: {
         width: "100%",
@@ -235,8 +255,27 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     imageText: {
-        color: "#999",
+        marginTop: spacing.sm,
+        color: colors.secondary,
+        fontWeight: '500',
+        // color: "#999",
     },
+    fotoContainer: {
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    foto: {
+        width: 120,
+        height: 120,
+        borderRadius: radii.full,
+        backgroundColor: '#e0e0e0',
+    },
+    textoFoto: {
+        marginTop: spacing.sm,
+        color: colors.secondary,
+        fontWeight: '500',
+    },
+
 });
 
 export default RegistrarUsuarioNovo;

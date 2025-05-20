@@ -86,15 +86,29 @@ const enviarFotoUsuario = async (imagem, idUsuario) => {
 
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao enviar foto do usuário:', error.response?.data || error.message);
         throw error;
     }
 };
+
+const inserirUsuario = async (nomeUsuarioParam, telefoneUsuarioParam, senhaParam) => {
+    try {
+        const dtoRequisicao = {
+            nome: nomeUsuarioParam,
+            telefone: telefoneUsuarioParam,
+            senha: senhaParam
+        };
+        const resposta = await api.post('/Usuario/AdicionarUsuarioNovo', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
+        throw error;
+    }
+}
 
 export default {
     validarLogin,
     alterarSenhaUsuario,
     alterarUsuario,
     buscarFotoUsuario,
-    enviarFotoUsuario
+    enviarFotoUsuario,
+    inserirUsuario
 }

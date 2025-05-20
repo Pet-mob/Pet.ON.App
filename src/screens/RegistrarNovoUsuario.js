@@ -1,97 +1,121 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from '@expo/vector-icons';
-// import { api } from "../services/api";
+import apiRequisicaoAnimal from "../Service/apiRequisicaoAnimal.js";
+import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
 import { useNavigation } from "@react-navigation/native";
 import { colors, spacing, fontSizes, radii } from '../theme/theme1.js';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Toast from 'react-native-toast-message';
 
 const RegistrarUsuarioNovo = () => {
     const navigation = useNavigation();
     const urlFotoPadrao = 'https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D';
+    const [loading, setLoading] = useState(false);
 
     // Dados do usuário
     const [nome, setNome] = useState("");
-    const [email, setEmail] = useState("");
+    const [telefone, setTelefone] = useState("");
     const [senha, setSenha] = useState("");
     const [fotoUsuario, setFotoUsuario] = useState(null);
+    const [uriFotoUsuario, setUriFotoUsuario] = useState("");
+
 
     // Dados do pet
     const [nomePet, setNomePet] = useState("");
     const [raca, setRaca] = useState("");
     const [fotoPet, setFotoPet] = useState(null);
+    const [uriFotoPet, setUriFotoPet] = useState("");
 
-    const escolherImagem = async (setImagem) => {
+    const escolherImagemUsuario = async () => {
+        setLoading(true);
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
             alert('Permissão para acessar a galeria é necessária!');
             return;
         }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
+        const resultado = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            quality: 0.7,
+            quality: 1,
         });
 
-        if (!result.canceled) {
-            setImagem(result.assets[0]);
+        if (!resultado.canceled) {
+            setFotoUsuario(resultado.assets[0]);
+            setUriFotoUsuario(resultado.assets[0].uri);
+            setLoading(false);
+        }
+    };
+
+    const escolherImagemPet = async () => {
+        setLoading(true);
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            alert('Permissão para acessar a galeria é necessária!');
+            return;
+        }
+
+        const resultado = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+        });
+
+        if (!resultado.canceled) {
+            setFotoPet(resultado.assets[0]);
+            setUriFotoPet(resultado.assets[0].uri);
+            setLoading(false);
         }
     };
 
     const salvar = async () => {
         try {
-            // // 1. Cadastrar usuário
-            // const usuarioDTO = { nome, email, senha };
-            // const respostaUsuario = await api.post("/Usuario/CriarUsuario", usuarioDTO);
-            // const idUsuario = respostaUsuario.data.id;
+            setLoading(true);
+            // 1. Cadastrar usuário
+            const novoUsuario = await apiRequisicaoUsuario.inserirUsuario(nome, telefone, senha);
+            if (!novoUsuario || novoUsuario <= 0) {
+                throw new Error("Erro ao cadastrar usuário.");
+            }
+            if (fotoUsuario) {
+                const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(fotoUsuario, novoUsuario);
+                if (!respostaUsuario) throw new Error("Erro ao enviar foto do usuário.");
+                setUriFotoUsuario(respostaUsuario);
+            }
 
-            // // 2. Enviar foto do usuário
-            // if (fotoUsuario) {
-            //     const formDataUsuario = new FormData();
-            //     formDataUsuario.append("arquivo", {
-            //         uri: fotoUsuario.uri,
-            //         type: "image/jpeg",
-            //         name: "usuario.jpg"
-            //     });
-            //     formDataUsuario.append("idUsuario", idUsuario);
-            //     await api.post("/Usuario/EnviarFotoDoUsuario", formDataUsuario, {
-            //         headers: { "Content-Type": "multipart/form-data" }
-            //     });
-            // }
+            // 3. Cadastrar pet
+            const novoPet = await apiRequisicaoAnimal.adicionarAnimalNovo(nomePet, raca, novoUsuario);
+            if (!novoPet || novoPet <= 0) {
+                throw new Error("Erro ao cadastrar o animal.");
+            }
 
-            // // 3. Cadastrar pet
-            // const petDTO = {
-            //     nome: nomePet,
-            //     raca,
-            //     idUsuario
-            // };
-            // const respostaPet = await api.post("/Animal/CadastrarAnimal", petDTO);
-            // const idAnimal = respostaPet.data.id;
+            // 4. Enviar foto do pet (se existir)
+            if (fotoPet) {
+                const respostaAnimal = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(fotoPet, novoUsuario, novoPet);
+                if (!respostaAnimal) throw new Error("Erro ao enviar foto do animal.");
+                setUriFotoPet(respostaAnimal);
+            }
 
-            // // 4. Enviar foto do pet
-            // if (fotoPet) {
-            //     const formDataPet = new FormData();
-            //     formDataPet.append("arquivo", {
-            //         uri: fotoPet.uri,
-            //         type: "image/jpeg",
-            //         name: "pet.jpg"
-            //     });
-            //     formDataPet.append("idUsuario", idUsuario);
-            //     formDataPet.append("idAnimal", idAnimal);
-            //     await api.post("/Animal/EnviarFotoAnimal", formDataPet, {
-            //         headers: { "Content-Type": "multipart/form-data" }
-            //     });
-            // }
-
-            // Alert.alert("Sucesso", "Cadastro realizado com sucesso!");
-            // navigation.navigate("Login");
+            // ✅ Toast de sucesso
+            Toast.show({
+                type: 'success',
+                text1: 'Cadastro realizado!',
+                text2: 'Seja bem-vindo à plataforma Pet.ON!',
+            });
+            setLoading(false);
+            navigation.navigate("Login");
         } catch (error) {
-            console.error("Erro no cadastro:", error);
-            Alert.alert("Erro", "Ocorreu um erro ao registrar.");
+            setLoading(false);
+            // ❌ Toast de erro
+            Toast.show({
+                type: 'error',
+                text1: 'Erro ao cadastrar',
+                text2: 'Tente novamente ou verifique sua conexão.',
+            });
         }
     };
+
 
     return (
         <ScrollView style={styles.container}>
@@ -101,58 +125,42 @@ const RegistrarUsuarioNovo = () => {
                 </TouchableOpacity>
                 <Text style={styles.title}>Criar conta</Text>
             </View>
+            {loading ? <ActivityIndicator size="large" color="#007aff" /> : (
+                <KeyboardAwareScrollView
+                    style={styles.bodyContainer}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    keyboardShouldPersistTaps="handled"
+                    enableOnAndroid
+                >
+                    <Text style={styles.subtitulo}>Cadastro do Usuário</Text>
+                    <TouchableOpacity style={styles.fotoContainer} onPress={() => escolherImagemUsuario()}>
+                        <Image
+                            source={fotoUsuario ? { uri: uriFotoUsuario } : { uri: urlFotoPadrao }}
+                            style={styles.foto}
+                        />
+                        <Text style={styles.textoFoto}>Selecionar Foto</Text>
+                    </TouchableOpacity>
+                    <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
+                    <TextInput placeholder="Telefone" value={telefone} onChangeText={setTelefone} style={styles.input} keyboardType="phone-pad" />
+                    <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} style={styles.input} secureTextEntry />
 
-            <KeyboardAwareScrollView
-                style={styles.bodyContainer}
-                contentContainerStyle={{ paddingBottom: 20 }}
-                keyboardShouldPersistTaps="handled"
-                enableOnAndroid
-            >
-                <Text style={styles.subtitulo}>Cadastro do Usuário</Text>
-                <TouchableOpacity style={styles.fotoContainer} onPress={() => escolherImagem(setFotoUsuario)}>
-                    <Image
-                        source={fotoUsuario ? { uri: fotoUsuario } : { uri: urlFotoPadrao }}
-                        style={styles.foto}
-                    />
-                    <Text style={styles.textoFoto}>Selecionar Foto</Text>
-                </TouchableOpacity>
+                    <Text style={styles.subtitulo}>Cadastro do Pet</Text>
 
-                {/* <TouchableOpacity onPress={() => escolherImagem(setFotoUsuario)} style={styles.imagePicker}>
-                    {fotoUsuario ? (
-                        <Image source={{ uri: fotoUsuario.uri }} style={styles.imagePreview} />
-                    ) : (
-                        <Text style={styles.imageText}>Selecionar Foto do Usuário</Text>
-                    )}
-                </TouchableOpacity> */}
+                    <TouchableOpacity style={styles.fotoContainer} onPress={() => escolherImagemPet()}>
+                        <Image
+                            source={fotoPet ? { uri: uriFotoPet } : { uri: urlFotoPadrao }}
+                            style={styles.foto}
+                        />
+                        <Text style={styles.textoFoto}>Selecionar Foto</Text>
+                    </TouchableOpacity>
+                    <TextInput placeholder="Nome do Pet" value={nomePet} onChangeText={setNomePet} style={styles.input} />
+                    <TextInput placeholder="Raça do Pet" value={raca} onChangeText={setRaca} style={styles.input} />
 
-                <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
-                <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
-                <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} style={styles.input} secureTextEntry />
-
-                <Text style={styles.subtitulo}>Cadastro do Pet</Text>
-
-                <TouchableOpacity style={styles.fotoContainer} onPress={() => escolherImagem(setFotoPet)}>
-                    <Image
-                        source={fotoPet ? { uri: fotoPet } : { uri: urlFotoPadrao }}
-                        style={styles.foto}
-                    />
-                    <Text style={styles.textoFoto}>Selecionar Foto</Text>
-                </TouchableOpacity>
-                {/* <TouchableOpacity onPress={() => escolherImagem(setFotoPet)} style={styles.imagePicker}>
-                    {fotoPet ? (
-                        <Image source={{ uri: fotoPet.uri }} style={styles.imagePreview} />
-                    ) : (
-                        <Text style={styles.imageText}>Selecionar Foto do Pet</Text>
-                    )}
-                </TouchableOpacity> */}
-
-                <TextInput placeholder="Nome do Pet" value={nomePet} onChangeText={setNomePet} style={styles.input} />
-                <TextInput placeholder="Raça do Pet" value={raca} onChangeText={setRaca} style={styles.input} />
-
-                <TouchableOpacity onPress={salvar} style={styles.botao}>
-                    <Text style={styles.botaoTexto}>Registrar</Text>
-                </TouchableOpacity>
-            </KeyboardAwareScrollView>
+                    <TouchableOpacity onPress={salvar} style={styles.botao}>
+                        <Text style={styles.botaoTexto}>Registrar</Text>
+                    </TouchableOpacity>
+                </KeyboardAwareScrollView>
+            )}
         </ScrollView>
     );
 };

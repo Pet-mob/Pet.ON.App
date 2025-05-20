@@ -43,7 +43,6 @@ const inserirAnimal = async (nomeParam, idadeParam, racaParam, observacoesParam,
         const resposta = await api.post('/Animal', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao adicionar animal:', error);
         throw error;
     }
 };
@@ -100,7 +99,20 @@ const enviarFotosAnimalPorUsuario = async (imagem, idUsuario, idAnimal) => {
 
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao enviar foto do animal:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+const adicionarAnimalNovo = async (nomeParam, racaParam, idUsuarioParam) => {
+    try {
+        const dtoRequisicao = {
+            nome: nomeParam,
+            raca: racaParam,
+            idUsuario: idUsuarioParam
+        };
+        const resposta = await api.post('/Animal/AdcionarAnimalNovo', dtoRequisicao);
+        return resposta.data;
+    } catch (error) {
         throw error;
     }
 };
@@ -111,5 +123,6 @@ export default {
     alterarAnimal,
     excluirAnimal,
     buscarFotosAnimalPorUsuario,
-    enviarFotosAnimalPorUsuario
+    enviarFotosAnimalPorUsuario,
+    adicionarAnimalNovo
 }

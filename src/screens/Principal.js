@@ -14,70 +14,47 @@ import { useNavigation } from '@react-navigation/native';
 import apiRequisicaoEmpresa from '../Service/apiRequisicaoEmpresa.js';
 import { setEmpresaStore } from '../store/store.js';
 
-//import apiRequisicaoNotificacao from '../Service/apiRequisicaoNotificacao.js';
-
-// // Dados simulados para categorias e pet shops
-// const categorias = [
-//     { id: '1', nome: 'Banho e Tosa', icone: require('../../assets/adaptive-icon.png') },
-//     { id: '2', nome: 'Veterinário', icone: require('../../assets/adaptive-icon.png') },
-//     { id: '3', nome: 'Acessórios', icone: require('../../assets/adaptive-icon.png') },
-//     { id: '4', nome: 'Rações', icone: require('../../assets/adaptive-icon.png') },
-// ];
-
-// const petShops = [
-//     {
-//         id: '1',
-//         nome: 'PetShop Feliz',
-//         distancia: '1.5 km',
-//         avaliacao: '4.8',
-//         icone: require('../../assets/LogoPetON.png'),
-//     },
-//     {
-//         id: '2',
-//         nome: 'Amigos do Pet',
-//         distancia: '2.0 km',
-//         avaliacao: '4.7',
-//         icone: require('../../assets/LogoPetON.png'),
-//     },
-//     {
-//         id: '3',
-//         nome: 'Banho & Brilho',
-//         distancia: '3.2 km',
-//         avaliacao: '4.6',
-//         icone: require('../../assets/LogoPetON.png'),
-//     },
-// ];
-
 const TelaInicial = () => {
     const navigation = useNavigation();
     const [empresas, setEmpresas] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
+    // const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
     const [listaLogos, setListaLogos] = useState([]);
-    // const [quantidadeNaoLidas, setQuantidadeNaoLidas] = useState('');
+
+    const categorias = [
+        { id: 1, nome: 'Pet shop', icone: require('../../assets/PetShop.png') },
+        { id: 2, nome: 'Veterinário', icone: require('../../assets/Veterinario.png') },
+        { id: 3, nome: 'Hotel', icone: require('../../assets/HotelPet.png') },
+        { id: 4, nome: 'Creche', icone: require('../../assets/Creche.png') },
+        // adicione mais se quiser
+    ];
+
+    const promocoes = [
+        {
+            id: 1,
+            titulo: 'Banho + Tosa por R$ 50',
+            descricao: 'Promoção válida até domingo!',
+            imagem: 'https://via.placeholder.com/400x120.png?text=Promoção+Pet',
+        },
+        // outras promoções se desejar...
+    ];
 
     const irParaAgendamento = (idPetShop) => {
         const empresaSelecionada = empresas.find(e => e.idEmpresa === idPetShop);
         setEmpresaStore(empresaSelecionada);
-
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
     };
 
-    const buscarNaAPIPorNome = async () => {
-        setLoading(true);  // Define o loading como true antes de fazer a requisição
-        try {
-            const dados = await apiRequisicaoEmpresa.buscarNaAPIPorNomePetShop();
-            setEmpresas(dados);
-            setLoading(false);
-        } catch (error) {
-            console.log('Erro ao carregar dados da empresa:', error);
-        }
-    };
-
-    // const buscarQuantidadeNaoLidas = async () => {
-    //     const resposta = await apiRequisicaoNotificacao.buscarNotificacao(idUsuario);
-    //     const naoLidas = resposta.data.filter(n => !n.lida).length;
-    //     setQuantidadeNaoLidas(naoLidas);
+    // const buscarNaAPIPorNome = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const dados = await apiRequisicaoEmpresa.buscarNaAPIPorNomePetShop();
+    //         setEmpresas(dados);
+    //     } catch (error) {
+    //         console.log('Erro ao buscar:', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
     // };
 
     useEffect(() => {
@@ -103,37 +80,51 @@ const TelaInicial = () => {
 
     return (
         <View style={estilos.container}>
-            {/*<TouchableOpacity onPress={() => navigation.navigate("Notificacoes")} style={{ marginRight: 20 }}>
-                <Icon name="notifications-outline" size={28} color="#000" />
-                {quantidadeNaoLidas > 0 && (
-                    <View style={{
-                        position: 'absolute',
-                        top: -4,
-                        right: -4,
-                        backgroundColor: 'red',
-                        borderRadius: 10,
-                        paddingHorizontal: 4,
-                    }}>
-                        <Text style={{ color: '#fff', fontSize: 12 }}>{quantidadeNaoLidas}</Text>
+            <Text style={estilos.tituloSecao}>Categorias</Text>
+            <View style={estilos.gridCategorias}>
+                {categorias.map((categoria, index) => (
+                    <View
+                        key={categoria.id}
+                        style={[
+                            estilos.itemCategoria,
+                            index % 3 === 0 ? estilos.categoriaGrande : estilos.categoriaPequena,
+                        ]}
+                    >
+                        <Image source={categoria.icone} style={estilos.iconeCategoria} />
+                        <Text style={estilos.textoCategoria}>{categoria.nome}</Text>
+                    </View>
+                ))}
+            </View>
+
+            <Text style={estilos.tituloSecao}>Promoções</Text>
+            <FlatList
+                data={promocoes}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                    <View style={estilos.cartaoPromocao}>
+                        <Image source={{ uri: item.imagem }} style={estilos.imagemPromocao} />
+                        <View style={estilos.infoPromocao}>
+                            <Text style={estilos.tituloPromocao}>{item.titulo}</Text>
+                            <Text style={estilos.descricaoPromocao}>{item.descricao}</Text>
+                        </View>
                     </View>
                 )}
-            </TouchableOpacity>
-            */}
-            <View style={estilos.containerBusca}>
+                contentContainerStyle={{ paddingBottom: 20 }}
+            />
+
+            {/* <View style={estilos.containerBusca}>
                 <TextInput
-                    id='campoBuscarPorNomePetShop'
                     style={estilos.inputBusca}
                     placeholder="Buscar por nome do pet shop"
                     placeholderTextColor="#aaa"
                     value={campoBuscarPorNomePetShop}
-                    onChangeText={(valor) => setCampoBuscarPorNomePetShop(valor)}
+                    onChangeText={setCampoBuscarPorNomePetShop}
                 />
-                <TouchableOpacity style={estilos.botaoBusca} onPress={() => buscarNaAPIPorNome()}>
+                <TouchableOpacity style={estilos.botaoBusca} onPress={buscarNaAPIPorNome}>
                     <Text style={estilos.textoBotaoBusca}>Buscar</Text>
                 </TouchableOpacity>
-            </View>
+            </View> */}
 
-            {/* Título da seção */}
             <Text style={estilos.tituloSecao}>Pet Shops</Text>
 
             {loading ? (
@@ -146,7 +137,7 @@ const TelaInicial = () => {
                     keyExtractor={(item) => item.idEmpresa.toString()}
                     renderItem={({ item }) => {
                         const logo = listaLogos.find(logo => logo.idEmpresa === item.idEmpresa);
-                        const imagemLogo = logo?.url || "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D";
+                        const imagemLogo = logo?.url || "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png";
 
                         return (
                             <TouchableOpacity onPress={() => irParaAgendamento(item.idEmpresa)}>
@@ -165,7 +156,6 @@ const TelaInicial = () => {
                 />
             )}
 
-            {/* Menu na parte inferior */}
             <View style={estilos.menu}>
                 <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Principal')}>
                     <Icon name="home" size={24} color="#333" />
@@ -187,206 +177,140 @@ const TelaInicial = () => {
     );
 };
 
-//     return (
-//         <View style={estilos.container}>
-//             <View style={estilos.containerBusca}>
-//                 <TextInput
-//                     id='campoBuscarPorNomePetShop'
-//                     style={estilos.inputBusca}
-//                     placeholder="Buscar por nome do pet shop"
-//                     placeholderTextColor="#aaa"
-//                     value={campoBuscarPorNomePetShop}
-//                     onChangeText={(valor) => setCampoBuscarPorNomePetShop(valor)}
-//                 />
-//                 <TouchableOpacity style={estilos.botaoBusca} onPress={() => buscarNaAPIPorNomePetShop()}>
-//                     <Text style={estilos.textoBotaoBusca}>Buscar</Text>
-//                 </TouchableOpacity>
-//             </View>
-
-//             {/* Categorias */}
-//             {/* <Text style={estilos.tituloSecao}>Categorias</Text>
-//             <View style={estilos.containerCategorias}>
-//                 {categorias.map((categoria) => (
-//                     <View key={categoria.id} style={estilos.itemCategoria}>
-//                         <Image source={categoria.icone} style={estilos.iconeCategoria} />
-//                         <Text style={estilos.textoCategoria}>{categoria.nome}</Text>
-//                     </View>
-//                 ))}
-//             </View> */}
-
-//             {/* Promoções */}
-//             {/* <Text style={estilos.tituloSecao}>Promoções</Text>
-//             <View style={estilos.containerPromocoes}>
-//                 <View style={estilos.cartaoPromocao}></View>
-//                 <View style={estilos.cartaoPromocao}></View>
-//             </View> */}
-
-//             {/* Pet Shops Próximos */}
-//             <Text style={estilos.tituloSecao}>Pet Shops</Text>
-
-//             {loading ? (
-//                 <ActivityIndicator size="large" color="#28A745" />
-//             ) : (
-//                 <FlatList
-//                     data={empresas}
-//                     keyExtractor={(item) => item.idEmpresa}
-//                     renderItem={({ item }) => (
-//                         <TouchableOpacity
-//                             onPress={() => irParaAgendamento(item.idEmpresa)} // Chama a navegação ao pressionar
-//                         >
-//                             <View style={estilos.itemPetShop}>
-//                                 <Image source={item.icone} style={estilos.iconePetShop} />
-//                                 <View>
-//                                     <Text style={estilos.nomePetShop}>{item.descricaoNomeFisica}</Text>
-//                                     {/* <Text style={estilos.detalhesPetShop}>
-//                                     {item.distancia} • {item.avaliacao}⭐
-//                                 </Text> */}
-//                                 </View>
-//                             </View>
-//                         </TouchableOpacity>
-//                     )}
-//                 />)}
-
-
-//             {/* Menu na parte inferior */}
-//             <View style={estilos.menu}>
-//                 <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Principal')}>
-//                     <Icon name="home" size={24} color="#333" />
-//                     <Text style={estilos.menuTexto}>Home</Text>
-//                 </TouchableOpacity>
-//                 <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('ConsultaAgendamento')}>
-//                     <Icon name="search-outline" size={24} color="#333" />
-//                     <Text style={estilos.menuTexto}>Buscar</Text>
-//                 </TouchableOpacity>
-//                 <TouchableOpacity
-//                     style={estilos.menuItem}
-//                     onPress={() => navigation.navigate('Usuario', { EhUsuarioNovo: false })}
-//                 >
-//                     <Icon name="person-outline" size={24} color="#333" />
-//                     <Text style={estilos.menuTexto}>Perfil</Text>
-//                 </TouchableOpacity>
-//             </View>
-//         </View>
-//     );
-// };
-
 const estilos = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
-        backgroundColor: '#F9F9F9',
-        paddingHorizontal: 15,
+        backgroundColor: '#fff',
+        paddingTop: 20,
+    },
+    tituloSecao: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginTop: 20,
+        marginBottom: 10,
+        color: '#2C3E50',
+        paddingHorizontal: 16,
+    },
+    gridCategorias: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+    },
+    itemCategoria: {
+        backgroundColor: '#E8F6EF',
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 12,
+        marginBottom: 12,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 3,
+    },
+    categoriaGrande: {
+        width: '48%',
+        height: 130,
+    },
+    categoriaPequena: {
+        width: '31%',
+        height: 100,
+    },
+    iconeCategoria: {
+        width: 50,
+        height: 50,
+        marginBottom: 8,
+        resizeMode: 'contain',
+    },
+    textoCategoria: {
+        fontSize: 14,
+        color: '#34495E',
+        textAlign: 'center',
+        fontWeight: '500',
+    },
+    cartaoPromocao: {
+        backgroundColor: '#F0F4FF',
+        marginHorizontal: 16,
+        marginBottom: 16,
+        borderRadius: 16,
+        overflow: 'hidden',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 6,
+    },
+    imagemPromocao: {
+        width: '100%',
+        height: 120,
+    },
+    infoPromocao: {
+        padding: 10,
+    },
+    tituloPromocao: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#2C3E50',
+    },
+    descricaoPromocao: {
+        fontSize: 14,
+        color: '#7F8C8D',
+        marginTop: 4,
     },
     containerBusca: {
         flexDirection: 'row',
-        marginTop: 10,
-        marginBottom: 20,
+        paddingHorizontal: 16,
+        marginVertical: 16,
     },
     inputBusca: {
         flex: 1,
-        height: 40,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
-        paddingHorizontal: 10,
-        backgroundColor: '#fff',
+        paddingHorizontal: 12,
+        height: 40,
+        marginRight: 8,
+        color: '#333',
     },
     botaoBusca: {
         backgroundColor: '#28A745',
-        marginLeft: 10,
-        paddingHorizontal: 15,
-        justifyContent: 'center',
-        alignItems: 'center',
+        paddingHorizontal: 16,
         borderRadius: 8,
+        justifyContent: 'center',
     },
     textoBotaoBusca: {
         color: '#fff',
         fontWeight: 'bold',
     },
-    tituloSecao: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    containerCategorias: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    itemCategoria: {
-        alignItems: 'center',
-    },
-    iconeCategoria: {
-        width: 50,
-        height: 50,
-        marginBottom: 5,
-    },
-    textoCategoria: {
-        fontSize: 12,
-        color: '#333',
-    },
-    containerPromocoes: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    cartaoPromocao: {
-        width: '48%',
-        height: 100,
-        backgroundColor: '#FFD700',
-        borderRadius: 8,
-    },
     itemPetShop: {
         flexDirection: 'row',
-        // justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 12,
-        marginBottom: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 4,
-        elevation: 2,
-        // flexDirection: 'row',
-        // alignItems: 'center',
-        // marginBottom: 15,
-        // backgroundColor: '#fff',
-        // borderRadius: 8,
-        // padding: 10,
-        // shadowColor: '#000',
-        // shadowOpacity: 0.1,
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowRadius: 5,
-        // elevation: 3,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
     },
-    iconePetShop: { width: 50, marginRight: 10, height: 50, borderRadius: 60 },
-
-    // iconePetShop: {
-    //     width: 50,
-    //     height: 50,
-    //     marginRight: 10,
-    // },
+    iconePetShop: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginRight: 12,
+    },
     nomePetShop: {
         fontSize: 16,
+        color: '#2C3E50',
         fontWeight: 'bold',
     },
-    detalhesPetShop: {
-        fontSize: 14,
-        color: '#666',
-    },
     menu: {
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
         flexDirection: 'row',
         justifyContent: 'space-around',
-        backgroundColor: '#fff',
+        alignItems: 'center',
+        paddingVertical: 10,
         borderTopWidth: 1,
         borderTopColor: '#ccc',
-        paddingVertical: 15,
+        backgroundColor: '#f9f9f9',
     },
     menuItem: {
         alignItems: 'center',
@@ -394,18 +318,12 @@ const estilos = StyleSheet.create({
     menuTexto: {
         fontSize: 12,
         color: '#333',
-        marginTop: 5,
+        marginTop: 4,
     },
     overlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 9999,
     },
 });
 

@@ -15,31 +15,62 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { setUsuarioStore } from '../store/store';
 import apiRequisicaoUsuario from '../Service/apiRequisicaoUsuario.js';
+import Toast from 'react-native-toast-message';
 
 const TelaLogin = () => {
     const navigation = useNavigation();
-    const [Telefone, setTelefone] = useState('');
+    const [telefoneFormatado, setTelefoneFormatado] = useState('');
+    const [telefoneLimpo, setTelefoneLimpo] = useState('');
     const [Senha, setSenha] = useState('');
-    const [loading, setLoading] = useState(false); // <- NOVO
+    const [loading, setLoading] = useState(false);
+
+    const formatarTelefone = (texto) => {
+        // Remove tudo que não é número
+        const numeros = texto.replace(/\D/g, '');
+
+        // Salva o valor limpo para envio ao backend
+        setTelefoneLimpo(numeros);
+
+        // Aplica a máscara
+        let telefoneComMascara = '';
+        if (numeros.length <= 2) {
+            telefoneComMascara = `(${numeros}`;
+        } else if (numeros.length <= 6) {
+            telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(2)}`;
+        } else if (numeros.length <= 10) {
+            telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`;
+        } else {
+            telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7, 11)}`;
+        }
+
+        setTelefoneFormatado(telefoneComMascara);
+    };
 
     const handleLogin = async () => {
-        if (!Telefone || !Senha) {
+        if (!telefoneLimpo || !Senha) {
             alert('Preencha todos os campos!');
             return;
         }
         setLoading(true); // <- INICIA LOADING
         try {
-            const resposta = await apiRequisicaoUsuario.validarLogin(Telefone, Senha);
+            const resposta = await apiRequisicaoUsuario.validarLogin(telefoneLimpo, Senha);
 
             if (resposta.loginAtivado) {
                 setUsuarioStore(resposta.buscarUsuarioResDto);
                 navigation.navigate('Principal');
             } else {
-                alert('Credenciais inválidas...');
+                Toast.show({
+                    type: 'error',
+                    text1: 'Credenciais inválidas...',
+                    text2: 'Tente novamente ou verifique sua conexão.',
+                });
             }
         } catch (error) {
-            alert('Erro ao buscar usuário');
-            // console.log(error);
+            Toast.show({
+                type: 'error',
+                text1: 'Erro ao buscar acesso.',
+                text2: 'Tente novamente ou verifique sua conexão.',
+            });
         } finally {
             setLoading(false); // <- FINALIZA LOADING
         }
@@ -73,8 +104,8 @@ const TelaLogin = () => {
                     <TextInput
                         style={estilos.input}
                         placeholder="Digite seu celular"
-                        value={Telefone}
-                        onChangeText={setTelefone}
+                        value={telefoneFormatado}
+                        onChangeText={formatarTelefone}
                         keyboardType="phone-pad"
                         placeholderTextColor="#aaa"
                     />

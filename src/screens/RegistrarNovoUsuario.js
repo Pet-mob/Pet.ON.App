@@ -16,7 +16,8 @@ const RegistrarUsuarioNovo = () => {
 
     // Dados do usuário
     const [nome, setNome] = useState("");
-    const [telefone, setTelefone] = useState("");
+    const [telefoneFormatado, setTelefoneFormatado] = useState('');
+    const [telefoneLimpo, setTelefoneLimpo] = useState('');
     const [senha, setSenha] = useState("");
     const [fotoUsuario, setFotoUsuario] = useState(null);
     const [uriFotoUsuario, setUriFotoUsuario] = useState("");
@@ -27,6 +28,28 @@ const RegistrarUsuarioNovo = () => {
     const [raca, setRaca] = useState("");
     const [fotoPet, setFotoPet] = useState(null);
     const [uriFotoPet, setUriFotoPet] = useState("");
+
+    const formatarTelefone = (texto) => {
+        // Remove tudo que não é número
+        const numeros = texto.replace(/\D/g, '');
+
+        // Salva o valor limpo para envio ao backend
+        setTelefoneLimpo(numeros);
+
+        // Aplica a máscara
+        let telefoneComMascara = '';
+        if (numeros.length <= 2) {
+            telefoneComMascara = `(${numeros}`;
+        } else if (numeros.length <= 6) {
+            telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(2)}`;
+        } else if (numeros.length <= 10) {
+            telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7)}`;
+        } else {
+            telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(2, 7)}-${numeros.substring(7, 11)}`;
+        }
+
+        setTelefoneFormatado(telefoneComMascara);
+    };
 
     const escolherImagemUsuario = async () => {
         setLoading(true);
@@ -74,7 +97,7 @@ const RegistrarUsuarioNovo = () => {
         try {
             setLoading(true);
             // 1. Cadastrar usuário
-            const novoUsuario = await apiRequisicaoUsuario.inserirUsuario(nome, telefone, senha);
+            const novoUsuario = await apiRequisicaoUsuario.inserirUsuario(nome, telefoneLimpo, senha);
             if (!novoUsuario || novoUsuario <= 0) {
                 throw new Error("Erro ao cadastrar usuário.");
             }
@@ -141,7 +164,7 @@ const RegistrarUsuarioNovo = () => {
                         <Text style={styles.textoFoto}>Selecionar Foto</Text>
                     </TouchableOpacity>
                     <TextInput placeholder="Nome" value={nome} onChangeText={setNome} style={styles.input} />
-                    <TextInput placeholder="Telefone" value={telefone} onChangeText={setTelefone} style={styles.input} keyboardType="phone-pad" />
+                    <TextInput placeholder="Telefone" value={telefoneFormatado} onChangeText={formatarTelefone} style={styles.input} keyboardType="phone-pad" placeholderTextColor="#aaa" />
                     <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} style={styles.input} secureTextEntry />
 
                     <Text style={styles.subtitulo}>Cadastro do Pet</Text>

@@ -12,7 +12,6 @@ const validarLogin = async (telefone, senha) => {
         const resposta = await api.post('/Usuario/login', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao buscar usuario:', error);
         throw error;
     }
 };
@@ -26,7 +25,6 @@ const alterarSenhaUsuario = async (senhaNovaParam, idUsuarioParam) => {
         const resposta = await api.put('/Usuario/AlterarSenhaDoUsuario', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao alterar senha:', error);
         throw error;
     }
 };
@@ -42,7 +40,6 @@ const alterarUsuario = async (idUsuarioParam, nomeUsuarioParam, telefoneUsuarioP
         const resposta = await api.put('/Usuario', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao alterar usuario:', error);
         throw error;
     }
 };
@@ -55,7 +52,6 @@ const buscarFotoUsuario = async (idUsuarioParam) => {
         const resposta = await api.get('/Usuario/BuscarFotosUsuario', dtoRequisicao);
         return resposta.data;
     } catch (error) {
-        console.error('Erro ao buscar foto do usuario:', error);
         throw error;
     }
 };

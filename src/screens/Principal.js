@@ -2,14 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
-    TextInput,
     TouchableOpacity,
     Image,
     FlatList,
     StyleSheet,
-    ActivityIndicator
+    ActivityIndicator,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import apiRequisicaoEmpresa from '../Service/apiRequisicaoEmpresa.js';
 import { setEmpresaStore } from '../store/store.js';
@@ -18,15 +16,14 @@ const TelaInicial = () => {
     const navigation = useNavigation();
     const [empresas, setEmpresas] = useState([]);
     const [loading, setLoading] = useState(true);
-    // const [campoBuscarPorNomePetShop, setCampoBuscarPorNomePetShop] = useState('');
     const [listaLogos, setListaLogos] = useState([]);
+    const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
 
     const categorias = [
         { id: 1, nome: 'Pet shop', icone: require('../../assets/PetShop.png') },
         { id: 2, nome: 'Veterinário', icone: require('../../assets/Veterinario.png') },
         { id: 3, nome: 'Hotel', icone: require('../../assets/HotelPet.png') },
         { id: 4, nome: 'Creche', icone: require('../../assets/Creche.png') },
-        // adicione mais se quiser
     ];
 
     const promocoes = [
@@ -34,9 +31,14 @@ const TelaInicial = () => {
             id: 1,
             titulo: 'Banho + Tosa por R$ 50',
             descricao: 'Promoção válida até domingo!',
-            imagem: 'https://via.placeholder.com/400x120.png?text=Promoção+Pet',
+            imagem: 'https://via.placeholder.com/300x120.png?text=Promoção+Pet+1',
         },
-        // outras promoções se desejar...
+        {
+            id: 2,
+            titulo: 'Veterinário com 50% off',
+            descricao: 'Somente na primeira consulta',
+            imagem: 'https://via.placeholder.com/300x120.png?text=Promoção+Vet',
+        },
     ];
 
     const irParaAgendamento = (idPetShop) => {
@@ -44,18 +46,6 @@ const TelaInicial = () => {
         setEmpresaStore(empresaSelecionada);
         navigation.navigate('Agendamento', { idEmpresaPetShop: idPetShop });
     };
-
-    // const buscarNaAPIPorNome = async () => {
-    //     setLoading(true);
-    //     try {
-    //         const dados = await apiRequisicaoEmpresa.buscarNaAPIPorNomePetShop();
-    //         setEmpresas(dados);
-    //     } catch (error) {
-    //         console.log('Erro ao buscar:', error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
 
     useEffect(() => {
         const carregarDados = async () => {
@@ -78,28 +68,39 @@ const TelaInicial = () => {
         carregarDados();
     }, []);
 
-    return (
-        <View style={estilos.container}>
+    // Renderiza o header com categorias e promoções
+    const renderHeader = () => (
+        <View>
             <Text style={estilos.tituloSecao}>Categorias</Text>
-            <View style={estilos.gridCategorias}>
-                {categorias.map((categoria, index) => (
-                    <View
-                        key={categoria.id}
-                        style={[
-                            estilos.itemCategoria,
-                            index % 3 === 0 ? estilos.categoriaGrande : estilos.categoriaPequena,
-                        ]}
-                    >
-                        <Image source={categoria.icone} style={estilos.iconeCategoria} />
-                        <Text style={estilos.textoCategoria}>{categoria.nome}</Text>
-                    </View>
-                ))}
-            </View>
+            <FlatList
+                data={categorias}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={estilos.listaCategorias}
+                renderItem={({ item }) => {
+                    const selecionada = categoriaSelecionada === item.id;
+                    return (
+                        <TouchableOpacity
+                            style={[estilos.itemCategoria, selecionada && estilos.itemCategoriaSelecionada]}
+                            onPress={() => setCategoriaSelecionada(item.id)}
+                        >
+                            <Image source={item.icone} style={estilos.iconeCategoria} />
+                            <Text style={[estilos.textoCategoria, selecionada && estilos.textoCategoriaSelecionada]}>
+                                {item.nome}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                }}
+            />
 
             <Text style={estilos.tituloSecao}>Promoções</Text>
             <FlatList
                 data={promocoes}
+                horizontal
+                showsHorizontalScrollIndicator={false}
                 keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={{ paddingLeft: 16, paddingBottom: 10 }}
                 renderItem={({ item }) => (
                     <View style={estilos.cartaoPromocao}>
                         <Image source={{ uri: item.imagem }} style={estilos.imagemPromocao} />
@@ -109,24 +110,14 @@ const TelaInicial = () => {
                         </View>
                     </View>
                 )}
-                contentContainerStyle={{ paddingBottom: 20 }}
             />
 
-            {/* <View style={estilos.containerBusca}>
-                <TextInput
-                    style={estilos.inputBusca}
-                    placeholder="Buscar por nome do pet shop"
-                    placeholderTextColor="#aaa"
-                    value={campoBuscarPorNomePetShop}
-                    onChangeText={setCampoBuscarPorNomePetShop}
-                />
-                <TouchableOpacity style={estilos.botaoBusca} onPress={buscarNaAPIPorNome}>
-                    <Text style={estilos.textoBotaoBusca}>Buscar</Text>
-                </TouchableOpacity>
-            </View> */}
-
             <Text style={estilos.tituloSecao}>Pet Shops</Text>
+        </View>
+    );
 
+    return (
+        <View style={estilos.container}>
             {loading ? (
                 <View style={estilos.overlay}>
                     <ActivityIndicator size="large" color="#28A745" />
@@ -135,6 +126,7 @@ const TelaInicial = () => {
                 <FlatList
                     data={empresas}
                     keyExtractor={(item) => item.idEmpresa.toString()}
+                    ListHeaderComponent={renderHeader}
                     renderItem={({ item }) => {
                         const logo = listaLogos.find(logo => logo.idEmpresa === item.idEmpresa);
                         const imagemLogo = logo?.url || "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png";
@@ -155,24 +147,6 @@ const TelaInicial = () => {
                     }}
                 />
             )}
-
-            <View style={estilos.menu}>
-                <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('Principal')}>
-                    <Icon name="home" size={24} color="#333" />
-                    <Text style={estilos.menuTexto}>Home</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={estilos.menuItem} onPress={() => navigation.navigate('ConsultaAgendamento')}>
-                    <Icon name="search-outline" size={24} color="#333" />
-                    <Text style={estilos.menuTexto}>Buscar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={estilos.menuItem}
-                    onPress={() => navigation.navigate('Usuario', { EhUsuarioNovo: false })}
-                >
-                    <Icon name="person-outline" size={24} color="#333" />
-                    <Text style={estilos.menuTexto}>Perfil</Text>
-                </TouchableOpacity>
-            </View>
         </View>
     );
 };
@@ -186,61 +160,49 @@ const estilos = StyleSheet.create({
     tituloSecao: {
         fontSize: 20,
         fontWeight: 'bold',
-        marginTop: 20,
+        marginTop: 10,
         marginBottom: 10,
         color: '#2C3E50',
         paddingHorizontal: 16,
     },
-    gridCategorias: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
+    listaCategorias: {
         paddingHorizontal: 16,
+        paddingBottom: 8,
     },
     itemCategoria: {
-        backgroundColor: '#E8F6EF',
+        backgroundColor: '#E0F7FA',
         borderRadius: 12,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 12,
-        marginBottom: 12,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowOffset: { width: 0, height: 1 },
-        shadowRadius: 3,
+        padding: 10,
+        marginRight: 12,
+        width: 90,
+        height: 80,
     },
-    categoriaGrande: {
-        width: '48%',
-        height: 130,
-    },
-    categoriaPequena: {
-        width: '31%',
-        height: 100,
+    itemCategoriaSelecionada: {
+        backgroundColor: '#26C6DA',
     },
     iconeCategoria: {
-        width: 50,
-        height: 50,
-        marginBottom: 8,
+        width: 36,
+        height: 36,
+        marginBottom: 4,
         resizeMode: 'contain',
     },
     textoCategoria: {
-        fontSize: 14,
-        color: '#34495E',
+        fontSize: 12,
+        color: '#00796B',
         textAlign: 'center',
-        fontWeight: '500',
+    },
+    textoCategoriaSelecionada: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
     cartaoPromocao: {
         backgroundColor: '#F0F4FF',
-        marginHorizontal: 16,
-        marginBottom: 16,
-        borderRadius: 16,
+        marginRight: 10,
+        borderRadius: 12,
         overflow: 'hidden',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOpacity: 0.06,
-        shadowOffset: { width: 0, height: 2 },
-        shadowRadius: 6,
+        width: 280,
     },
     imagemPromocao: {
         width: '100%',
@@ -258,31 +220,6 @@ const estilos = StyleSheet.create({
         fontSize: 14,
         color: '#7F8C8D',
         marginTop: 4,
-    },
-    containerBusca: {
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        marginVertical: 16,
-    },
-    inputBusca: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        height: 40,
-        marginRight: 8,
-        color: '#333',
-    },
-    botaoBusca: {
-        backgroundColor: '#28A745',
-        paddingHorizontal: 16,
-        borderRadius: 8,
-        justifyContent: 'center',
-    },
-    textoBotaoBusca: {
-        color: '#fff',
-        fontWeight: 'bold',
     },
     itemPetShop: {
         flexDirection: 'row',
@@ -302,23 +239,6 @@ const estilos = StyleSheet.create({
         fontSize: 16,
         color: '#2C3E50',
         fontWeight: 'bold',
-    },
-    menu: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        paddingVertical: 10,
-        borderTopWidth: 1,
-        borderTopColor: '#ccc',
-        backgroundColor: '#f9f9f9',
-    },
-    menuItem: {
-        alignItems: 'center',
-    },
-    menuTexto: {
-        fontSize: 12,
-        color: '#333',
-        marginTop: 4,
     },
     overlay: {
         flex: 1,

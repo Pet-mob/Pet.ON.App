@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import Routes from './src/routes/routes.js';
+import Routes from './src/routes/routes';
+import Toast from 'react-native-toast-message';
+import { notificacaoToastCustomizado } from './src/components/notificacaoToastCustomizado';
 import { LocaleConfig } from 'react-native-calendars';
-import Toast from 'react-native-toast-message'; // importe o Toast
-import { notificacaoToastCustomizado } from './src/components/notificacaoToastCustomizado'; // ajuste se o nome for diferente
 
 export default function App() {
   LocaleConfig.locales['pt-br'] = {
@@ -26,12 +26,10 @@ export default function App() {
   LocaleConfig.defaultLocale = 'pt-br';
 
   return (
-    <>
-      <NavigationContainer>
-        <Routes />
-      </NavigationContainer>
-
+    <NavigationContainer>
+      <Routes />
       <Toast config={notificacaoToastCustomizado} visibilityTime={3000} autoHide position="top" />
-    </>
+    </NavigationContainer>
   );
 }
+

@@ -48,7 +48,7 @@ const Privacidade = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={26} color="#FFFFFF" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Privacidade</Text>

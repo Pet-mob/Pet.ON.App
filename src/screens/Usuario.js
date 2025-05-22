@@ -19,7 +19,7 @@ const Usuario = () => {
         <View style={styles.container}>
             {/* Cabeçalho */}
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Principal')}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
                 <Text style={styles.title}>{nomeUsuario}</Text>

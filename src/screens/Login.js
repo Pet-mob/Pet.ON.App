@@ -57,7 +57,7 @@ const TelaLogin = () => {
 
             if (resposta.loginAtivado) {
                 setUsuarioStore(resposta.buscarUsuarioResDto);
-                navigation.navigate('Principal');
+                navigation.navigate('MenuInferior');
             } else {
                 Toast.show({
                     type: 'error',

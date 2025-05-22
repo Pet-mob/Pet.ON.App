@@ -100,7 +100,7 @@ const DadosContas = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Usuario")}>
+                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                     <Ionicons name="arrow-back" size={28} color="#FFFFFF" />
                 </TouchableOpacity>
                 <Text style={styles.title}>Dados da Conta</Text>

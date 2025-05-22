@@ -29,7 +29,7 @@ export default function MenuInferior() {
 
                     return <Icon name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: '#4caf50',
+                tabBarActiveTintColor: 'black',
                 tabBarInactiveTintColor: 'gray',
             })}
         >

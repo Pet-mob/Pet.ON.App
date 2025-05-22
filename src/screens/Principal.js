@@ -129,13 +129,13 @@ const TelaInicial = () => {
                     ListHeaderComponent={renderHeader}
                     renderItem={({ item }) => {
                         const logo = listaLogos.find(logo => logo.idEmpresa === item.idEmpresa);
-                        const imagemLogo = logo?.url || "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png";
+                        const imagemLogo = logo?.url ? { uri: logo.url } : require('../../assets/usuario.png');
 
                         return (
                             <TouchableOpacity onPress={() => irParaAgendamento(item.idEmpresa)}>
                                 <View style={estilos.itemPetShop}>
                                     <Image
-                                        source={{ uri: imagemLogo }}
+                                        source={imagemLogo}
                                         style={estilos.iconePetShop}
                                     />
                                     <View>
@@ -155,7 +155,7 @@ const estilos = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingTop: 20,
+        paddingTop: 30,
     },
     tituloSecao: {
         fontSize: 20,

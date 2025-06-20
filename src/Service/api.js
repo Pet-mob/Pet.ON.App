@@ -1,8 +1,9 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
-    // baseURL: 'https://pet-on-api.azurewebsites.net/api'
-    baseURL: 'http://192.168.0.15:5000/api'
+  // baseURL: 'https://pet-on-api.azurewebsites.net/api'
+  baseURL:
+    "https://peton-api-prod-c8bwfnfqghgaccdn.brazilsouth-01.azurewebsites.net/api/",
 });
 
 export default api;

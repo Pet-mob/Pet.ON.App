@@ -19,7 +19,7 @@ export default function MenuInferior() {
 
           if (route.name === "Principal") {
             iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "ConsultaAgendamento") {
+          } else if (route.name === "Agendamentos") {
             iconName = focused ? "calendar" : "calendar-outline";
           } else if (route.name === "Usuario") {
             iconName = focused ? "person" : "person-outline";
@@ -35,7 +35,7 @@ export default function MenuInferior() {
     >
       <Tab.Screen name="Principal" component={Principal} />
       <Tab.Screen name="Buscar" component={Buscar} />
-      <Tab.Screen name="Meus agendamento" component={ConsultaAgendamento} />
+      <Tab.Screen name="Agendamentos" component={ConsultaAgendamento} />
       <Tab.Screen name="Usuario" component={Usuario} />
     </Tab.Navigator>
   );

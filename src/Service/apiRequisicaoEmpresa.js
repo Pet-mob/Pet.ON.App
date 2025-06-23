@@ -10,9 +10,9 @@ const buscarEmpresas = async () => {
   }
 };
 
-const buscarEmpresasVinculadoAoUsuario = async (idUsuario) => {
+const buscarEmpresasVinculadoAoUsuario = async (idUsuario, idCategoria) => {
   try {
-    const uri = `/BuscarEmpresasVinculadoAoUsuario?idUsuario=${idUsuario}`;
+    const uri = `/Empresa/BuscarEmpresasVinculadoAoUsuario?idUsuario=${idUsuario}&idCategoria=${idCategoria}`;
     const resposta = await api.get(uri);
     return resposta.data;
   } catch (error) {

@@ -1,270 +1,263 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
+  StyleSheet,
+  FlatList,
   TouchableOpacity,
   Image,
-  FlatList,
-  StyleSheet,
-  ActivityIndicator,
+  Modal,
 } from "react-native";
-import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa";
-import { useNavigation } from "@react-navigation/native";
-import { setEmpresaStore } from "../store/store";
-import { getUsuarioStore } from "../store/store";
+import { Ionicons } from "@expo/vector-icons";
 
-const categorias = [
-  { id: 1, nome: "Pet shop", icone: require("../../assets/PetShop.png") },
-  {
-    id: 2,
-    nome: "Veterinário",
-    icone: require("../../assets/Veterinario.png"),
-  },
-  { id: 3, nome: "Hotel", icone: require("../../assets/HotelPet.png") },
-  { id: 4, nome: "Creche", icone: require("../../assets/Creche.png") },
-];
-
-const filtrosExtra = [
-  { id: "aberto", nome: "Aberto agora" },
-  { id: "promocao", nome: "Com promoções" },
-];
-
-const Buscar = () => {
-  const navigation = useNavigation();
-  const [empresas, setEmpresas] = useState([]);
-  const [listaLogos, setListaLogos] = useState([]);
+const Buscar = ({ navigation, route }) => {
   const [busca, setBusca] = useState("");
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
-  const [filtrosAtivos, setFiltrosAtivos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [filtroCategoria, setFiltroCategoria] = useState(null);
+  const [modalOrdenacaoVisible, setModalOrdenacaoVisible] = useState(false);
 
-  const usuario = getUsuarioStore();
+  const categorias = [
+    { id: 1, nome: "Pet shop", imagem: require("../../assets/PetShop.png") },
+    {
+      id: 2,
+      nome: "Veterinário",
+      imagem: require("../../assets/Veterinario.png"),
+    },
+    { id: 3, nome: "Hotel", imagem: require("../../assets/HotelPet.png") },
+    { id: 4, nome: "Creche", imagem: require("../../assets/Creche.png") },
+  ];
 
-  const carregarEmpresas = async () => {
-    setLoading(true);
-    try {
-      const responseEmpresas =
-        await apiRequisicaoEmpresa.buscarEmpresasVinculadoAoUsuario(
-          usuario.id,
-          categoriaSelecionada
-        );
+  const empresas = [
+    {
+      nome: "Pet Feliz",
+      categoria: "Pet shop",
+      nota: 4.9,
+      tempo: "30-40 min",
+      preco: "R$ 35,00",
+      imagem: require("../../assets/PetShop.png"),
+    },
+    {
+      nome: "Clínica Vet Vida",
+      categoria: "Veterinário",
+      nota: 4.8,
+      tempo: "20-30 min",
+      preco: "R$ 80,00",
+      imagem: require("../../assets/Veterinario.png"),
+    },
+    {
+      nome: "Hotel Bom pra Cachorro",
+      categoria: "Hotel",
+      nota: 4.7,
+      tempo: "50-60 min",
+      preco: "R$ 120,00",
+      imagem: require("../../assets/HotelPet.png"),
+    },
+    {
+      nome: "Creche Pet Love",
+      categoria: "Creche",
+      nota: 4.5,
+      tempo: "40-50 min",
+      preco: "R$ 90,00",
+      imagem: require("../../assets/Creche.png"),
+    },
+  ];
 
-      const responseLogos = await apiRequisicaoEmpresa.buscarLogosEmpresas();
-      setEmpresas(responseEmpresas);
-      setListaLogos(responseLogos);
-    } catch (err) {
-      console.log("Erro:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    carregarEmpresas();
-  }, [categoriaSelecionada]);
-
-  const toggleFiltro = (filtroId) => {
-    setFiltrosAtivos((prev) =>
-      prev.includes(filtroId)
-        ? prev.filter((f) => f !== filtroId)
-        : [...prev, filtroId]
-    );
-  };
-
-  const irParaAgendamento = (idEmpresa) => {
-    const empresaSelecionada = empresas.find((e) => e.idEmpresa === idEmpresa);
-    setEmpresaStore(empresaSelecionada);
-    navigation.navigate("Agendamento", { idEmpresaPetShop: idEmpresa });
-  };
-
-  const empresasFiltradas = empresas
-    .filter((empresa) =>
-      empresa.descricaoNomeFisica.toLowerCase().includes(busca.toLowerCase())
-    )
-    .filter((empresa) => {
-      if (filtrosAtivos.includes("promocao") && !empresa.temPromocao) {
-        return false;
-      }
-      if (filtrosAtivos.includes("aberto") && !empresa.abertoAgora) {
-        return false;
-      }
-      return true;
-    });
+  const empresasFiltradas = empresas.filter((empresa) => {
+    const porNome = empresa.nome.toLowerCase().includes(busca.toLowerCase());
+    const porCategoria = filtroCategoria
+      ? empresa.categoria === filtroCategoria
+      : true;
+    return porNome && porCategoria;
+  });
 
   return (
-    <View style={estilos.container}>
-      <TextInput
-        placeholder="Buscar por nome..."
-        value={busca}
-        onChangeText={setBusca}
-        style={estilos.inputBuscar}
-      />
+    <View style={styles.container}>
+      {/* Campo de busca */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#999" />
+        <TextInput
+          placeholder="Buscar empresas..."
+          style={styles.input}
+          value={busca}
+          onChangeText={setBusca}
+        />
+      </View>
 
-      <FlatList
-        data={categorias}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={estilos.listaCategorias}
-        renderItem={({ item }) => {
-          const selecionada = item.id === categoriaSelecionada;
-          return (
-            <TouchableOpacity
-              onPress={() =>
-                setCategoriaSelecionada(selecionada ? null : item.id)
-              }
-              style={[
-                estilos.itemCategoria,
-                selecionada && estilos.itemCategoriaSelecionada,
-              ]}
-            >
-              <Image source={item.icone} style={estilos.iconeCategoria} />
-              <Text
-                style={[
-                  estilos.textoCategoria,
-                  selecionada && estilos.textoCategoriaSelecionada,
-                ]}
-              >
-                {item.nome}
-              </Text>
-            </TouchableOpacity>
-          );
-        }}
-      />
-
-      <FlatList
-        data={filtrosExtra}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={estilos.filtrosContainer}
-        renderItem={({ item }) => {
-          const ativo = filtrosAtivos.includes(item.id);
-          return (
-            <TouchableOpacity
-              onPress={() => toggleFiltro(item.id)}
-              style={[estilos.filtroBadge, ativo && estilos.filtroBadgeAtivo]}
-            >
-              <Text style={{ color: ativo ? "#fff" : "#00796B" }}>
-                {item.nome}
-              </Text>
-            </TouchableOpacity>
-          );
-        }}
-      />
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#28A745" />
-      ) : (
+      {/* Lista de categorias */}
+      <View style={{ flexShrink: 1 }}>
         <FlatList
-          data={empresasFiltradas}
-          keyExtractor={(item) => item.idEmpresa.toString()}
+          data={categorias}
+          numColumns={4}
+          key={"4-cols"}
+          keyExtractor={(item) => item.nome}
+          contentContainerStyle={styles.categoriasContainer}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
           renderItem={({ item }) => {
-            const logo = listaLogos.find((l) => l.idEmpresa === item.idEmpresa);
-            const imagem = logo?.url
-              ? { uri: logo.url }
-              : require("../../assets/usuario.png");
-
+            const selecionado = filtroCategoria === item.nome;
             return (
               <TouchableOpacity
-                onPress={() => irParaAgendamento(item.idEmpresa)}
+                style={[
+                  styles.categoriaCard,
+                  selecionado && styles.categoriaSelecionada,
+                ]}
+                onPress={() =>
+                  setFiltroCategoria((prev) =>
+                    prev === item.nome ? null : item.nome
+                  )
+                }
               >
-                <View style={estilos.itemEmpresa}>
-                  <Image source={imagem} style={estilos.iconeEmpresa} />
-                  <Text style={estilos.nomeEmpresa}>
-                    {item.descricaoNomeFisica}
-                  </Text>
-                </View>
+                <Image source={item.imagem} style={styles.categoriaImagem} />
+                <Text style={styles.categoriaTexto}>{item.nome}</Text>
               </TouchableOpacity>
             );
           }}
-          ListEmptyComponent={
-            <Text style={{ textAlign: "center", marginTop: 20 }}>
-              Nenhuma empresa encontrada
-            </Text>
-          }
         />
-      )}
+      </View>
+
+      {/* Filtros rápidos */}
+      <View style={styles.filtrosContainer}>
+        <TouchableOpacity
+          onPress={() => setModalOrdenacaoVisible(true)}
+          style={styles.filtroBotao}
+        >
+          <Text>Ordenar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filtroBotao}>
+          <Text>Promoções</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.filtroBotao}>
+          <Text>Aberto agora</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Lista de empresas */}
+      <FlatList
+        data={empresasFiltradas}
+        keyExtractor={(item) => item.nome}
+        renderItem={({ item }) => (
+          <View style={styles.empresaCard}>
+            <Image source={item.imagem} style={styles.empresaImagem} />
+            <View style={styles.empresaInfo}>
+              <Text style={styles.empresaNome}>{item.nome}</Text>
+              <Text>
+                {item.categoria} • {item.tempo} • {item.preco}
+              </Text>
+            </View>
+          </View>
+        )}
+        ListEmptyComponent={
+          <Text style={{ textAlign: "center", marginTop: 20 }}>
+            Nenhuma empresa encontrada.
+          </Text>
+        }
+      />
+
+      {/* Modal de ordenação */}
+      <Modal visible={modalOrdenacaoVisible} animationType="slide" transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Ordenar por</Text>
+            <TouchableOpacity onPress={() => setModalOrdenacaoVisible(false)}>
+              <Text>Ordenação Padrão</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text>Preço</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text>Avaliação</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text>Tempo de entrega</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Text>Distância</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-const estilos = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 40,
-    paddingHorizontal: 16,
-  },
-  inputBuscar: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff", paddingTop: 40 },
+  searchContainer: {
+    flexDirection: "row",
+    backgroundColor: "#eee",
     borderRadius: 8,
+    margin: 16,
     paddingHorizontal: 12,
-    marginBottom: 10,
-  },
-  listaCategorias: {
-    marginBottom: 10,
-  },
-  itemCategoria: {
-    backgroundColor: "#E0F7FA",
-    borderRadius: 12,
     alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    marginRight: 12,
-    width: 90,
-    height: 80,
   },
-  itemCategoriaSelecionada: {
+  input: { flex: 1, padding: 10 },
+  categoriasContainer: {
+    paddingHorizontal: 3,
+  },
+  categoriaCard: {
+    backgroundColor: "#E0F7FA",
+    borderRadius: 10,
+    padding: 10,
+    alignItems: "center",
+    margin: 8,
+    flex: 1,
+  },
+  categoriaSelecionada: {
     backgroundColor: "#26C6DA",
   },
-  iconeCategoria: {
-    width: 36,
-    height: 36,
-    marginBottom: 4,
+  categoriaImagem: {
+    width: 60,
+    height: 60,
+    marginBottom: 8,
   },
-  textoCategoria: {
+  categoriaTexto: {
     fontSize: 12,
     color: "#00796B",
     textAlign: "center",
   },
-  textoCategoriaSelecionada: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
   filtrosContainer: {
-    marginBottom: 10,
-  },
-  filtroBadge: {
-    backgroundColor: "#E0F2F1",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  filtroBadgeAtivo: {
-    backgroundColor: "#00796B",
-  },
-  itemEmpresa: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    justifyContent: "space-evenly",
+    marginVertical: 10,
   },
-  iconeEmpresa: {
+  filtroBotao: {
+    backgroundColor: "#eee",
+    padding: 10,
+    borderRadius: 20,
+  },
+  empresaCard: {
+    flexDirection: "row",
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: "#eee",
+  },
+  empresaImagem: {
     width: 60,
     height: 60,
-    borderRadius: 30,
-    marginRight: 12,
+    marginRight: 10,
   },
-  nomeEmpresa: {
-    fontSize: 16,
+  empresaInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  empresaNome: {
     fontWeight: "bold",
-    color: "#2C3E50",
+    marginBottom: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+  },
+  modalTitle: {
+    fontWeight: "bold",
+    fontSize: 18,
+    marginBottom: 10,
   },
 });
 

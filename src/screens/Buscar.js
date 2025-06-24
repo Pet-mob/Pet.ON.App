@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,13 +8,20 @@ import {
   TouchableOpacity,
   Image,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa.js";
+import { getUsuarioStore } from "../store/store.js";
 
 const Buscar = ({ navigation, route }) => {
   const [busca, setBusca] = useState("");
-  const [filtroCategoria, setFiltroCategoria] = useState(null);
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState(1); // ID 1 selecionado por padrão
+  const [filtroCategoria, setFiltroCategoria] = useState("Pet shop"); // Nome sincronizado só para exibição
   const [modalOrdenacaoVisible, setModalOrdenacaoVisible] = useState(false);
+  const [empresas, setEmpresas] = useState([]);
+  const [listaLogos, setListaLogos] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const categorias = [
     { id: 1, nome: "Pet shop", imagem: require("../../assets/PetShop.png") },
@@ -27,48 +34,43 @@ const Buscar = ({ navigation, route }) => {
     { id: 4, nome: "Creche", imagem: require("../../assets/Creche.png") },
   ];
 
-  const empresas = [
-    {
-      nome: "Pet Feliz",
-      categoria: "Pet shop",
-      nota: 4.9,
-      tempo: "30-40 min",
-      preco: "R$ 35,00",
-      imagem: require("../../assets/PetShop.png"),
-    },
-    {
-      nome: "Clínica Vet Vida",
-      categoria: "Veterinário",
-      nota: 4.8,
-      tempo: "20-30 min",
-      preco: "R$ 80,00",
-      imagem: require("../../assets/Veterinario.png"),
-    },
-    {
-      nome: "Hotel Bom pra Cachorro",
-      categoria: "Hotel",
-      nota: 4.7,
-      tempo: "50-60 min",
-      preco: "R$ 120,00",
-      imagem: require("../../assets/HotelPet.png"),
-    },
-    {
-      nome: "Creche Pet Love",
-      categoria: "Creche",
-      nota: 4.5,
-      tempo: "40-50 min",
-      preco: "R$ 90,00",
-      imagem: require("../../assets/Creche.png"),
-    },
-  ];
+  // Sincronizar nome da categoria (filtroCategoria) baseado no ID
+  useEffect(() => {
+    const cat = categorias.find((c) => c.id === categoriaSelecionada);
+    setFiltroCategoria(cat?.nome || null);
+  }, [categoriaSelecionada]);
 
-  const empresasFiltradas = empresas.filter((empresa) => {
-    const porNome = empresa.nome.toLowerCase().includes(busca.toLowerCase());
-    const porCategoria = filtroCategoria
-      ? empresa.categoria === filtroCategoria
-      : true;
-    return porNome && porCategoria;
-  });
+  // Carregar empresas da categoria selecionada
+  useEffect(() => {
+    const carregarDados = async () => {
+      setLoading(true);
+      try {
+        const usuarioStore = getUsuarioStore();
+        const idUsuarioLogado = usuarioStore.id;
+
+        const [empresasResp, logosResp] = await Promise.all([
+          apiRequisicaoEmpresa.buscarEmpresas(
+            idUsuarioLogado,
+            categoriaSelecionada
+          ),
+          apiRequisicaoEmpresa.buscarLogosEmpresas(),
+        ]);
+
+        setEmpresas(empresasResp);
+        setListaLogos(logosResp);
+      } catch (error) {
+        console.log("Erro ao carregar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDados();
+  }, [categoriaSelecionada]);
+
+  const empresasFiltradas = empresas.filter((empresa) =>
+    empresa.nome?.toLowerCase().includes(busca.toLowerCase())
+  );
 
   return (
     <View style={styles.container}>
@@ -89,11 +91,11 @@ const Buscar = ({ navigation, route }) => {
           data={categorias}
           numColumns={4}
           key={"4-cols"}
-          keyExtractor={(item) => item.nome}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.categoriasContainer}
           columnWrapperStyle={{ justifyContent: "space-between" }}
           renderItem={({ item }) => {
-            const selecionado = filtroCategoria === item.nome;
+            const selecionado = categoriaSelecionada === item.id;
             return (
               <TouchableOpacity
                 style={[
@@ -101,8 +103,8 @@ const Buscar = ({ navigation, route }) => {
                   selecionado && styles.categoriaSelecionada,
                 ]}
                 onPress={() =>
-                  setFiltroCategoria((prev) =>
-                    prev === item.nome ? null : item.nome
+                  setCategoriaSelecionada((prev) =>
+                    prev === item.id ? null : item.id
                   )
                 }
               >
@@ -130,28 +132,6 @@ const Buscar = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Lista de empresas */}
-      <FlatList
-        data={empresasFiltradas}
-        keyExtractor={(item) => item.nome}
-        renderItem={({ item }) => (
-          <View style={styles.empresaCard}>
-            <Image source={item.imagem} style={styles.empresaImagem} />
-            <View style={styles.empresaInfo}>
-              <Text style={styles.empresaNome}>{item.nome}</Text>
-              <Text>
-                {item.categoria} • {item.tempo} • {item.preco}
-              </Text>
-            </View>
-          </View>
-        )}
-        ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 20 }}>
-            Nenhuma empresa encontrada.
-          </Text>
-        }
-      />
-
       {/* Modal de ordenação */}
       <Modal visible={modalOrdenacaoVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
@@ -175,10 +155,43 @@ const Buscar = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
+
+      {/* Lista de empresas */}
+      {loading ? (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#28A745" />
+        </View>
+      ) : (
+        <FlatList
+          data={empresasFiltradas}
+          keyExtractor={(item) => item.nome}
+          renderItem={({ item }) => (
+            <View style={styles.empresaCard}>
+              <Image
+                source={{
+                  uri: item.logo || require("../../assets/usuario.png"),
+                }}
+                style={styles.empresaImagem}
+              />
+              <View style={styles.empresaInfo}>
+                <Text style={styles.empresaNome}>{item.nome}</Text>
+                <Text>
+                  {item.categoria} • {item.tempo || "00-00 min"} •{" "}
+                  {item.preco || "R$ --,--"}
+                </Text>
+              </View>
+            </View>
+          )}
+          ListEmptyComponent={
+            <Text style={{ textAlign: "center", marginTop: 20 }}>
+              Nenhuma empresa encontrada.
+            </Text>
+          }
+        />
+      )}
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingTop: 40 },
   searchContainer: {
@@ -191,23 +204,23 @@ const styles = StyleSheet.create({
   },
   input: { flex: 1, padding: 10 },
   categoriasContainer: {
-    paddingHorizontal: 3,
+    paddingHorizontal: 8,
   },
   categoriaCard: {
     backgroundColor: "#E0F7FA",
     borderRadius: 10,
     padding: 10,
     alignItems: "center",
-    margin: 8,
+    margin: 4,
     flex: 1,
   },
   categoriaSelecionada: {
     backgroundColor: "#26C6DA",
   },
   categoriaImagem: {
-    width: 60,
-    height: 60,
-    marginBottom: 8,
+    width: 50,
+    height: 50,
+    marginBottom: 4,
   },
   categoriaTexto: {
     fontSize: 12,
@@ -234,6 +247,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginRight: 10,
+    borderRadius: 8,
+    backgroundColor: "#ddd",
   },
   empresaInfo: {
     flex: 1,
@@ -258,6 +273,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 18,
     marginBottom: 10,
+  },
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

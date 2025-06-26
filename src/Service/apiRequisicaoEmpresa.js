@@ -2,7 +2,7 @@ import api from "./api";
 
 const buscarEmpresas = async (idCategoria) => {
   try {
-    const uri = `/Empresa`;
+    var uri = `/Empresa`;
     if (idCategoria > 0) uri = uri + `?IdCategoria=${idCategoria}`;
     const resposta = await api.get(uri);
     return resposta.data;
@@ -47,6 +47,16 @@ const buscarLogosEmpresas = async () => {
   }
 };
 
+const buscarLogoEmpresaPorIdEmpresa = async (idEmpresa) => {
+  try {
+    const uri = `/Empresa/BuscarLogoEmpresaPorIdEmpresa?IdEmpresa=${idEmpresa}`;
+    const resposta = await api.get(uri);
+    return resposta.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const enviarLogoEmpresa = async (arquivoParam, idEmpresaParam) => {
   try {
     const dtoRequisicao = {
@@ -70,4 +80,5 @@ export default {
   buscarEmpresasVinculadoAoUsuario,
   buscarLogosEmpresas,
   enviarLogoEmpresa,
+  buscarLogoEmpresaPorIdEmpresa,
 };

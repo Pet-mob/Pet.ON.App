@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa.js";
-import { getUsuarioStore } from "../store/store.js";
+import { setEmpresaStore } from "../store/store.js";
 
 const Buscar = ({ navigation, route }) => {
   const [busca, setBusca] = useState("");
@@ -34,43 +34,52 @@ const Buscar = ({ navigation, route }) => {
     { id: 4, nome: "Creche", imagem: require("../../assets/Creche.png") },
   ];
 
+  const handleSelecionarCategoria = async (categoriaId) => {
+    const novoValor = categoriaSelecionada === categoriaId ? null : categoriaId;
+    setCategoriaSelecionada(novoValor);
+
+    // Aguarde o próximo tick do estado (simulando delay)
+    setTimeout(() => {
+      carregarEmpresas(novoValor); // chama manualmente a função de carregar com o novo valor
+    }, 0);
+  };
+
   // Sincronizar nome da categoria (filtroCategoria) baseado no ID
   useEffect(() => {
     const cat = categorias.find((c) => c.id === categoriaSelecionada);
     setFiltroCategoria(cat?.nome || null);
   }, [categoriaSelecionada]);
 
+  const carregarEmpresas = async (categoriaId) => {
+    setLoading(true);
+    try {
+      const [empresasResp, logosResp] = await Promise.all([
+        apiRequisicaoEmpresa.buscarEmpresas(categoriaId),
+        apiRequisicaoEmpresa.buscarLogosEmpresas(),
+      ]);
+
+      setEmpresas(empresasResp);
+      setListaLogos(logosResp);
+    } catch (error) {
+      console.log("Erro ao carregar dados:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   // Carregar empresas da categoria selecionada
   useEffect(() => {
-    const carregarDados = async () => {
-      setLoading(true);
-      try {
-        const usuarioStore = getUsuarioStore();
-        const idUsuarioLogado = usuarioStore.id;
-
-        const [empresasResp, logosResp] = await Promise.all([
-          apiRequisicaoEmpresa.buscarEmpresas(
-            idUsuarioLogado,
-            categoriaSelecionada
-          ),
-          apiRequisicaoEmpresa.buscarLogosEmpresas(),
-        ]);
-
-        setEmpresas(empresasResp);
-        setListaLogos(logosResp);
-      } catch (error) {
-        console.log("Erro ao carregar dados:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    carregarDados();
-  }, [categoriaSelecionada]);
+    carregarEmpresas(categoriaSelecionada);
+  }, []);
 
   const empresasFiltradas = empresas.filter((empresa) =>
-    empresa.nome?.toLowerCase().includes(busca.toLowerCase())
+    empresa.descricaoNomeFisica?.toLowerCase().includes(busca.toLowerCase())
   );
+
+  const irParaAgendamento = (idPetShop) => {
+    const empresaSelecionada = empresas.find((e) => e.idEmpresa === idPetShop);
+    setEmpresaStore(empresaSelecionada);
+    navigation.navigate("Agendamento", { idEmpresaPetShop: idPetShop });
+  };
 
   return (
     <View style={styles.container}>
@@ -102,11 +111,7 @@ const Buscar = ({ navigation, route }) => {
                   styles.categoriaCard,
                   selecionado && styles.categoriaSelecionada,
                 ]}
-                onPress={() =>
-                  setCategoriaSelecionada((prev) =>
-                    prev === item.id ? null : item.id
-                  )
-                }
+                onPress={() => handleSelecionarCategoria(item.id)}
               >
                 <Image source={item.imagem} style={styles.categoriaImagem} />
                 <Text style={styles.categoriaTexto}>{item.nome}</Text>
@@ -164,23 +169,35 @@ const Buscar = ({ navigation, route }) => {
       ) : (
         <FlatList
           data={empresasFiltradas}
-          keyExtractor={(item) => item.nome}
+          keyExtractor={(item, index) =>
+            item.idEmpresa?.toString() || `${item.descricaoNomeFisica}-${index}`
+          }
           renderItem={({ item }) => (
-            <View style={styles.empresaCard}>
+            <TouchableOpacity
+              style={styles.empresaCard}
+              onPress={() => irParaAgendamento(item.idEmpresa)}
+            >
               <Image
                 source={{
-                  uri: item.logo || require("../../assets/usuario.png"),
+                  uri:
+                    item.urlLogoEmpresa ||
+                    require("../../assets/LogoGrande.png"),
                 }}
                 style={styles.empresaImagem}
               />
               <View style={styles.empresaInfo}>
-                <Text style={styles.empresaNome}>{item.nome}</Text>
-                <Text>
-                  {item.categoria} • {item.tempo || "00-00 min"} •{" "}
-                  {item.preco || "R$ --,--"}
+                <Text style={styles.empresaNome}>
+                  {item.descricaoNomeFisica}
+                </Text>
+
+                {/* Selos exibidos como subtítulo */}
+                <Text style={styles.empresaSelos}>
+                  {item.hipoalergenico && "🧴 Hipoalergênico"}{" "}
+                  {item.taxiDog && "🚕 Táxi Dog"}
+                  {/* Adicione outros selos aqui, se houver */}
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           )}
           ListEmptyComponent={
             <Text style={{ textAlign: "center", marginTop: 20 }}>
@@ -192,6 +209,7 @@ const Buscar = ({ navigation, route }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff", paddingTop: 40 },
   searchContainer: {
@@ -253,6 +271,11 @@ const styles = StyleSheet.create({
   empresaInfo: {
     flex: 1,
     justifyContent: "center",
+  },
+  empresaSelos: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
   },
   empresaNome: {
     fontWeight: "bold",

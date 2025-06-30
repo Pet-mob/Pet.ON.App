@@ -276,7 +276,11 @@ const Agendamento = ({ navigation, route }) => {
                       alignItems: "center",
                     }}
                   >
-                    <Icon name="arrow-back" size={28} color="#007aff" />
+                    <Icon
+                      name="chevron-back-outline"
+                      size={28}
+                      color="#007aff"
+                    />
                   </TouchableOpacity>
                   <ExpoImage
                     source={require("../../assets/PetShop.png")}

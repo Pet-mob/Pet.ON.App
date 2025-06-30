@@ -61,15 +61,11 @@ const Agendamento = ({ navigation, route }) => {
       if (servicosApi) setServicos(servicosApi);
 
       // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
-      const parametros =
-        (await apiRequisicaoEmpresa.buscarParametrosEmpresa?.(idEmpresaPetShop)) ||
-        { modeloTrabalho: 1, qtdeAtendimentoSimultaneoHorario: 1 };
+      const parametros = (await apiRequisicaoEmpresa.buscarParametrosEmpresa?.(
+        idEmpresaPetShop
+      )) || { modeloTrabalho: 1, qtdeAtendimentoSimultaneoHorario: 1 };
       setParametrosEmpresa(parametros);
 
-      const capaEmpresa =
-        await apiRequisicaoEmpresa.buscarLogoEmpresaPorIdEmpresa(
-          idEmpresaPetShop
-        );
       // Carregar fotos dos pets
       await manipularFotoAnimal(petsApi);
 
@@ -270,14 +266,33 @@ const Agendamento = ({ navigation, route }) => {
               />
               {/* 2 - Dados da empresa */}
               <View style={styles.infoBox}>
-                <ExpoImage
-                  source={require("../../assets/PetShop.png")}
-                  style={styles.logoEmpresa}
-                  placeholder={placeholderImg}
-                  contentFit="cover"
-                  transition={300}
-                />
-
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    height: 60,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{
+                      marginRight: 10,
+                      height: 60,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Icon name="arrow-back" size={28} color="#007aff" />
+                  </TouchableOpacity>
+                  <ExpoImage
+                    source={require("../../assets/PetShop.png")}
+                    style={styles.logoEmpresa}
+                    placeholder={placeholderImg}
+                    contentFit="cover"
+                    transition={300}
+                  />
+                </View>
                 <View style={styles.textosEmpresa}>
                   <Text style={styles.nomeEmpresa}>
                     Parque Burguer - Burguer Artesanal
@@ -304,7 +319,7 @@ const Agendamento = ({ navigation, route }) => {
                   >
                     <ExpoImage
                       source={
-                        item.imagem?.startsWith("http")
+                        typeof item.imagem === "string"
                           ? { uri: item.imagem }
                           : item.imagem
                       }
@@ -325,7 +340,11 @@ const Agendamento = ({ navigation, route }) => {
                 <Text style={styles.textBtnConfirmar}>Selecionar Serviços</Text>
               </TouchableOpacity>
               {/* Modal de serviços */}
-              <Modal visible={modalServicosVisible} animationType="slide" transparent>
+              <Modal
+                visible={modalServicosVisible}
+                animationType="slide"
+                transparent
+              >
                 <View
                   style={{
                     flex: 1,
@@ -361,7 +380,9 @@ const Agendamento = ({ navigation, route }) => {
                               } else {
                                 setServicosSelecionados((prev) =>
                                   prev.includes(servico.idServico)
-                                    ? prev.filter((id) => id !== servico.idServico)
+                                    ? prev.filter(
+                                        (id) => id !== servico.idServico
+                                      )
                                     : [...prev, servico.idServico]
                                 );
                               }
@@ -439,7 +460,10 @@ const Agendamento = ({ navigation, route }) => {
                           const count = horariosSelecionados.filter(
                             (h) => h === item
                           ).length;
-                          if (count >= parametrosEmpresa.qtdeAtendimentoSimultaneoHorario) {
+                          if (
+                            count >=
+                            parametrosEmpresa.qtdeAtendimentoSimultaneoHorario
+                          ) {
                             Alert.alert(
                               "Limite atingido",
                               "Este horário já atingiu o limite de atendimentos simultâneos."
@@ -451,7 +475,10 @@ const Agendamento = ({ navigation, route }) => {
                               horariosSelecionados.filter((h) => h !== item)
                             );
                           } else {
-                            setHorariosSelecionados([...horariosSelecionados, item]);
+                            setHorariosSelecionados([
+                              ...horariosSelecionados,
+                              item,
+                            ]);
                           }
                         }}
                       >
@@ -541,14 +568,21 @@ const Agendamento = ({ navigation, route }) => {
                   onPress={() => {
                     if (servicosSelecionados.includes(servico.idServico)) {
                       setServicosSelecionados(
-                        servicosSelecionados.filter((id) => id !== servico.idServico)
+                        servicosSelecionados.filter(
+                          (id) => id !== servico.idServico
+                        )
                       );
                     } else {
-                      setServicosSelecionados([...servicosSelecionados, servico.idServico]);
+                      setServicosSelecionados([
+                        ...servicosSelecionados,
+                        servico.idServico,
+                      ]);
                     }
                   }}
                 >
-                  <Text style={styles.servicoDescricao}>{servico.descricao}</Text>
+                  <Text style={styles.servicoDescricao}>
+                    {servico.descricao}
+                  </Text>
                   <Text style={styles.servicoValor}>R$ {servico.valor}</Text>
                   {servicosSelecionados.includes(servico.idServico) && (
                     <Icon name="checkmark" size={20} color="#007aff" />

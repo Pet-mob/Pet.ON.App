@@ -20,7 +20,7 @@ import apiRequisicaoAnimal from "../Service/apiRequisicaoAnimal";
 import apiRequisicaoServico from "../Service/apiRequisicaoServico";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa";
 import { Image as ExpoImage } from "expo-image";
-
+import { getEmpresaStore } from "../store/store";
 const placeholderImg = require("../../assets/placeholder.png");
 
 const Agendamento = ({ navigation, route }) => {
@@ -45,6 +45,7 @@ const Agendamento = ({ navigation, route }) => {
   const [datasSelecionadas, setDatasSelecionadas] = useState({});
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
   const [horariosSelecionados, setHorariosSelecionados] = useState([]);
+  const empresa = getEmpresaStore();
 
   useEffect(() => {
     carregarDados();
@@ -292,7 +293,7 @@ const Agendamento = ({ navigation, route }) => {
                 </View>
                 <View style={styles.textosEmpresa}>
                   <Text style={styles.nomeEmpresa}>
-                    Parque Burguer - Burguer Artesanal
+                    {empresa?.descricaoNomeFisica || "nome da empresa"}{" "}
                   </Text>
                   <Text style={styles.detalhesLoja}>
                     Endereço da empresa aqui

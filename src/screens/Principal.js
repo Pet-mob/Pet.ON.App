@@ -67,7 +67,7 @@ const TelaInicial = () => {
             idUsuarioLogado,
             categoriaSelecionada
           ),
-          apiRequisicaoEmpresa.buscarLogosEmpresas(),
+          apiRequisicaoEmpresa.buscarLogoEmpresas(),
         ]);
 
         setEmpresas(empresasResp);
@@ -127,9 +127,7 @@ const TelaInicial = () => {
           <View style={estilos.cartaoPromocao}>
             <ExpoImage
               source={
-                erroImagemPromocao[item.id]
-                  ? placeholderImg
-                  : item.imagem // sempre require ou {uri:...}
+                erroImagemPromocao[item.id] ? placeholderImg : item.imagem // sempre require ou {uri:...}
               }
               style={estilos.imagemPromocao}
               onError={() =>

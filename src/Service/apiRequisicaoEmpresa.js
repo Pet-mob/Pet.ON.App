@@ -37,7 +37,7 @@ const buscarNaAPIPorNomePetShop = async (campoBuscarPorNomePetShop) => {
   }
 };
 
-const buscarLogosEmpresas = async () => {
+const buscarLogoEmpresas = async () => {
   try {
     const resposta = await api.get("/Empresa/BuscarLogosEmpresas");
     return resposta.data;
@@ -78,7 +78,7 @@ export default {
   buscarEmpresas,
   buscarNaAPIPorNomePetShop,
   buscarEmpresasVinculadoAoUsuario,
-  buscarLogosEmpresas,
+  buscarLogoEmpresas,
   enviarLogoEmpresa,
   buscarLogoEmpresaPorIdEmpresa,
 };

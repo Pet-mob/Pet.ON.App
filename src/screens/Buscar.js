@@ -57,7 +57,7 @@ const Buscar = ({ navigation, route }) => {
     try {
       const [empresasResp, logosResp] = await Promise.all([
         apiRequisicaoEmpresa.buscarEmpresas(categoriaId),
-        apiRequisicaoEmpresa.buscarLogosEmpresas(),
+        apiRequisicaoEmpresa.buscarLogoEmpresas(),
       ]);
 
       setEmpresas(empresasResp);

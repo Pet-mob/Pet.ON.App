@@ -40,13 +40,13 @@ const TelaInicial = () => {
       id: 1,
       titulo: "Banho + Tosa por R$ 50",
       descricao: "Promoção válida até domingo!",
-      imagem: "https://via.placeholder.com/300x120.png?text=Promoção+Pet+1",
+      imagem: require("../../assets/icon.png"),
     },
     {
       id: 2,
       titulo: "Veterinário com 50% off",
       descricao: "Somente na primeira consulta",
-      imagem: "https://via.placeholder.com/300x120.png?text=Promoção+Vet",
+      imagem: require("../../assets/icon.png"),
     },
   ];
 
@@ -129,7 +129,7 @@ const TelaInicial = () => {
               source={
                 erroImagemPromocao[item.id]
                   ? placeholderImg
-                  : { uri: item.imagem }
+                  : item.imagem // sempre require ou {uri:...}
               }
               style={estilos.imagemPromocao}
               onError={() =>
@@ -183,7 +183,11 @@ const TelaInicial = () => {
               >
                 <View style={estilos.itemPetShop}>
                   <ExpoImage
-                    source={imagemLogo}
+                    source={
+                      logo?.url && !erroImagemLogo[item.idEmpresa]
+                        ? { uri: logo.url }
+                        : placeholderImg
+                    }
                     style={estilos.iconePetShop}
                     onError={() =>
                       setErroImagemLogo((prev) => ({

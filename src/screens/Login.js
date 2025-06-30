@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Keyboard,
-  TouchableWithoutFeedback,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -102,7 +102,7 @@ const TelaLogin = () => {
       style={estilos.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <View style={estilos.containerInterno}>
           <View style={estilos.containerLogo}>
             <ExpoImage
@@ -157,7 +157,7 @@ const TelaLogin = () => {
             </TouchableOpacity>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      </Pressable>
     </KeyboardAvoidingView>
   );
 };
@@ -197,11 +197,13 @@ const estilos = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#F9F9F9",
     fontSize: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
+    // shadowColor: "#000",
+    // shadowOpacity: 0.1,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowRadius: 5,
     elevation: 2, // Para Android
+    // boxShadow substitui shadowColor, shadowOpacity, shadowOffset, shadowRadius
+    boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
   },
   botao: {
     width: "100%",

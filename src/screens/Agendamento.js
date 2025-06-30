@@ -9,6 +9,8 @@ import {
   Switch,
   ActivityIndicator,
   Alert,
+  Modal,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { Calendar } from "react-native-calendars";
@@ -24,6 +26,7 @@ const placeholderImg = require("../../assets/placeholder.png");
 const Agendamento = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [confirmando, setConfirmando] = useState(false);
+  const [modalServicosVisible, setModalServicosVisible] = useState(false);
 
   const { idEmpresaPetShop } = route.params;
   const { id: idUsuario } = getUsuarioStore();
@@ -33,6 +36,11 @@ const Agendamento = ({ navigation, route }) => {
   const [petSelecionado, setPetSelecionado] = useState(null);
   const [servicoSelecionado, setServicoSelecionado] = useState(null);
   const [ehPacoteMensal, setEhPacoteMensal] = useState(false);
+  const [servicosSelecionados, setServicosSelecionados] = useState([]);
+  const [parametrosEmpresa, setParametrosEmpresa] = useState({
+    modeloTrabalho: 1,
+    qtdeAtendimentoSimultaneoHorario: 1,
+  });
 
   const [datasSelecionadas, setDatasSelecionadas] = useState({});
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
@@ -51,6 +59,12 @@ const Agendamento = ({ navigation, route }) => {
       ]);
 
       if (servicosApi) setServicos(servicosApi);
+
+      // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
+      const parametros =
+        (await apiRequisicaoEmpresa.buscarParametrosEmpresa?.(idEmpresaPetShop)) ||
+        { modeloTrabalho: 1, qtdeAtendimentoSimultaneoHorario: 1 };
+      setParametrosEmpresa(parametros);
 
       const capaEmpresa =
         await apiRequisicaoEmpresa.buscarLogoEmpresaPorIdEmpresa(
@@ -246,139 +260,34 @@ const Agendamento = ({ navigation, route }) => {
           style={styles.scrollContainer}
           ListHeaderComponent={
             <>
-              <View style={styles.headerDadosEmpresa}>
+              {/* 1 - Capa */}
+              <ExpoImage
+                source={require("../../assets/LogoGrande.png")}
+                style={styles.capa}
+                placeholder={placeholderImg}
+                contentFit="cover"
+                transition={300}
+              />
+              {/* 2 - Dados da empresa */}
+              <View style={styles.infoBox}>
                 <ExpoImage
-                  source={require("../../assets/LogoGrande.png")}
-                  style={styles.capa}
+                  source={require("../../assets/PetShop.png")}
+                  style={styles.logoEmpresa}
                   placeholder={placeholderImg}
                   contentFit="cover"
                   transition={300}
                 />
 
-                <View style={styles.infoBox}>
-                  <ExpoImage
-                    source={require("../../assets/PetShop.png")}
-                    style={styles.logoEmpresa}
-                    placeholder={placeholderImg}
-                    contentFit="cover"
-                    transition={300}
-                  />
-
-                  <View style={styles.textosEmpresa}>
-                    <Text style={styles.nomeEmpresa}>
-                      Parque Burguer - Burguer Artesanal
-                    </Text>
-                    <Text style={styles.detalhesLoja}>
-                      2,1 km • Min R$ 11,00
-                    </Text>
-
-                    <View style={styles.linhaInfo}>
-                      <Text style={styles.avaliacao}>
-                        ⭐ 4,7{" "}
-                        <Text style={styles.cinza}>(521 avaliações)</Text>
-                      </Text>
-                      <Text style={styles.nivel}>• Nível 2 de 5</Text>
-                    </View>
-
-                    <Text style={styles.entrega}>
-                      Padrão • 45-55 min •{" "}
-                      <Text style={{ color: "green" }}>Grátis</Text>
-                    </Text>
-                  </View>
+                <View style={styles.textosEmpresa}>
+                  <Text style={styles.nomeEmpresa}>
+                    Parque Burguer - Burguer Artesanal
+                  </Text>
+                  <Text style={styles.detalhesLoja}>
+                    Endereço da empresa aqui
+                  </Text>
                 </View>
-              </View>{" "}
-              <View style={styles.switchContainer}>
-                <Text style={styles.label}>Tipo do agendamento:</Text>
-                <Text>{ehPacoteMensal ? "Plano mensal" : "Único"}</Text>
-                <Switch
-                  value={ehPacoteMensal}
-                  onValueChange={() => {
-                    setEhPacoteMensal((v) => !v);
-                    setDatasSelecionadas({});
-                    setHorariosSelecionados([]);
-                  }}
-                  trackColor={{ false: "#767577", true: "#81b0ff" }}
-                  thumbColor={ehPacoteMensal ? "#007aff" : "#f4f3f4"}
-                />
               </View>
-              <Text style={styles.label}>Escolha serviço:</Text>
-            </>
-          }
-          data={servicos}
-          keyExtractor={(item) => String(item.idServico)}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.itemBox,
-                servicoSelecionado === item.idServico && styles.itemSelected,
-              ]}
-              onPress={async () => {
-                const novoServico =
-                  servicoSelecionado === item.idServico ? null : item.idServico;
-                setServicoSelecionado(novoServico);
-                if (Object.keys(datasSelecionadas).length && novoServico) {
-                  await buscarHorarios(Object.keys(datasSelecionadas));
-                } else {
-                  setHorariosDisponiveis([]);
-                  setHorariosSelecionados([]);
-                }
-              }}
-            >
-              <Text>{item.descricao}</Text>
-              <Text>R$ {item.valor}</Text>
-            </TouchableOpacity>
-          )}
-          ListFooterComponent={
-            <>
-              <Text style={styles.label}>Selecione data:</Text>
-              <Calendar
-                markedDates={datasSelecionadas}
-                onDayPress={selecionarData}
-                minDate={new Date().toISOString().split("T")[0]}
-              />
-
-              {horariosDisponiveis.length > 0 && (
-                <>
-                  <Text style={styles.label}>Horários disponíveis:</Text>
-                  <FlatList
-                    data={horariosDisponiveis}
-                    keyExtractor={(item) => item}
-                    horizontal
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={[
-                          styles.horarioBox,
-                          horariosSelecionados.includes(item) &&
-                            styles.horarioSelecionado,
-                        ]}
-                        onPress={() => {
-                          if (horariosSelecionados.includes(item)) {
-                            setHorariosSelecionados(
-                              horariosSelecionados.filter((h) => h !== item)
-                            );
-                          } else {
-                            setHorariosSelecionados([
-                              ...horariosSelecionados,
-                              item,
-                            ]);
-                          }
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: horariosSelecionados.includes(item)
-                              ? "#fff"
-                              : "#000",
-                          }}
-                        >
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                  />
-                </>
-              )}
-
+              {/* 3 - Selecionar pet */}
               <Text style={styles.label}>Escolha o pet:</Text>
               <FlatList
                 data={pets}
@@ -408,7 +317,174 @@ const Agendamento = ({ navigation, route }) => {
                   </TouchableOpacity>
                 )}
               />
-
+              {/* 4 - Botão para abrir modal de serviços */}
+              <TouchableOpacity
+                style={styles.btnConfirmar}
+                onPress={() => setModalServicosVisible(true)}
+              >
+                <Text style={styles.textBtnConfirmar}>Selecionar Serviços</Text>
+              </TouchableOpacity>
+              {/* Modal de serviços */}
+              <Modal visible={modalServicosVisible} animationType="slide" transparent>
+                <View
+                  style={{
+                    flex: 1,
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={{
+                      backgroundColor: "#fff",
+                      margin: 20,
+                      borderRadius: 10,
+                      padding: 20,
+                      maxHeight: "80%",
+                    }}
+                  >
+                    <Text style={styles.label}>Selecione os serviços</Text>
+                    <ScrollView>
+                      {servicos.map((servico) => {
+                        const selecionado = servicosSelecionados.includes(
+                          servico.idServico
+                        );
+                        return (
+                          <TouchableOpacity
+                            key={servico.idServico}
+                            style={[
+                              styles.itemBox,
+                              selecionado && styles.itemSelected,
+                            ]}
+                            onPress={() => {
+                              if (parametrosEmpresa.modeloTrabalho === 1) {
+                                setServicosSelecionados([servico.idServico]);
+                              } else {
+                                setServicosSelecionados((prev) =>
+                                  prev.includes(servico.idServico)
+                                    ? prev.filter((id) => id !== servico.idServico)
+                                    : [...prev, servico.idServico]
+                                );
+                              }
+                            }}
+                          >
+                            <Text>{servico.descricao}</Text>
+                            <Text>R$ {servico.valor}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </ScrollView>
+                    <TouchableOpacity
+                      style={[styles.btnConfirmar, { marginTop: 10 }]}
+                      onPress={() => setModalServicosVisible(false)}
+                    >
+                      <Text style={styles.textBtnConfirmar}>Avançar</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
+              {/* 5 - Resumo dos serviços */}
+              <Text style={styles.label}>Resumo dos Serviços:</Text>
+              {servicos
+                .filter((s) => servicosSelecionados.includes(s.idServico))
+                .map((s) => (
+                  <View
+                    key={s.idServico}
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      marginBottom: 4,
+                    }}
+                  >
+                    <Text>{s.descricao}</Text>
+                    <Text>R$ {s.valor}</Text>
+                  </View>
+                ))}
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 16,
+                  marginBottom: 10,
+                }}
+              >
+                Total: R${" "}
+                {servicos
+                  .filter((s) => servicosSelecionados.includes(s.idServico))
+                  .reduce((acc, s) => acc + Number(s.valor), 0)
+                  .toFixed(2)}
+              </Text>
+              {/* 6 - Data modo calendário */}
+              <Text style={styles.label}>Selecione data:</Text>
+              <Calendar
+                markedDates={datasSelecionadas}
+                onDayPress={selecionarData}
+                minDate={new Date().toISOString().split("T")[0]}
+              />
+              {/* 7 - Lista dos horários disponíveis */}
+              {horariosDisponiveis.length > 0 && (
+                <>
+                  <Text style={styles.label}>Horários disponíveis:</Text>
+                  <FlatList
+                    data={horariosDisponiveis}
+                    keyExtractor={(item) => item}
+                    horizontal
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={[
+                          styles.horarioBox,
+                          horariosSelecionados.includes(item) &&
+                            styles.horarioSelecionado,
+                        ]}
+                        onPress={() => {
+                          // Validação de qtde de atendimento simultâneo
+                          const count = horariosSelecionados.filter(
+                            (h) => h === item
+                          ).length;
+                          if (count >= parametrosEmpresa.qtdeAtendimentoSimultaneoHorario) {
+                            Alert.alert(
+                              "Limite atingido",
+                              "Este horário já atingiu o limite de atendimentos simultâneos."
+                            );
+                            return;
+                          }
+                          if (horariosSelecionados.includes(item)) {
+                            setHorariosSelecionados(
+                              horariosSelecionados.filter((h) => h !== item)
+                            );
+                          } else {
+                            setHorariosSelecionados([...horariosSelecionados, item]);
+                          }
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: horariosSelecionados.includes(item)
+                              ? "#fff"
+                              : "#000",
+                          }}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </>
+              )}
+              {/* 8 - Complementares */}
+              <View style={styles.switchContainer}>
+                <Text style={styles.label}>Tipo do agendamento:</Text>
+                <Text>{ehPacoteMensal ? "Plano mensal" : "Único"}</Text>
+                <Switch
+                  value={ehPacoteMensal}
+                  onValueChange={() => {
+                    setEhPacoteMensal((v) => !v);
+                    setDatasSelecionadas({});
+                    setHorariosSelecionados([]);
+                  }}
+                  trackColor={{ false: "#767577", true: "#81b0ff" }}
+                  thumbColor={ehPacoteMensal ? "#007aff" : "#f4f3f4"}
+                />
+              </View>
+              {/* 9 - Botão de confirmação */}
               <TouchableOpacity
                 style={styles.btnConfirmar}
                 onPress={confirmarAgendamento}
@@ -420,8 +496,81 @@ const Agendamento = ({ navigation, route }) => {
               </TouchableOpacity>
             </>
           }
+          data={servicos}
+          keyExtractor={(item) => String(item.idServico)}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.itemBox,
+                servicoSelecionado === item.idServico && styles.itemSelected,
+              ]}
+              onPress={async () => {
+                const novoServico =
+                  servicoSelecionado === item.idServico ? null : item.idServico;
+                setServicoSelecionado(novoServico);
+                if (Object.keys(datasSelecionadas).length && novoServico) {
+                  await buscarHorarios(Object.keys(datasSelecionadas));
+                } else {
+                  setHorariosDisponiveis([]);
+                  setHorariosSelecionados([]);
+                }
+              }}
+            >
+              <Text>{item.descricao}</Text>
+              <Text>R$ {item.valor}</Text>
+            </TouchableOpacity>
+          )}
         />
       )}
+
+      {/* Modal para seleção de serviços */}
+      <Modal
+        visible={modalServicosVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setModalServicosVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Selecione os serviços</Text>
+            <ScrollView>
+              {servicos.map((servico) => (
+                <TouchableOpacity
+                  key={servico.idServico}
+                  style={styles.servicoItem}
+                  onPress={() => {
+                    if (servicosSelecionados.includes(servico.idServico)) {
+                      setServicosSelecionados(
+                        servicosSelecionados.filter((id) => id !== servico.idServico)
+                      );
+                    } else {
+                      setServicosSelecionados([...servicosSelecionados, servico.idServico]);
+                    }
+                  }}
+                >
+                  <Text style={styles.servicoDescricao}>{servico.descricao}</Text>
+                  <Text style={styles.servicoValor}>R$ {servico.valor}</Text>
+                  {servicosSelecionados.includes(servico.idServico) && (
+                    <Icon name="checkmark" size={20} color="#007aff" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.btnConfirmarServicos}
+              onPress={() => {
+                setModalServicosVisible(false);
+                // Lógica para agendar com os serviços selecionados
+              }}
+            >
+              <Text style={styles.textBtnConfirmarServicos}>
+                Confirmar Serviços
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -571,6 +720,51 @@ const styles = StyleSheet.create({
   entrega: {
     marginTop: 5,
     fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  servicoItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  servicoDescricao: {
+    fontSize: 16,
+  },
+  servicoValor: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  btnConfirmarServicos: {
+    backgroundColor: "#007aff",
+    padding: 15,
+    borderRadius: 6,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  textBtnConfirmarServicos: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

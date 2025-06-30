@@ -242,13 +242,6 @@ const Agendamento = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      {/* <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={30} color="#000" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Agendamento</Text>
-      </View> */}
-
       {loading ? (
         <ActivityIndicator size="large" color="#007aff" />
       ) : (

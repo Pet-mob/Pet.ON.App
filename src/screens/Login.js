@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
@@ -16,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { setUsuarioStore } from "../store/store";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
 import Toast from "react-native-toast-message";
+import { Image as ExpoImage } from "expo-image";
 
 const TelaLogin = () => {
   const navigation = useNavigation();
@@ -23,6 +23,8 @@ const TelaLogin = () => {
   const [telefoneLimpo, setTelefoneLimpo] = useState("");
   const [Senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const placeholderImg = require("../../assets/placeholder.png");
 
   const formatarTelefone = (texto) => {
     // Remove tudo que não é número
@@ -103,10 +105,12 @@ const TelaLogin = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={estilos.containerInterno}>
           <View style={estilos.containerLogo}>
-            <Image
+            <ExpoImage
               source={require("../../assets/LogoGrande.png")}
               style={estilos.logo}
-              resizeMode="contain"
+              contentFit="contain"
+              transition={300}
+              placeholder={placeholderImg}
             />
           </View>
 

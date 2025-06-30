@@ -17,6 +17,9 @@ import apiRequisicaoAgendamento from "../Service/apiRequisicaoAgendamento";
 import apiRequisicaoAnimal from "../Service/apiRequisicaoAnimal";
 import apiRequisicaoServico from "../Service/apiRequisicaoServico";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa";
+import { Image as ExpoImage } from "expo-image";
+
+const placeholderImg = require("../../assets/placeholder.png");
 
 const Agendamento = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
@@ -244,15 +247,21 @@ const Agendamento = ({ navigation, route }) => {
           ListHeaderComponent={
             <>
               <View style={styles.headerDadosEmpresa}>
-                <Image
+                <ExpoImage
                   source={require("../../assets/LogoGrande.png")}
                   style={styles.capa}
+                  placeholder={placeholderImg}
+                  contentFit="cover"
+                  transition={300}
                 />
 
                 <View style={styles.infoBox}>
-                  <Image
+                  <ExpoImage
                     source={require("../../assets/PetShop.png")}
                     style={styles.logoEmpresa}
+                    placeholder={placeholderImg}
+                    contentFit="cover"
+                    transition={300}
                   />
 
                   <View style={styles.textosEmpresa}>
@@ -384,10 +393,16 @@ const Agendamento = ({ navigation, route }) => {
                     ]}
                     onPress={() => setPetSelecionado(item.idAnimal)}
                   >
-                    <Image
-                      source={{ uri: item.imagem }}
+                    <ExpoImage
+                      source={
+                        item.imagem?.startsWith("http")
+                          ? { uri: item.imagem }
+                          : item.imagem
+                      }
                       style={styles.petImage}
-                      resizeMode="cover"
+                      placeholder={placeholderImg}
+                      contentFit="cover"
+                      transition={300}
                     />
                     <Text style={styles.petName}>{item.nome}</Text>
                   </TouchableOpacity>

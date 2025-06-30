@@ -3,15 +3,17 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Image,
-  FlatList,
   StyleSheet,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa.js";
 import { setEmpresaStore } from "../store/store.js";
 import { getUsuarioStore } from "../store/store.js";
+import { Image as ExpoImage } from "expo-image";
+
+const placeholderImg = require("../../assets/placeholder.png");
 
 const TelaInicial = () => {
   const navigation = useNavigation();
@@ -19,6 +21,8 @@ const TelaInicial = () => {
   const [loading, setLoading] = useState(true);
   const [listaLogos, setListaLogos] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(1);
+  const [erroImagemPromocao, setErroImagemPromocao] = useState({});
+  const [erroImagemLogo, setErroImagemLogo] = useState({});
 
   const categorias = [
     { id: 1, nome: "Pet shop", icone: require("../../assets/PetShop.png") },
@@ -98,7 +102,7 @@ const TelaInicial = () => {
               ]}
               onPress={() => setCategoriaSelecionada(item.id)}
             >
-              <Image source={item.icone} style={estilos.iconeCategoria} />
+              <ExpoImage source={item.icone} style={estilos.iconeCategoria} />
               <Text
                 style={[
                   estilos.textoCategoria,
@@ -121,9 +125,19 @@ const TelaInicial = () => {
         contentContainerStyle={{ paddingLeft: 16, paddingBottom: 10 }}
         renderItem={({ item }) => (
           <View style={estilos.cartaoPromocao}>
-            <Image
-              source={{ uri: item.imagem }}
+            <ExpoImage
+              source={
+                erroImagemPromocao[item.id]
+                  ? placeholderImg
+                  : { uri: item.imagem }
+              }
               style={estilos.imagemPromocao}
+              onError={() =>
+                setErroImagemPromocao((prev) => ({ ...prev, [item.id]: true }))
+              }
+              placeholder={placeholderImg}
+              contentFit="cover"
+              transition={300}
             />
             <View style={estilos.infoPromocao}>
               <Text style={estilos.tituloPromocao}>{item.titulo}</Text>
@@ -158,16 +172,29 @@ const TelaInicial = () => {
             const logo = listaLogos.find(
               (logo) => logo.idEmpresa === item.idEmpresa
             );
-            const imagemLogo = logo?.url
-              ? { uri: logo.url }
-              : require("../../assets/usuario.png");
+            const imagemLogo =
+              logo?.url && !erroImagemLogo[item.idEmpresa]
+                ? { uri: logo.url }
+                : placeholderImg;
 
             return (
               <TouchableOpacity
                 onPress={() => irParaAgendamento(item.idEmpresa)}
               >
                 <View style={estilos.itemPetShop}>
-                  <Image source={imagemLogo} style={estilos.iconePetShop} />
+                  <ExpoImage
+                    source={imagemLogo}
+                    style={estilos.iconePetShop}
+                    onError={() =>
+                      setErroImagemLogo((prev) => ({
+                        ...prev,
+                        [item.idEmpresa]: true,
+                      }))
+                    }
+                    placeholder={placeholderImg}
+                    contentFit="cover"
+                    transition={300}
+                  />
                   <View>
                     <Text style={estilos.nomePetShop}>
                       {item.descricaoNomeFisica}

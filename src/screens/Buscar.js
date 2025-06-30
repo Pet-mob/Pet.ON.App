@@ -6,13 +6,15 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Image,
   Modal,
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa.js";
 import { setEmpresaStore } from "../store/store.js";
+import { Image as ExpoImage } from "expo-image";
+
+const placeholderImg = require("../../assets/placeholder.png");
 
 const Buscar = ({ navigation, route }) => {
   const [busca, setBusca] = useState("");
@@ -113,7 +115,13 @@ const Buscar = ({ navigation, route }) => {
                 ]}
                 onPress={() => handleSelecionarCategoria(item.id)}
               >
-                <Image source={item.imagem} style={styles.categoriaImagem} />
+                <ExpoImage
+                  source={item.imagem}
+                  style={styles.categoriaImagem}
+                  placeholder={placeholderImg}
+                  contentFit="cover"
+                  transition={300}
+                />
                 <Text style={styles.categoriaTexto}>{item.nome}</Text>
               </TouchableOpacity>
             );
@@ -177,24 +185,24 @@ const Buscar = ({ navigation, route }) => {
               style={styles.empresaCard}
               onPress={() => irParaAgendamento(item.idEmpresa)}
             >
-              <Image
-                source={{
-                  uri:
-                    item.urlLogoEmpresa ||
-                    require("../../assets/LogoGrande.png"),
-                }}
+              <ExpoImage
+                source={
+                  item.urlLogoEmpresa
+                    ? { uri: item.urlLogoEmpresa }
+                    : require("../../assets/LogoGrande.png")
+                }
                 style={styles.empresaImagem}
+                placeholder={placeholderImg}
+                contentFit="cover"
+                transition={300}
               />
               <View style={styles.empresaInfo}>
                 <Text style={styles.empresaNome}>
                   {item.descricaoNomeFisica}
                 </Text>
-
-                {/* Selos exibidos como subtítulo */}
                 <Text style={styles.empresaSelos}>
                   {item.hipoalergenico && "🧴 Hipoalergênico"}{" "}
                   {item.taxiDog && "🚕 Táxi Dog"}
-                  {/* Adicione outros selos aqui, se houver */}
                 </Text>
               </View>
             </TouchableOpacity>

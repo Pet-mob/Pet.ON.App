@@ -702,14 +702,16 @@ const styles = StyleSheet.create({
   infoBox: {
     backgroundColor: "#fff",
     marginHorizontal: 10,
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: 16,
+    padding: 18,
     marginTop: -50,
-    elevation: 5,
+    elevation: 12, // Sombra forte no Android
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
   },
   logoEmpresa: {
     width: 60,

@@ -100,7 +100,6 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const selecionarData = async (dateString) => {
-    // Corrigir: verificar se servicoSelecionado está preenchido corretamente
     if (!servicoSelecionado) {
       Toast.show({
         type: "error",
@@ -123,7 +122,8 @@ const Agendamento = ({ navigation, route }) => {
         const atualizadas = { ...datasSelecionadas };
         delete atualizadas[dateString];
         setDatasSelecionadas(atualizadas);
-        await buscarHorarios(Object.keys(atualizadas));
+        // Aguarda atualização do estado antes de buscar horários
+        setTimeout(() => buscarHorarios(Object.keys(atualizadas)), 0);
         return;
       }
 
@@ -160,7 +160,7 @@ const Agendamento = ({ navigation, route }) => {
         },
       };
       setDatasSelecionadas(novasDatas);
-      await buscarHorarios(Object.keys(novasDatas));
+      setTimeout(() => buscarHorarios(Object.keys(novasDatas)), 0);
     } else {
       const novaData = {
         [dateString]: {
@@ -170,26 +170,36 @@ const Agendamento = ({ navigation, route }) => {
         },
       };
       setDatasSelecionadas(novaData);
-      await buscarHorarios([dateString]);
+      setTimeout(() => buscarHorarios([dateString]), 0);
     }
   };
 
   const buscarHorarios = async (datas) => {
+    // Normaliza datas para garantir que sejam strings no formato YYYY-MM-DD
+    const datasFormatadas = datas.map((d) => {
+      if (typeof d === "string") return d;
+      if (d.year && d.month && d.day) {
+        const mm = String(d.month).padStart(2, "0");
+        const dd = String(d.day).padStart(2, "0");
+        return `${d.year}-${mm}-${dd}`;
+      }
+      return d;
+    });
+
     if (!servicoSelecionado) {
       setHorariosDisponiveis([]);
       setHorariosSelecionados([]);
       return;
     }
     const servico = servicos.find((s) => s.idServico === servicoSelecionado);
-    const duracaoEmMin = servico?.duracao || 120;
+    const duracaoEmMinutos = servico?.duracao || 120;
     setLoading(true);
     try {
-      // Chamada correta conforme esperado pela API
       const { horarios } =
         await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(
           idEmpresaPetShop,
-          datas, // array de datas ISO
-          duracaoEmMin
+          datasFormatadas,
+          duracaoEmMinutos
         );
       setHorariosDisponiveis(horarios || []);
       setHorariosSelecionados([]);

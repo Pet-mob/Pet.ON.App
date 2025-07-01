@@ -21,6 +21,8 @@ import apiRequisicaoServico from "../Service/apiRequisicaoServico";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa";
 import { Image as ExpoImage } from "expo-image";
 import { getEmpresaStore } from "../store/store";
+import Toast from "react-native-toast-message";
+
 const placeholderImg = require("../../assets/placeholder.png");
 
 const Agendamento = ({ navigation, route }) => {
@@ -69,11 +71,11 @@ const Agendamento = ({ navigation, route }) => {
 
       // Carregar fotos dos pets
       await manipularFotoAnimal(petsApi);
-
-      const dataHoje = new Date().toISOString().split("T")[0];
-      selecionarData(dataHoje);
     } catch (error) {
-      Alert.alert("Erro", "Erro ao carregar serviços ou pets.");
+      Toast.show({
+        type: "error",
+        text1: "Erro ao carregar serviços ou pets.",
+      });
     } finally {
       setLoading(false);
     }
@@ -98,12 +100,20 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const selecionarData = async (dateString) => {
+    if (!servicoSelecionado) {
+      Toast.show({
+        type: "error",
+        text1: "Selecione um serviço antes de escolher a data.",
+      });
+      return;
+    }
+
     const hoje = new Date().toISOString().split("T")[0];
     if (dateString < hoje) {
-      Alert.alert(
-        "Atenção",
-        "Não é possível selecionar uma data anterior a hoje."
-      );
+      Toast.show({
+        type: "warning",
+        text1: "Não é possível selecionar uma data anterior a hoje.",
+      });
       return;
     }
 
@@ -118,7 +128,10 @@ const Agendamento = ({ navigation, route }) => {
 
       const datas = Object.keys(datasSelecionadas);
       if (datas.length >= 4) {
-        Alert.alert("Atenção", "Máximo de 4 datas para plano mensal.");
+        Toast.show({
+          type: "warning",
+          text1: "Máximo de 4 datas para plano mensal.",
+        });
         return;
       }
 
@@ -130,10 +143,10 @@ const Agendamento = ({ navigation, route }) => {
       });
 
       if (conflito) {
-        Alert.alert(
-          "Atenção",
-          "Datas devem ter pelo menos 7 dias de diferença."
-        );
+        Toast.show({
+          type: "warning",
+          text1: "Datas devem ter pelo menos 7 dias de diferença.",
+        });
         return;
       }
 
@@ -161,15 +174,13 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const buscarHorarios = async (datas) => {
-    if (!datas.length) {
+    if (!servicoSelecionado) {
       setHorariosDisponiveis([]);
       setHorariosSelecionados([]);
       return;
     }
     const servico = servicos.find((s) => s.idServico === servicoSelecionado);
-
     const duracao = servico?.duracao || 120;
-
     setLoading(true);
     try {
       const { horarios } =
@@ -181,7 +192,7 @@ const Agendamento = ({ navigation, route }) => {
       setHorariosDisponiveis(horarios || []);
       setHorariosSelecionados([]);
     } catch {
-      Alert.alert("Erro", "Erro ao buscar horários.");
+      Toast.show({ type: "error", text1: "Erro ao buscar horários." });
     } finally {
       setLoading(false);
     }
@@ -195,10 +206,10 @@ const Agendamento = ({ navigation, route }) => {
       horariosSelecionados.length === 0 ||
       Object.keys(datasSelecionadas).length === 0
     ) {
-      Alert.alert(
-        "Atenção",
-        "Preencha todos os campos antes de confirmar o agendamento."
-      );
+      Toast.show({
+        type: "warning",
+        text1: "Preencha todos os campos antes de confirmar o agendamento.",
+      });
       return;
     }
 
@@ -235,10 +246,14 @@ const Agendamento = ({ navigation, route }) => {
         await apiRequisicaoAgendamento.adicionarAgendamentoNaApi(dto);
       }
 
-      Alert.alert("Sucesso", "Agendamento realizado com sucesso!");
+      Toast.show({
+        type: "success",
+        text1: "Agendamento realizado com sucesso!",
+        text2: "Este é um toast customizado!",
+      });
       navigation.goBack();
     } catch {
-      Alert.alert("Erro", "Erro ao confirmar agendamento.");
+      Toast.show({ type: "error", text1: "Erro ao confirmar agendamento." });
     } finally {
       setConfirmando(false);
     }
@@ -467,10 +482,11 @@ const Agendamento = ({ navigation, route }) => {
                             count >=
                             parametrosEmpresa.qtdeAtendimentoSimultaneoHorario
                           ) {
-                            Alert.alert(
-                              "Limite atingido",
-                              "Este horário já atingiu o limite de atendimentos simultâneos."
-                            );
+                            Toast.show({
+                              type: "warning",
+                              text1:
+                                "Este horário já atingiu o limite de atendimentos simultâneos.",
+                            });
                             return;
                           }
                           if (horariosSelecionados.includes(item)) {

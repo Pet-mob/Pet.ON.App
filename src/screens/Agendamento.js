@@ -100,6 +100,7 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const selecionarData = async (dateString) => {
+    // Corrigir: verificar se servicoSelecionado está preenchido corretamente
     if (!servicoSelecionado) {
       Toast.show({
         type: "error",
@@ -180,14 +181,15 @@ const Agendamento = ({ navigation, route }) => {
       return;
     }
     const servico = servicos.find((s) => s.idServico === servicoSelecionado);
-    const duracao = servico?.duracao || 120;
+    const duracaoEmMin = servico?.duracao || 120;
     setLoading(true);
     try {
+      // Chamada correta conforme esperado pela API
       const { horarios } =
         await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(
           idEmpresaPetShop,
-          datas,
-          duracao
+          datas, // array de datas ISO
+          duracaoEmMin
         );
       setHorariosDisponiveis(horarios || []);
       setHorariosSelecionados([]);
@@ -395,6 +397,7 @@ const Agendamento = ({ navigation, route }) => {
                             onPress={() => {
                               if (parametrosEmpresa.modeloTrabalho === 1) {
                                 setServicosSelecionados([servico.idServico]);
+                                setServicoSelecionado(servico.idServico); // <-- CORREÇÃO AQUI
                               } else {
                                 setServicosSelecionados((prev) =>
                                   prev.includes(servico.idServico)

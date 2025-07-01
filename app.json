@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Pet.ON.App",
-    "slug": "Pet.ON.App",
+    "name": "Pet.Mob.App",
+    "slug": "Pet.Mob.App",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/LogoPetON.png",
+    "icon": "./assets/LogoGrande.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {

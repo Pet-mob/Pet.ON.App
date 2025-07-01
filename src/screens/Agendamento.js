@@ -87,10 +87,13 @@ const Agendamento = ({ navigation, route }) => {
         const foto = fotos?.find((f) => f.idAnimal === pet.idAnimal);
         return {
           ...pet,
-          imagem: foto?.url || require("../../assets/usuario.png"),
+          imagem: foto?.url,
         };
       });
       setPets(petsComFoto);
+      if (petsComFoto.length === 1) {
+        setPetSelecionado(petsComFoto[0].idAnimal);
+      }
     }
   };
 
@@ -258,6 +261,7 @@ const Agendamento = ({ navigation, route }) => {
                 contentFit="cover"
                 transition={300}
               />
+
               {/* 2 - Dados da empresa */}
               <View style={styles.infoBox}>
                 <View
@@ -298,6 +302,7 @@ const Agendamento = ({ navigation, route }) => {
                   </View>
                 </View>
               </View>
+
               {/* 3 - Selecionar pet */}
               <Text style={styles.label}>Escolha o pet:</Text>
               <FlatList
@@ -328,6 +333,7 @@ const Agendamento = ({ navigation, route }) => {
                   </TouchableOpacity>
                 )}
               />
+
               {/* 4 - Botão para abrir modal de serviços */}
               <TouchableOpacity
                 style={styles.btnConfirmar}
@@ -335,6 +341,7 @@ const Agendamento = ({ navigation, route }) => {
               >
                 <Text style={styles.textBtnConfirmar}>Selecionar Serviços</Text>
               </TouchableOpacity>
+
               {/* Modal de serviços */}
               <Modal
                 visible={modalServicosVisible}
@@ -519,30 +526,6 @@ const Agendamento = ({ navigation, route }) => {
               </TouchableOpacity>
             </>
           }
-          data={servicos}
-          keyExtractor={(item) => String(item.idServico)}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.itemBox,
-                servicoSelecionado === item.idServico && styles.itemSelected,
-              ]}
-              onPress={async () => {
-                const novoServico =
-                  servicoSelecionado === item.idServico ? null : item.idServico;
-                setServicoSelecionado(novoServico);
-                if (Object.keys(datasSelecionadas).length && novoServico) {
-                  await buscarHorarios(Object.keys(datasSelecionadas));
-                } else {
-                  setHorariosDisponiveis([]);
-                  setHorariosSelecionados([]);
-                }
-              }}
-            >
-              <Text>{item.descricao}</Text>
-              <Text>R$ {item.valor}</Text>
-            </TouchableOpacity>
-          )}
         />
       )}
 

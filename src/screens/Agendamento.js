@@ -473,7 +473,7 @@ const Agendamento = ({ navigation, route }) => {
               />
               {/* 7 - Lista dos horários disponíveis */}
               {horariosDisponiveis.length > 0 && (
-                <>
+                <View>
                   <Text style={styles.label}>Horários disponíveis:</Text>
                   <FlatList
                     data={horariosDisponiveis}
@@ -487,30 +487,10 @@ const Agendamento = ({ navigation, route }) => {
                             styles.horarioSelecionado,
                         ]}
                         onPress={() => {
-                          // Validação de qtde de atendimento simultâneo
-                          const count = horariosSelecionados.filter(
-                            (h) => h === item
-                          ).length;
-                          if (
-                            count >=
-                            parametrosEmpresa.qtdeAtendimentoSimultaneoHorario
-                          ) {
-                            Toast.show({
-                              type: "warning",
-                              text1:
-                                "Este horário já atingiu o limite de atendimentos simultâneos.",
-                            });
-                            return;
-                          }
                           if (horariosSelecionados.includes(item)) {
-                            setHorariosSelecionados(
-                              horariosSelecionados.filter((h) => h !== item)
-                            );
+                            setHorariosSelecionados([]);
                           } else {
-                            setHorariosSelecionados([
-                              ...horariosSelecionados,
-                              item,
-                            ]);
+                            setHorariosSelecionados([item]);
                           }
                         }}
                       >
@@ -526,7 +506,7 @@ const Agendamento = ({ navigation, route }) => {
                       </TouchableOpacity>
                     )}
                   />
-                </>
+                </View>
               )}
               {/* 8 - Complementares */}
               <View style={styles.switchContainer}>

@@ -264,18 +264,12 @@ const Agendamento = ({ navigation, route }) => {
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: "flex-start",
-                    height: 60,
+                    minHeight: 60,
                   }}
                 >
                   <TouchableOpacity
                     onPress={() => navigation.goBack()}
-                    style={{
-                      marginRight: 10,
-                      height: 60,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
+                    style={{ marginRight: 8, padding: 4 }}
                   >
                     <Icon
                       name="chevron-back-outline"
@@ -284,20 +278,24 @@ const Agendamento = ({ navigation, route }) => {
                     />
                   </TouchableOpacity>
                   <ExpoImage
-                    source={require("../../assets/PetShop.png")}
+                    source={
+                      empresa?.urlLogoEmpresa
+                        ? { uri: empresa.urlLogoEmpresa }
+                        : placeholderImg
+                    }
                     style={styles.logoEmpresa}
                     placeholder={placeholderImg}
                     contentFit="cover"
                     transition={300}
                   />
-                </View>
-                <View style={styles.textosEmpresa}>
-                  <Text style={styles.nomeEmpresa}>
-                    {empresa?.descricaoNomeFisica || "nome da empresa"}{" "}
-                  </Text>
-                  <Text style={styles.detalhesLoja}>
-                    Endereço da empresa aqui
-                  </Text>
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={styles.nomeEmpresa} numberOfLines={1}>
+                      {empresa?.descricaoNomeFisica || "nome da empresa"}
+                    </Text>
+                    <Text style={styles.detalhesLoja} numberOfLines={1}>
+                      Endereço da empresa aqui
+                    </Text>
+                  </View>
                 </View>
               </View>
               {/* 3 - Selecionar pet */}
@@ -714,17 +712,15 @@ const styles = StyleSheet.create({
     borderColor: "#e0e0e0",
   },
   logoEmpresa: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    position: "absolute",
-    top: -30,
-    left: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: "#007aff",
+    backgroundColor: "#fff",
   },
   textosEmpresa: {
-    marginLeft: 80,
+    marginLeft: 0,
   },
   nomeEmpresa: {
     fontSize: 18,

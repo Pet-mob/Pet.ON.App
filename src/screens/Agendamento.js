@@ -495,34 +495,58 @@ const Agendamento = ({ navigation, route }) => {
                   <Text style={styles.label}>Horários disponíveis:</Text>
                   <FlatList
                     data={horariosDisponiveis}
-                    keyExtractor={(item) => item}
-                    horizontal
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        style={[
-                          styles.horarioBox,
-                          horariosSelecionados.includes(item) &&
-                            styles.horarioSelecionado,
-                        ]}
-                        onPress={() => {
-                          if (horariosSelecionados.includes(item)) {
-                            setHorariosSelecionados([]);
-                          } else {
-                            setHorariosSelecionados([item]);
-                          }
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: horariosSelecionados.includes(item)
-                              ? "#fff"
-                              : "#000",
+                    keyExtractor={(item) =>
+                      typeof item === "string" ? item : item.horario
+                    }
+                    numColumns={3}
+                    columnWrapperStyle={{ justifyContent: "flex-start" }}
+                    renderItem={({ item }) => {
+                      const horario =
+                        typeof item === "string" ? item : item.horario;
+                      const agendados =
+                        typeof item === "string" ? 0 : item.agendados || 0;
+                      const capacidade =
+                        parametrosEmpresa.qtdeAtendimentoSimultaneoHorario || 1;
+                      const esgotado = agendados >= capacidade;
+                      return (
+                        <TouchableOpacity
+                          style={[
+                            styles.horarioBox,
+                            horariosSelecionados.includes(horario) &&
+                              styles.horarioSelecionado,
+                            esgotado && {
+                              backgroundColor: "#eee",
+                              borderColor: "#ccc",
+                            },
+                            { flex: 1, margin: 5, minWidth: 90, maxWidth: 120 },
+                          ]}
+                          onPress={() => {
+                            if (esgotado) return;
+                            if (horariosSelecionados.includes(horario)) {
+                              setHorariosSelecionados([]);
+                            } else {
+                              setHorariosSelecionados([horario]);
+                            }
                           }}
+                          disabled={esgotado}
                         >
-                          {item}
-                        </Text>
-                      </TouchableOpacity>
-                    )}
+                          <Text
+                            style={{
+                              color: horariosSelecionados.includes(horario)
+                                ? "#fff"
+                                : esgotado
+                                ? "#bbb"
+                                : "#000",
+                              fontWeight: esgotado ? "normal" : "bold",
+                              textAlign: "center",
+                            }}
+                          >
+                            {horario}
+                            {esgotado ? " (Esgotado)" : ""}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
                   />
                 </>
               ) : (

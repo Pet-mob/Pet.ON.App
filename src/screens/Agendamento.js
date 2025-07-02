@@ -600,6 +600,8 @@ const Agendamento = ({ navigation, route }) => {
                     const selecionado = servicosSelecionados.includes(
                       item.idServico
                     );
+                    // Agrupado: só pode selecionar 1 serviço
+                    // Separado: pode selecionar vários, mas só 1 por "tipo" (aqui, assume-se que cada serviço é único)
                     return (
                       <View style={styles.servicoLinhaPrint}>
                         <View style={{ flex: 1 }}>
@@ -613,17 +615,29 @@ const Agendamento = ({ navigation, route }) => {
                         <TouchableOpacity
                           style={styles.btnAddRemovePrint}
                           onPress={() => {
-                            if (selecionado) {
-                              setServicosSelecionados(
-                                servicosSelecionados.filter(
-                                  (id) => id !== item.idServico
-                                )
-                              );
-                            } else {
-                              setServicosSelecionados([
-                                ...servicosSelecionados,
-                                item.idServico,
-                              ]);
+                            if (parametrosEmpresa.idModeloTrabalho === 1) {
+                              // Agrupado: só 1 serviço
+                              if (selecionado) {
+                                setServicosSelecionados([]);
+                              } else {
+                                setServicosSelecionados([item.idServico]);
+                              }
+                            } else if (
+                              parametrosEmpresa.idModeloTrabalho === 2
+                            ) {
+                              // Separado: múltiplos, mas só 1 por serviço (cada serviço é único)
+                              if (selecionado) {
+                                setServicosSelecionados(
+                                  servicosSelecionados.filter(
+                                    (id) => id !== item.idServico
+                                  )
+                                );
+                              } else {
+                                setServicosSelecionados([
+                                  ...servicosSelecionados,
+                                  item.idServico,
+                                ]);
+                              }
                             }
                           }}
                         >

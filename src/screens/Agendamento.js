@@ -137,16 +137,30 @@ const Agendamento = ({ navigation, route }) => {
       return;
     }
 
+    // Garante que a chave é sempre uma string no formato YYYY-MM-DD
+    const dataKey =
+      typeof dateString === "string"
+        ? dateString
+        : dateString?.dateString || "";
+    if (!dataKey) return;
+    const circleMark = {
+      selected: true,
+      selectedColor: "#007aff",
+      selectedTextColor: "#fff",
+      disableTouchEvent: false,
+    };
+
     if (ehPacoteMensal) {
-      if (datasSelecionadas[dateString]) {
+      // Permite múltiplas datas, até 4, com pelo menos 7 dias de diferença
+      if (datasSelecionadas[dataKey]) {
+        // Se já está selecionada, desmarca
         const atualizadas = { ...datasSelecionadas };
-        delete atualizadas[dateString];
-        setDatasSelecionadas(atualizadas);
-        // Aguarda atualização do estado antes de buscar horários
+        delete atualizadas[dataKey];
+        setDatasSelecionadas({ ...atualizadas });
+        console.log("Datas selecionadas (removendo):", { ...atualizadas });
         setTimeout(() => buscarHorarios(Object.keys(atualizadas)), 0);
         return;
       }
-
       const datas = Object.keys(datasSelecionadas);
       if (datas.length >= 4) {
         Toast.show({
@@ -155,14 +169,12 @@ const Agendamento = ({ navigation, route }) => {
         });
         return;
       }
-
       const conflito = datas.some((data) => {
         const diff = Math.abs(
           (new Date(dateString) - new Date(data)) / (1000 * 60 * 60 * 24)
         );
         return diff < 7;
       });
-
       if (conflito) {
         Toast.show({
           type: "warning",
@@ -170,27 +182,19 @@ const Agendamento = ({ navigation, route }) => {
         });
         return;
       }
-
       const novasDatas = {
         ...datasSelecionadas,
-        [dateString]: {
-          selected: true,
-          marked: true,
-          selectedColor: "#81b0ff",
-        },
+        [dataKey]: circleMark,
       };
-      setDatasSelecionadas(novasDatas);
+      setDatasSelecionadas({ ...novasDatas });
+      console.log("Datas selecionadas (adicionando):", { ...novasDatas });
       setTimeout(() => buscarHorarios(Object.keys(novasDatas)), 0);
     } else {
-      const novaData = {
-        [dateString]: {
-          selected: true,
-          marked: true,
-          selectedColor: "#81b0ff",
-        },
-      };
-      setDatasSelecionadas(novaData);
-      setTimeout(() => buscarHorarios([dateString]), 0);
+      // Apenas uma data selecionada: sobrescreve
+      const novaData = { [dataKey]: circleMark };
+      setDatasSelecionadas({ ...novaData });
+      console.log("Datas selecionadas (única):", { ...novaData });
+      setTimeout(() => buscarHorarios([dataKey]), 0);
     }
   };
 
@@ -449,6 +453,16 @@ const Agendamento = ({ navigation, route }) => {
                 markedDates={datasSelecionadas}
                 onDayPress={selecionarData}
                 minDate={new Date().toISOString().split("T")[0]}
+                theme={{
+                  selectedDayBackgroundColor: "#007aff",
+                  selectedDayTextColor: "#fff",
+                  todayTextColor: "#007aff",
+                  arrowColor: "#007aff",
+                  dotColor: "#007aff",
+                  textDayFontWeight: "bold",
+                  textMonthFontWeight: "bold",
+                  textDayHeaderFontWeight: "bold",
+                }}
               />
               <View style={styles.footerStep}>
                 <TouchableOpacity

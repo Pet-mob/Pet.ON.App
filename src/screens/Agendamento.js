@@ -22,6 +22,7 @@ import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa";
 import { Image as ExpoImage } from "expo-image";
 import { getEmpresaStore } from "../store/store";
 import Toast from "react-native-toast-message";
+import apiRequisicaoParametro from "../Service/apiRequisicaoParametro";
 
 const placeholderImg = require("../../assets/placeholder.png");
 
@@ -40,7 +41,9 @@ const Agendamento = ({ navigation, route }) => {
   const [ehPacoteMensal, setEhPacoteMensal] = useState(false);
   const [servicosSelecionados, setServicosSelecionados] = useState([]);
   const [parametrosEmpresa, setParametrosEmpresa] = useState({
-    modeloTrabalho: 1,
+    idEmpresa: 1,
+    idParametro: 1,
+    idModeloTrabalho: 1,
     qtdeAtendimentoSimultaneoHorario: 1,
   });
 
@@ -66,18 +69,16 @@ const Agendamento = ({ navigation, route }) => {
   const carregarDados = async () => {
     setLoading(true);
     try {
-      const [servicosApi, petsApi] = await Promise.all([
+      const [servicosApi, petsApi, parametrosApi] = await Promise.all([
         apiRequisicaoServico.buscarServicosEmpresaNaApi(idEmpresaPetShop),
         apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario),
+        apiRequisicaoParametro.buscarParametro(idEmpresaPetShop),
       ]);
 
       if (servicosApi) setServicos(servicosApi);
 
       // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
-      const parametros = (await apiRequisicaoEmpresa.buscarParametrosEmpresa?.(
-        idEmpresaPetShop
-      )) || { modeloTrabalho: 1, qtdeAtendimentoSimultaneoHorario: 1 };
-      setParametrosEmpresa(parametros);
+      if (parametrosApi) setParametrosEmpresa(parametrosApi);
 
       // Carregar fotos dos pets
       await manipularFotoAnimal(petsApi);

@@ -114,7 +114,13 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const selecionarData = async (dateString) => {
-    if (!servicoSelecionado) {
+    // Corrige: se não houver servicoSelecionado, mas houver servicosSelecionados, define o primeiro
+    let idServico = servicoSelecionado;
+    if (!idServico && servicosSelecionados.length > 0) {
+      idServico = servicosSelecionados[0];
+      setServicoSelecionado(idServico);
+    }
+    if (!idServico) {
       Toast.show({
         type: "error",
         text1: "Selecione um serviço antes de escolher a data.",
@@ -619,25 +625,31 @@ const Agendamento = ({ navigation, route }) => {
                               // Agrupado: só 1 serviço
                               if (selecionado) {
                                 setServicosSelecionados([]);
+                                setServicoSelecionado(null);
                               } else {
                                 setServicosSelecionados([item.idServico]);
+                                setServicoSelecionado(item.idServico);
                               }
                             } else if (
                               parametrosEmpresa.idModeloTrabalho === 2
                             ) {
                               // Separado: múltiplos, mas só 1 por serviço (cada serviço é único)
+                              let novaSelecao;
                               if (selecionado) {
-                                setServicosSelecionados(
-                                  servicosSelecionados.filter(
-                                    (id) => id !== item.idServico
-                                  )
+                                novaSelecao = servicosSelecionados.filter(
+                                  (id) => id !== item.idServico
                                 );
                               } else {
-                                setServicosSelecionados([
+                                novaSelecao = [
                                   ...servicosSelecionados,
                                   item.idServico,
-                                ]);
+                                ];
                               }
+                              setServicosSelecionados(novaSelecao);
+                              // Sempre mantém servicoSelecionado igual ao primeiro da lista (ou null)
+                              setServicoSelecionado(
+                                novaSelecao.length > 0 ? novaSelecao[0] : null
+                              );
                             }
                           }}
                         >

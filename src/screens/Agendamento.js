@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     paddingHorizontal: 16,
     paddingBottom: 0,
-    minHeight: "80%",
+    minHeight: "90%",
     maxHeight: "90%",
   },
   modalTitlePrint: {

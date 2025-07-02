@@ -292,7 +292,11 @@ const Agendamento = ({ navigation, route }) => {
         <>
           {/* 1 - Capa e dados da empresa */}
           <ExpoImage
-            source={require("../../assets/LogoGrande.png")}
+            source={
+              empresa?.urlCapaEmpresa
+                ? { uri: empresa.urlCapaEmpresa }
+                : placeholderImg
+            }
             style={styles.capa}
             placeholder={placeholderImg}
             contentFit="cover"

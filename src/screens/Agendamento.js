@@ -369,71 +369,6 @@ const Agendamento = ({ navigation, route }) => {
                 <Text style={styles.textBtnConfirmar}>Selecionar Serviços</Text>
               </TouchableOpacity>
 
-              {/* Modal de serviços */}
-              <Modal
-                visible={modalServicosVisible}
-                animationType="slide"
-                transparent
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: "rgba(0,0,0,0.3)",
-                    justifyContent: "center",
-                  }}
-                >
-                  <View
-                    style={{
-                      backgroundColor: "#fff",
-                      margin: 20,
-                      borderRadius: 10,
-                      padding: 20,
-                      maxHeight: "80%",
-                    }}
-                  >
-                    <Text style={styles.label}>Selecione os serviços</Text>
-                    <ScrollView>
-                      {servicos.map((servico) => {
-                        const selecionado = servicosSelecionados.includes(
-                          servico.idServico
-                        );
-                        return (
-                          <TouchableOpacity
-                            key={servico.idServico}
-                            style={[
-                              styles.itemBox,
-                              selecionado && styles.itemSelected,
-                            ]}
-                            onPress={() => {
-                              if (parametrosEmpresa.modeloTrabalho === 1) {
-                                setServicosSelecionados([servico.idServico]);
-                                setServicoSelecionado(servico.idServico); // <-- CORREÇÃO AQUI
-                              } else {
-                                setServicosSelecionados((prev) =>
-                                  prev.includes(servico.idServico)
-                                    ? prev.filter(
-                                        (id) => id !== servico.idServico
-                                      )
-                                    : [...prev, servico.idServico]
-                                );
-                              }
-                            }}
-                          >
-                            <Text>{servico.descricao}</Text>
-                            <Text>R$ {servico.valor}</Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </ScrollView>
-                    <TouchableOpacity
-                      style={[styles.btnConfirmar, { marginTop: 10 }]}
-                      onPress={() => setModalServicosVisible(false)}
-                    >
-                      <Text style={styles.textBtnConfirmar}>Avançar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal>
               {/* 5 - Resumo dos serviços */}
               <Text style={styles.label}>Resumo dos Serviços:</Text>
               {servicos
@@ -538,57 +473,83 @@ const Agendamento = ({ navigation, route }) => {
         />
       )}
 
-      {/* Modal para seleção de serviços */}
+      {/* Modal para seleção de serviços - ESTILO DO PRINT */}
       <Modal
         visible={modalServicosVisible}
         animationType="slide"
         transparent
         onRequestClose={() => setModalServicosVisible(false)}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Selecione os serviços</Text>
-            <ScrollView>
-              {servicos.map((servico) => (
-                <TouchableOpacity
-                  key={servico.idServico}
-                  style={styles.servicoItem}
-                  onPress={() => {
-                    if (servicosSelecionados.includes(servico.idServico)) {
-                      setServicosSelecionados(
-                        servicosSelecionados.filter(
-                          (id) => id !== servico.idServico
-                        )
-                      );
-                    } else {
-                      setServicosSelecionados([
-                        ...servicosSelecionados,
-                        servico.idServico,
-                      ]);
-                    }
-                  }}
-                >
-                  <Text style={styles.servicoDescricao}>
-                    {servico.descricao}
-                  </Text>
-                  <Text style={styles.servicoValor}>R$ {servico.valor}</Text>
-                  {servicosSelecionados.includes(servico.idServico) && (
-                    <Icon name="checkmark" size={20} color="#007aff" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              style={styles.btnConfirmarServicos}
-              onPress={() => {
-                setModalServicosVisible(false);
-                // Lógica para agendar com os serviços selecionados
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "flex-end",
+            backgroundColor: "rgba(0,0,0,0.15)",
+          }}
+        >
+          <View style={styles.modalSheet}>
+            <Text style={styles.modalTitlePrint}>Selecione os serviços:</Text>
+            <FlatList
+              data={servicos}
+              keyExtractor={(item) => String(item.idServico)}
+              renderItem={({ item }) => {
+                const selecionado = servicosSelecionados.includes(
+                  item.idServico
+                );
+                return (
+                  <View style={styles.servicoLinhaPrint}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.servicoNomePrint}>
+                        {item.descricao}
+                      </Text>
+                      <Text style={styles.servicoValorPrint}>
+                        R$ {item.valor}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.btnAddRemovePrint}
+                      onPress={() => {
+                        if (selecionado) {
+                          setServicosSelecionados(
+                            servicosSelecionados.filter(
+                              (id) => id !== item.idServico
+                            )
+                          );
+                        } else {
+                          setServicosSelecionados([
+                            ...servicosSelecionados,
+                            item.idServico,
+                          ]);
+                        }
+                      }}
+                    >
+                      <Icon
+                        name={selecionado ? "remove" : "add"}
+                        size={22}
+                        color={selecionado ? "#d32f2f" : "#888"}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "#ccc",
+                          borderRadius: 12,
+                          padding: 2,
+                          backgroundColor: "#fff",
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                );
               }}
+              ListEmptyComponent={
+                <Text style={{ color: "#888", margin: 16 }}>
+                  Nenhum serviço disponível
+                </Text>
+              }
+            />
+            <TouchableOpacity
+              style={styles.btnAdicionarPrint}
+              onPress={() => setModalServicosVisible(false)}
             >
-              <Text style={styles.textBtnConfirmarServicos}>
-                Confirmar Serviços
-              </Text>
+              <Text style={styles.textBtnAdicionarPrint}>Adicionar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -743,50 +704,68 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-  },
-  modalContent: {
-    width: "90%",
+  // ...existing code...
+  // --- Modal estilo print ---
+  modalSheet: {
     backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 20,
-    elevation: 5,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingTop: 18,
+    paddingHorizontal: 16,
+    paddingBottom: 0,
+    minHeight: "80%",
+    maxHeight: "90%",
   },
-  modalTitle: {
+  modalTitlePrint: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 18,
+    marginLeft: 2,
   },
-  servicoItem: {
+  servicoLinhaPrint: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
+    borderBottomColor: "#eee",
+    paddingVertical: 10,
+    paddingHorizontal: 2,
+    minHeight: 44,
   },
-  servicoDescricao: {
+  servicoNomePrint: {
     fontSize: 16,
+    color: "#222",
+    marginBottom: 2,
   },
-  servicoValor: {
-    fontSize: 16,
-    fontWeight: "bold",
+  servicoValorPrint: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 0,
   },
-  btnConfirmarServicos: {
-    backgroundColor: "#007aff",
-    padding: 15,
-    borderRadius: 6,
-    marginTop: 20,
+  btnAddRemovePrint: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
   },
-  textBtnConfirmarServicos: {
+  btnAdicionarPrint: {
+    backgroundColor: "#d32f2f",
+    paddingVertical: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 0,
+    marginTop: 24,
+    marginBottom: 18,
+  },
+  textBtnAdicionarPrint: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+    letterSpacing: 0.5,
   },
 });
 

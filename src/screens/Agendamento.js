@@ -49,6 +49,16 @@ const Agendamento = ({ navigation, route }) => {
   const [horariosSelecionados, setHorariosSelecionados] = useState([]);
   const empresa = getEmpresaStore();
 
+  // Passo a passo
+  // O passo inicial será ajustado após carregar os pets
+  const [passo, setPasso] = useState(1); // 1: Pet, 2: Serviço, 3: Data, 4: Horário, 5: Resumo
+
+  // Helpers para validação
+  const podeAvancarPet = !!petSelecionado;
+  const podeAvancarServico = servicosSelecionados.length > 0;
+  const podeAvancarData = Object.keys(datasSelecionadas).length > 0;
+  const podeAvancarHorario = horariosSelecionados.length > 0;
+
   useEffect(() => {
     carregarDados();
   }, []);
@@ -95,6 +105,9 @@ const Agendamento = ({ navigation, route }) => {
       setPets(petsComFoto);
       if (petsComFoto.length === 1) {
         setPetSelecionado(petsComFoto[0].idAnimal);
+        setPasso(2); // Pula direto para o step 2 se só tem 1 pet
+      } else {
+        setPasso(1); // Mostra step 1 se tem 2 ou mais pets
       }
     }
   };
@@ -276,61 +289,53 @@ const Agendamento = ({ navigation, route }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#007aff" />
       ) : (
-        <FlatList
-          style={styles.scrollContainer}
-          ListHeaderComponent={
-            <>
-              {/* 1 - Capa */}
+        <>
+          {/* 1 - Capa e dados da empresa */}
+          <ExpoImage
+            source={require("../../assets/LogoGrande.png")}
+            style={styles.capa}
+            placeholder={placeholderImg}
+            contentFit="cover"
+            transition={300}
+          />
+          <View style={styles.infoBox}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                minHeight: 60,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={{ marginRight: 8, padding: 4 }}
+              >
+                <Icon name="chevron-back-outline" size={28} color="#007aff" />
+              </TouchableOpacity>
               <ExpoImage
-                source={require("../../assets/LogoGrande.png")}
-                style={styles.capa}
+                source={
+                  empresa?.urlLogoEmpresa
+                    ? { uri: empresa.urlLogoEmpresa }
+                    : placeholderImg
+                }
+                style={styles.logoEmpresa}
                 placeholder={placeholderImg}
                 contentFit="cover"
                 transition={300}
               />
-
-              {/* 2 - Dados da empresa */}
-              <View style={styles.infoBox}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    minHeight: 60,
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={{ marginRight: 8, padding: 4 }}
-                  >
-                    <Icon
-                      name="chevron-back-outline"
-                      size={28}
-                      color="#007aff"
-                    />
-                  </TouchableOpacity>
-                  <ExpoImage
-                    source={
-                      empresa?.urlLogoEmpresa
-                        ? { uri: empresa.urlLogoEmpresa }
-                        : placeholderImg
-                    }
-                    style={styles.logoEmpresa}
-                    placeholder={placeholderImg}
-                    contentFit="cover"
-                    transition={300}
-                  />
-                  <View style={{ marginLeft: 12, flex: 1 }}>
-                    <Text style={styles.nomeEmpresa} numberOfLines={1}>
-                      {empresa?.descricaoNomeFisica || "nome da empresa"}
-                    </Text>
-                    <Text style={styles.detalhesLoja} numberOfLines={1}>
-                      Endereço da empresa aqui
-                    </Text>
-                  </View>
-                </View>
+              <View style={{ marginLeft: 12, flex: 1 }}>
+                <Text style={styles.nomeEmpresa} numberOfLines={1}>
+                  {empresa?.descricaoNomeFisica || "nome da empresa"}
+                </Text>
+                <Text style={styles.detalhesLoja} numberOfLines={1}>
+                  Endereço da empresa aqui
+                </Text>
               </View>
-
-              {/* 3 - Selecionar pet */}
+            </View>
+          </View>
+          {/* Passo 1: Pet */}
+          {passo === 1 && (
+            <>
               <Text style={styles.label}>Escolha o pet:</Text>
               <FlatList
                 data={pets}
@@ -360,17 +365,30 @@ const Agendamento = ({ navigation, route }) => {
                   </TouchableOpacity>
                 )}
               />
-
-              {/* 4 - Botão para abrir modal de serviços */}
+              <View style={styles.footerStep}>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { opacity: podeAvancarPet ? 1 : 0.5 },
+                  ]}
+                  disabled={!podeAvancarPet}
+                  onPress={() => setPasso(2)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Avançar</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+          {/* Passo 2: Serviços */}
+          {passo === 2 && (
+            <>
               <TouchableOpacity
                 style={styles.btnConfirmar}
                 onPress={() => setModalServicosVisible(true)}
               >
                 <Text style={styles.textBtnConfirmar}>Selecionar Serviços</Text>
               </TouchableOpacity>
-
-              {/* 5 - Resumo dos serviços */}
-              <Text style={styles.label}>Resumo dos Serviços:</Text>
+              <Text style={styles.label}>Serviços selecionados:</Text>
               {servicos
                 .filter((s) => servicosSelecionados.includes(s.idServico))
                 .map((s) => (
@@ -386,29 +404,69 @@ const Agendamento = ({ navigation, route }) => {
                     <Text>R$ {s.valor}</Text>
                   </View>
                 ))}
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  fontSize: 16,
-                  marginBottom: 10,
-                }}
-              >
-                Total: R${" "}
-                {servicos
-                  .filter((s) => servicosSelecionados.includes(s.idServico))
-                  .reduce((acc, s) => acc + Number(s.valor), 0)
-                  .toFixed(2)}
-              </Text>
-              {/* 6 - Data modo calendário */}
+              <View style={styles.footerStep}>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { opacity: podeAvancarServico ? 1 : 0.5 },
+                  ]}
+                  disabled={!podeAvancarServico}
+                  onPress={() => setPasso(3)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Avançar</Text>
+                </TouchableOpacity>
+                {/* Só mostra o botão Voltar se o usuário veio do passo 1 (ou seja, tem mais de 1 pet) */}
+                {pets.length > 1 && (
+                  <TouchableOpacity
+                    style={[
+                      styles.btnConfirmar,
+                      { backgroundColor: "#aaa", marginTop: 10 },
+                    ]}
+                    onPress={() => setPasso(1)}
+                  >
+                    <Text style={styles.textBtnConfirmar}>Voltar</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </>
+          )}
+          {/* Passo 3: Data */}
+          {passo === 3 && (
+            <>
               <Text style={styles.label}>Selecione data:</Text>
               <Calendar
                 markedDates={datasSelecionadas}
                 onDayPress={selecionarData}
                 minDate={new Date().toISOString().split("T")[0]}
               />
-              {/* 7 - Lista dos horários disponíveis */}
-              {horariosDisponiveis.length > 0 && (
-                <View>
+              <View style={styles.footerStep}>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { opacity: podeAvancarData ? 1 : 0.5 },
+                  ]}
+                  disabled={!podeAvancarData}
+                  onPress={() => setPasso(4)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Avançar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { backgroundColor: "#aaa", marginTop: 10 },
+                  ]}
+                  onPress={() => setPasso(2)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Voltar</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+          {/* Passo 4: Horário */}
+          {passo === 4 && (
+            <>
+              {horariosDisponiveis.length > 0 ? (
+                <>
                   <Text style={styles.label}>Horários disponíveis:</Text>
                   <FlatList
                     data={horariosDisponiveis}
@@ -441,125 +499,175 @@ const Agendamento = ({ navigation, route }) => {
                       </TouchableOpacity>
                     )}
                   />
-                </View>
+                </>
+              ) : (
+                <Text style={{ color: "#888", marginVertical: 16 }}>
+                  Selecione uma data para ver horários disponíveis.
+                </Text>
               )}
-              {/* 8 - Complementares */}
-              <View style={styles.switchContainer}>
-                <Text style={styles.label}>Tipo do agendamento:</Text>
-                <Text>{ehPacoteMensal ? "Plano mensal" : "Único"}</Text>
-                <Switch
-                  value={ehPacoteMensal}
-                  onValueChange={() => {
-                    setEhPacoteMensal((v) => !v);
-                    setDatasSelecionadas({});
-                    setHorariosSelecionados([]);
-                  }}
-                  trackColor={{ false: "#767577", true: "#81b0ff" }}
-                  thumbColor={ehPacoteMensal ? "#007aff" : "#f4f3f4"}
-                />
+              <View style={styles.footerStep}>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { opacity: podeAvancarHorario ? 1 : 0.5 },
+                  ]}
+                  disabled={!podeAvancarHorario}
+                  onPress={() => setPasso(5)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Avançar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { backgroundColor: "#aaa", marginTop: 10 },
+                  ]}
+                  onPress={() => setPasso(3)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Voltar</Text>
+                </TouchableOpacity>
               </View>
-              {/* 9 - Botão de confirmação */}
-              <TouchableOpacity
-                style={styles.btnConfirmar}
-                onPress={confirmarAgendamento}
-                disabled={confirmando}
-              >
-                <Text style={styles.textBtnConfirmar}>
-                  {confirmando ? "Confirmando..." : "Confirmar Agendamento"}
-                </Text>
-              </TouchableOpacity>
             </>
-          }
-        />
-      )}
+          )}
+          {/* Passo 5: Resumo e confirmação */}
+          {passo === 5 && (
+            <>
+              <Text style={styles.label}>Resumo do Agendamento:</Text>
+              <Text>
+                Pet:{" "}
+                {pets.find((p) => p.idAnimal === petSelecionado)?.nome || "-"}
+              </Text>
+              <Text>Serviços:</Text>
+              {servicos
+                .filter((s) => servicosSelecionados.includes(s.idServico))
+                .map((s) => (
+                  <Text key={s.idServico}>
+                    - {s.descricao} (R$ {s.valor})
+                  </Text>
+                ))}
+              <Text>Data(s): {Object.keys(datasSelecionadas).join(", ")}</Text>
+              <Text>Horário(s): {horariosSelecionados.join(", ")}</Text>
 
-      {/* Modal para seleção de serviços - ESTILO DO PRINT */}
-      <Modal
-        visible={modalServicosVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setModalServicosVisible(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "flex-end",
-            backgroundColor: "rgba(0,0,0,0.15)",
-          }}
-        >
-          <View style={styles.modalSheet}>
-            <Text style={styles.modalTitlePrint}>Selecione os serviços:</Text>
-            <FlatList
-              data={servicos}
-              keyExtractor={(item) => String(item.idServico)}
-              renderItem={({ item }) => {
-                const selecionado = servicosSelecionados.includes(
-                  item.idServico
-                );
-                return (
-                  <View style={styles.servicoLinhaPrint}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.servicoNomePrint}>
-                        {item.descricao}
-                      </Text>
-                      <Text style={styles.servicoValorPrint}>
-                        R$ {item.valor}
-                      </Text>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.btnAddRemovePrint}
-                      onPress={() => {
-                        if (selecionado) {
-                          setServicosSelecionados(
-                            servicosSelecionados.filter(
-                              (id) => id !== item.idServico
-                            )
-                          );
-                        } else {
-                          setServicosSelecionados([
-                            ...servicosSelecionados,
-                            item.idServico,
-                          ]);
-                        }
-                      }}
-                    >
-                      <Icon
-                        name={selecionado ? "remove" : "add"}
-                        size={22}
-                        color={selecionado ? "#d32f2f" : "#888"}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "#ccc",
-                          borderRadius: 12,
-                          padding: 2,
-                          backgroundColor: "#fff",
-                        }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                );
+              <View style={styles.footerStep}>
+                <TouchableOpacity
+                  style={styles.btnConfirmar}
+                  onPress={confirmarAgendamento}
+                  disabled={confirmando}
+                >
+                  <Text style={styles.textBtnConfirmar}>
+                    {confirmando ? "Confirmando..." : "Confirmar Agendamento"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.btnConfirmar,
+                    { backgroundColor: "#aaa", marginTop: 10 },
+                  ]}
+                  onPress={() => setPasso(4)}
+                >
+                  <Text style={styles.textBtnConfirmar}>Voltar</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {/* Modal para seleção de serviços - ESTILO DO PRINT */}
+          <Modal
+            visible={modalServicosVisible}
+            animationType="slide"
+            transparent
+            onRequestClose={() => setModalServicosVisible(false)}
+          >
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "flex-end",
+                backgroundColor: "rgba(0,0,0,0.15)",
               }}
-              ListEmptyComponent={
-                <Text style={{ color: "#888", margin: 16 }}>
-                  Nenhum serviço disponível
-                </Text>
-              }
-            />
-            <TouchableOpacity
-              style={styles.btnAdicionarPrint}
-              onPress={() => setModalServicosVisible(false)}
             >
-              <Text style={styles.textBtnAdicionarPrint}>Adicionar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+              <View style={styles.modalSheet}>
+                <Text style={styles.modalTitlePrint}>
+                  Selecione os serviços:
+                </Text>
+                <FlatList
+                  data={servicos}
+                  keyExtractor={(item) => String(item.idServico)}
+                  renderItem={({ item }) => {
+                    const selecionado = servicosSelecionados.includes(
+                      item.idServico
+                    );
+                    return (
+                      <View style={styles.servicoLinhaPrint}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.servicoNomePrint}>
+                            {item.descricao}
+                          </Text>
+                          <Text style={styles.servicoValorPrint}>
+                            R$ {item.valor}
+                          </Text>
+                        </View>
+                        <TouchableOpacity
+                          style={styles.btnAddRemovePrint}
+                          onPress={() => {
+                            if (selecionado) {
+                              setServicosSelecionados(
+                                servicosSelecionados.filter(
+                                  (id) => id !== item.idServico
+                                )
+                              );
+                            } else {
+                              setServicosSelecionados([
+                                ...servicosSelecionados,
+                                item.idServico,
+                              ]);
+                            }
+                          }}
+                        >
+                          <Icon
+                            name={selecionado ? "remove" : "add"}
+                            size={22}
+                            color={selecionado ? "#d32f2f" : "#888"}
+                            style={{
+                              borderWidth: 1,
+                              borderColor: "#ccc",
+                              borderRadius: 12,
+                              padding: 2,
+                              backgroundColor: "#fff",
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  }}
+                  ListEmptyComponent={
+                    <Text style={{ color: "#888", margin: 16 }}>
+                      Nenhum serviço disponível
+                    </Text>
+                  }
+                />
+                <TouchableOpacity
+                  style={styles.btnAdicionarPrint}
+                  onPress={() => setModalServicosVisible(false)}
+                >
+                  <Text style={styles.textBtnAdicionarPrint}>Adicionar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        </>
+      )}
+      {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: "#fff" },
+  footerStep: {
+    marginTop: "auto",
+    paddingBottom: 10,
+    paddingTop: 10,
+    backgroundColor: "#fff",
+  },
   header: {
     flexDirection: "row",
     paddingTop: 50,
@@ -713,7 +821,7 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     paddingHorizontal: 16,
     paddingBottom: 0,
-    minHeight: "90%",
+    minHeight: "80%",
     maxHeight: "90%",
   },
   modalTitlePrint: {

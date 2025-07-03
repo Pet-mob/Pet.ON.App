@@ -342,8 +342,12 @@ const Agendamento = ({ navigation, route }) => {
                 <Text style={styles.nomeEmpresa} numberOfLines={1}>
                   {empresa?.descricaoNomeFisica || "nome da empresa"}
                 </Text>
-                <Text style={styles.detalhesLoja} numberOfLines={1}>
-                  {empresa?.endereco || "Endereço não informado"}
+                <Text
+                  style={styles.detalhesLoja}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
+                  {empresa?.endereco || "Endereço não informado pela empresa"}
                 </Text>
               </View>
             </View>

@@ -580,22 +580,72 @@ const Agendamento = ({ navigation, route }) => {
           {/* Passo 5: Resumo e confirmação */}
           {passo === 5 && (
             <>
-              <Text style={styles.label}>Resumo do Agendamento:</Text>
-              <Text>
-                Pet:{" "}
-                {pets.find((p) => p.idAnimal === petSelecionado)?.nome || "-"}
-              </Text>
-              <Text>Serviços:</Text>
-              {servicos
-                .filter((s) => servicosSelecionados.includes(s.idServico))
-                .map((s) => (
-                  <Text key={s.idServico}>
-                    - {s.descricao} (R$ {s.valor})
+              <Text style={styles.label}>Resumo do Agendamento</Text>
+              <View style={styles.resumoContainer}>
+                {/* Pet */}
+                <View style={styles.resumoLinha}>
+                  <Text style={styles.resumoTitulo}>Pet:</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    {(() => {
+                      const pet = pets.find(
+                        (p) => p.idAnimal === petSelecionado
+                      );
+                      if (!pet)
+                        return <Text style={styles.resumoValor}>-</Text>;
+                      return (
+                        <>
+                          <ExpoImage
+                            source={
+                              typeof pet.imagem === "string"
+                                ? { uri: pet.imagem }
+                                : pet.imagem
+                            }
+                            style={styles.resumoPetImg}
+                            placeholder={placeholderImg}
+                            contentFit="cover"
+                          />
+                          <Text style={styles.resumoValor}>{pet.nome}</Text>
+                        </>
+                      );
+                    })()}
+                  </View>
+                </View>
+                {/* Serviços */}
+                <View style={styles.resumoLinha}>
+                  <Text style={styles.resumoTitulo}>Serviços:</Text>
+                  <View style={{ flex: 1 }}>
+                    {servicos
+                      .filter((s) => servicosSelecionados.includes(s.idServico))
+                      .map((s) => (
+                        <View
+                          key={s.idServico}
+                          style={styles.resumoServicoLinha}
+                        >
+                          <Text style={styles.resumoServicoNome}>
+                            {s.descricao}
+                          </Text>
+                          <Text style={styles.resumoServicoValor}>
+                            R$ {s.valor}
+                          </Text>
+                        </View>
+                      ))}
+                  </View>
+                </View>
+                {/* Datas */}
+                <View style={styles.resumoLinha}>
+                  <Text style={styles.resumoTitulo}>Data(s):</Text>
+                  <Text style={styles.resumoValor}>
+                    {Object.keys(datasSelecionadas).join(", ")}
                   </Text>
-                ))}
-              <Text>Data(s): {Object.keys(datasSelecionadas).join(", ")}</Text>
-              <Text>Horário(s): {horariosSelecionados.join(", ")}</Text>
-
+                </View>
+                {/* Horários */}
+                <View style={styles.resumoLinha}>
+                  <Text style={styles.resumoTitulo}>Horário(s):</Text>
+                  <Text style={styles.resumoValor}>
+                    {horariosSelecionados.join(", ")}
+                  </Text>
+                </View>
+              </View>
               <View style={styles.footerStep}>
                 <TouchableOpacity
                   style={styles.btnConfirmar}
@@ -730,6 +780,61 @@ const Agendamento = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
+  resumoContainer: {
+    backgroundColor: "#f7faff",
+    borderRadius: 14,
+    padding: 18,
+    marginVertical: 16,
+    borderWidth: 1,
+    borderColor: "#e0e8f0",
+    shadowColor: "#007aff",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  resumoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  resumoTitulo: {
+    fontWeight: "bold",
+    fontSize: 15,
+    color: "#007aff",
+    minWidth: 90,
+  },
+  resumoValor: {
+    fontSize: 15,
+    color: "#222",
+    marginLeft: 8,
+    flexShrink: 1,
+  },
+  resumoPetImg: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#007aff",
+    backgroundColor: "#fff",
+  },
+  resumoServicoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 2,
+  },
+  resumoServicoNome: {
+    fontSize: 15,
+    color: "#222",
+    flex: 1,
+  },
+  resumoServicoValor: {
+    fontSize: 15,
+    color: "#007aff",
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
   container: { flex: 1, padding: 10, backgroundColor: "#fff" },
   footerStep: {
     marginTop: "auto",

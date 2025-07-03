@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   btnConfirmar: {
-    backgroundColor: "#007aff",
+    backgroundColor: "#43b581",
     padding: 15,
     borderRadius: 6,
     marginTop: 20,

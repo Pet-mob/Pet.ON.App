@@ -23,7 +23,7 @@ export default function MenuInferior() {
             iconName = focused ? "calendar" : "calendar-outline";
           } else if (route.name === "Usuario") {
             iconName = focused ? "person" : "person-outline";
-          } else if (route.name === "Buscar") {
+          } else if (route.name === "Explorar") {
             iconName = focused ? "search" : "search-outline";
           }
 
@@ -34,7 +34,7 @@ export default function MenuInferior() {
       })}
     >
       <Tab.Screen name="Principal" component={Principal} />
-      <Tab.Screen name="Buscar" component={Buscar} />
+      <Tab.Screen name="Explorar" component={Buscar} />
       <Tab.Screen name="Agendamentos" component={ConsultaAgendamento} />
       <Tab.Screen name="Usuario" component={Usuario} />
     </Tab.Navigator>

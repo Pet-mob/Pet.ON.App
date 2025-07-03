@@ -31,7 +31,7 @@ export default function Routes() {
       />
 
       <Stack.Screen
-        name="Buscar"
+        name="Explorar"
         component={Buscar}
         options={{ headerShown: false }}
       />

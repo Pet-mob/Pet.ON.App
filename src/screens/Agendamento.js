@@ -62,26 +62,51 @@ const Agendamento = ({ navigation, route }) => {
   const podeAvancarData = Object.keys(datasSelecionadas).length > 0;
   const podeAvancarHorario = horariosSelecionados.length > 0;
 
+  // Carrega pets e serviços filtrando pelo idPorte do pet selecionado
   useEffect(() => {
     carregarDados();
   }, []);
 
+  // Sempre que o petSelecionado mudar, recarrega os serviços filtrando pelo porte
+  useEffect(() => {
+    if (petSelecionado && pets.length > 0) {
+      const pet = pets.find((p) => p.idAnimal === petSelecionado);
+      if (pet && pet.idPorte) {
+        carregarServicosPorPorte(pet.idPorte);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [petSelecionado]);
+
   const carregarDados = async () => {
     setLoading(true);
     try {
-      const [servicosApi, petsApi, parametrosApi] = await Promise.all([
-        apiRequisicaoServico.buscarServicosEmpresaNaApi(idEmpresaPetShop),
+      // Primeiro busca os pets
+      const [petsApi, parametrosApi] = await Promise.all([
         apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario),
         apiRequisicaoParametro.buscarParametro(idEmpresaPetShop),
       ]);
 
-      if (servicosApi) setServicos(servicosApi);
+      // Carregar fotos dos pets
+      await manipularFotoAnimal(petsApi);
 
       // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
       if (parametrosApi) setParametrosEmpresa(parametrosApi);
 
-      // Carregar fotos dos pets
-      await manipularFotoAnimal(petsApi);
+      // Após carregar pets, busca serviços do pet selecionado (ou do único pet)
+      let idPortePet = null;
+      if (petsApi.length === 1) {
+        idPortePet = petsApi[0].idPorte;
+        setPetSelecionado(petsApi[0].idAnimal);
+        setPasso(2);
+      } else {
+        setPasso(1);
+      }
+      if (idPortePet) {
+        await carregarServicosPorPorte(idPortePet);
+      } else {
+        setServicos([]);
+      }
     } catch (error) {
       Toast.show({
         type: "error",
@@ -104,12 +129,25 @@ const Agendamento = ({ navigation, route }) => {
         };
       });
       setPets(petsComFoto);
-      if (petsComFoto.length === 1) {
-        setPetSelecionado(petsComFoto[0].idAnimal);
-        setPasso(2); // Pula direto para o step 2 se só tem 1 pet
-      } else {
-        setPasso(1); // Mostra step 1 se tem 2 ou mais pets
-      }
+    }
+  };
+
+  // Função para buscar serviços filtrando pelo idPorte
+  const carregarServicosPorPorte = async (idPorte) => {
+    setLoading(true);
+    try {
+      const servicosApi = await apiRequisicaoServico.buscarServicosEmpresaNaApi(
+        idEmpresaPetShop,
+        idPorte
+      );
+      if (servicosApi) setServicos(servicosApi);
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Erro ao carregar serviços para o porte do pet.",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 

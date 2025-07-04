@@ -28,7 +28,7 @@ const DadosPets = () => {
   const [observacoes, setObservacoes] = useState("");
   const [foto, setFoto] = useState(null);
   // porte: 1 - Pequeno, 2 - Médio, 3 - Grande
-  const [porte, setPorte] = useState("");
+  const [idPorte, setIdPorte] = useState("");
   const [arquivoFoto, setArquivoFoto] = useState({});
   const [listaDePets, setListaDePets] = useState([]);
   const navigation = useNavigation();
@@ -149,7 +149,7 @@ const DadosPets = () => {
   };
 
   const salvarPet = async () => {
-    if (!nome || !idade || !raca || !porte) {
+    if (!nome || !idade || !raca || !idPorte) {
       Toast.show({
         type: "info",
         text1: "Preencha todos os campos obrigatórios",
@@ -158,13 +158,7 @@ const DadosPets = () => {
     }
 
     // Converte porte para número
-    let porteNumero = porte;
-    if (typeof porte === "string") {
-      if (porte === "Pequeno" || porte === "1") porteNumero = 1;
-      else if (porte === "Médio" || porte === "Medio" || porte === "2")
-        porteNumero = 2;
-      else if (porte === "Grande" || porte === "3") porteNumero = 3;
-    }
+    let porteNumero = idPorte;
 
     try {
       let sucesso;
@@ -225,7 +219,7 @@ const DadosPets = () => {
     setNome("");
     setIdade("");
     setRaca("");
-    setPorte("");
+    setIdPorte("");
     setObservacoes("");
     setFoto(null);
   };
@@ -263,11 +257,10 @@ const DadosPets = () => {
     setNome(pet.nome);
     setIdade(pet.idade);
     setRaca(pet.raca);
-    setPorte(pet.porte || "");
+    setIdPorte(pet.idPorte || "");
     setObservacoes(pet.observacoes);
     setFoto(pet.imagem || null);
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -279,10 +272,8 @@ const DadosPets = () => {
         </TouchableOpacity>
         <Text style={styles.title}>Dados dos Pets</Text>
       </View>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#007aff" />
-      ) : (
+      {loading ? <ActivityIndicator size="large" color="#007aff" /> : null}
+      {!loading && (
         <KeyboardAwareScrollView
           style={styles.bodyContainer}
           contentContainerStyle={{ paddingBottom: 20 }}
@@ -336,14 +327,14 @@ const DadosPets = () => {
                   key={opcao.value}
                   style={[
                     styles.porteButton,
-                    porte == opcao.value ? styles.porteButtonSelected : null,
+                    idPorte == opcao.value ? styles.porteButtonSelected : null,
                   ]}
-                  onPress={() => setPorte(opcao.value)}
+                  onPress={() => setIdPorte(opcao.value)}
                 >
                   <Text
                     style={[
                       styles.porteButtonText,
-                      porte == opcao.value
+                      idPorte == opcao.value
                         ? styles.porteButtonTextSelected
                         : null,
                     ]}
@@ -400,11 +391,11 @@ const DadosPets = () => {
                   <Text style={styles.petText}>Raça: {pet.raca}</Text>
                   <Text style={styles.petText}>
                     Porte:{" "}
-                    {pet.porte === 1
+                    {pet.idPorte === 1
                       ? "Pequeno"
-                      : pet.porte === 2
+                      : pet.idPorte === 2
                       ? "Médio"
-                      : pet.porte === 3
+                      : pet.idPorte === 3
                       ? "Grande"
                       : "-"}
                   </Text>

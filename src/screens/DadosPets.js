@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Image,
   ActivityIndicator,
   Alert,
   Platform,
@@ -17,6 +16,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { getUsuarioStore } from "../store/store";
 import apiRequisicaoAnimal from "../Service/apiRequisicaoAnimal.js";
 import { colors, spacing, fontSizes, radii } from "../theme/theme1.js";
+import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
+import Toast from "react-native-toast-message";
 
 const DadosPets = () => {
   const [loading, setLoading] = useState(true);
@@ -26,13 +27,13 @@ const DadosPets = () => {
   const [raca, setRaca] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [foto, setFoto] = useState(null);
+  // porte: 1 - Pequeno, 2 - Médio, 3 - Grande
+  const [porte, setPorte] = useState("");
   const [arquivoFoto, setArquivoFoto] = useState({});
   const [listaDePets, setListaDePets] = useState([]);
   const navigation = useNavigation();
   const usuarioStore = getUsuarioStore();
   const idUsuario = usuarioStore.id;
-  const urlFotoPadrao =
-    "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D";
 
   useEffect(() => {
     carregarDados();
@@ -44,7 +45,6 @@ const DadosPets = () => {
       const [petsApi] = await Promise.all([
         apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario),
       ]);
-      setListaDePets(petsApi);
       // Carregar fotos dos pets
       const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(
         idUsuario
@@ -53,14 +53,15 @@ const DadosPets = () => {
         const foto = fotos?.find((f) => f.idAnimal === pet.idAnimal);
         return {
           ...pet,
-          imagem:
-            foto?.url ||
-            "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D",
+          imagem: foto?.url,
         };
       });
       setListaDePets(petsComFoto);
     } catch (error) {
-      Alert.alert("Erro", "Erro ao carregar serviços ou pets.");
+      Toast.show({
+        type: "error",
+        text1: "Erro ao carregar serviços ou pets.",
+      });
     } finally {
       setLoading(false);
     }
@@ -74,10 +75,10 @@ const DadosPets = () => {
       if (resposta) {
         setListaDePets(resposta);
       } else {
-        alert("Nenhum pet cadastrado.");
+        Toast.show({ type: "info", text1: "Nenhum pet cadastrado." });
       }
     } catch (error) {
-      alert("Erro ao carregar dados dos pets.");
+      Toast.show({ type: "error", text1: "Erro ao carregar dados dos pets." });
     }
   };
 
@@ -116,7 +117,10 @@ const DadosPets = () => {
           setFoto(resposta);
           return resposta;
         } catch (error) {
-          console.error("Erro ao enviar foto do animal:", error);
+          Toast.show({
+            type: "error",
+            text1: "Erro ao enviar foto do animal.",
+          });
         }
       }
     }
@@ -125,10 +129,10 @@ const DadosPets = () => {
   const selecionarFoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permissão necessária",
-        "Precisamos de acesso à galeria para alterar a foto."
-      );
+      Toast.show({
+        type: "info",
+        text1: "Precisamos de acesso à galeria para alterar a foto.",
+      });
       return;
     }
 
@@ -145,9 +149,21 @@ const DadosPets = () => {
   };
 
   const salvarPet = async () => {
-    if (!nome || !idade || !raca) {
-      Alert.alert("Preencha todos os campos obrigatórios");
+    if (!nome || !idade || !raca || !porte) {
+      Toast.show({
+        type: "info",
+        text1: "Preencha todos os campos obrigatórios",
+      });
       return;
+    }
+
+    // Converte porte para número
+    let porteNumero = porte;
+    if (typeof porte === "string") {
+      if (porte === "Pequeno" || porte === "1") porteNumero = 1;
+      else if (porte === "Médio" || porte === "Medio" || porte === "2")
+        porteNumero = 2;
+      else if (porte === "Grande" || porte === "3") porteNumero = 3;
     }
 
     try {
@@ -161,7 +177,8 @@ const DadosPets = () => {
           idade,
           raca,
           observacoes,
-          idUsuario
+          idUsuario,
+          porteNumero
         );
       } else {
         const novoPet = await apiRequisicaoAnimal.inserirAnimal(
@@ -169,7 +186,8 @@ const DadosPets = () => {
           idade,
           raca,
           observacoes,
-          idUsuario
+          idUsuario,
+          porteNumero
         );
         sucesso = novoPet?.idAnimal > 0;
         idGerado = novoPet?.idAnimal;
@@ -179,21 +197,26 @@ const DadosPets = () => {
         if (foto && idGerado) {
           const uploadSucesso = await enviarFotoDetalhadamente(idGerado);
           if (!uploadSucesso) {
-            Alert.alert("Pet salvo, mas houve erro ao enviar a imagem.");
+            Toast.show({
+              type: "warning",
+              text1: "Pet salvo, mas houve erro ao enviar a imagem.",
+            });
           }
         }
 
-        alert(
-          idAnimal ? "Pet alterado com sucesso!" : "Pet inserido com sucesso!"
-        );
+        Toast.show({
+          type: "success",
+          text1: idAnimal
+            ? "Pet alterado com sucesso!"
+            : "Pet inserido com sucesso!",
+        });
         resetarFormulario();
         carregarDados();
       } else {
-        alert("Falha ao salvar pet.");
+        Toast.show({ type: "error", text1: "Falha ao salvar pet." });
       }
     } catch (error) {
-      console.error(error);
-      alert("Erro ao salvar pet.");
+      Toast.show({ type: "error", text1: "Erro ao salvar pet." });
     }
   };
 
@@ -202,10 +225,9 @@ const DadosPets = () => {
     setNome("");
     setIdade("");
     setRaca("");
+    setPorte("");
     setObservacoes("");
-    setFoto(
-      "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D"
-    );
+    setFoto(null);
   };
 
   const excluirPet = (idAnimalParam) => {
@@ -220,14 +242,16 @@ const DadosPets = () => {
               idAnimalParam
             );
             if (sucesso) {
-              alert("Pet excluído com sucesso!");
+              Toast.show({
+                type: "success",
+                text1: "Pet excluído com sucesso!",
+              });
               buscarPetsPorUsuario(idUsuario);
             } else {
-              alert("Erro ao excluir pet.");
+              Toast.show({ type: "error", text1: "Erro ao excluir pet." });
             }
           } catch (error) {
-            console.error(error);
-            alert("Erro ao excluir pet.");
+            Toast.show({ type: "error", text1: "Erro ao excluir pet." });
           }
         },
       },
@@ -239,6 +263,7 @@ const DadosPets = () => {
     setNome(pet.nome);
     setIdade(pet.idade);
     setRaca(pet.raca);
+    setPorte(pet.porte || "");
     setObservacoes(pet.observacoes);
     setFoto(pet.imagem || null);
   };
@@ -268,8 +293,8 @@ const DadosPets = () => {
             style={styles.fotoContainer}
             onPress={selecionarFoto}
           >
-            <Image
-              source={foto ? { uri: foto } : { uri: urlFotoPadrao }}
+            <ExpoImageWithPlaceholder
+              source={foto ? { uri: foto } : undefined}
               style={styles.foto}
             />
             <Text style={styles.textoFoto}>Selecionar Foto</Text>
@@ -296,6 +321,39 @@ const DadosPets = () => {
                         />
                     </View>
             */}
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Porte</Text>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between" }}
+            >
+              {[
+                { label: "Pequeno", value: 1 },
+                { label: "Médio", value: 2 },
+                { label: "Grande", value: 3 },
+              ].map((opcao) => (
+                <TouchableOpacity
+                  key={opcao.value}
+                  style={[
+                    styles.porteButton,
+                    porte == opcao.value ? styles.porteButtonSelected : null,
+                  ]}
+                  onPress={() => setPorte(opcao.value)}
+                >
+                  <Text
+                    style={[
+                      styles.porteButtonText,
+                      porte == opcao.value
+                        ? styles.porteButtonTextSelected
+                        : null,
+                    ]}
+                  >
+                    {opcao.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Raça</Text>
@@ -332,11 +390,24 @@ const DadosPets = () => {
           ) : (
             listaDePets.map((pet) => (
               <View key={pet.idAnimal} style={styles.petItem}>
-                <Image source={{ uri: pet.imagem }} style={styles.petImage} />
+                <ExpoImageWithPlaceholder
+                  source={{ uri: pet.imagem }}
+                  style={styles.petImage}
+                />
                 <View style={styles.petDetails}>
                   <Text style={styles.petText}>Nome: {pet.nome}</Text>
                   {/*<Text style={styles.petText}>Idade: {pet.idade}</Text>*/}
                   <Text style={styles.petText}>Raça: {pet.raca}</Text>
+                  <Text style={styles.petText}>
+                    Porte:{" "}
+                    {pet.porte === 1
+                      ? "Pequeno"
+                      : pet.porte === 2
+                      ? "Médio"
+                      : pet.porte === 3
+                      ? "Grande"
+                      : "-"}
+                  </Text>
                   <Text style={styles.petText}>Obs: {pet.observacoes}</Text>
                 </View>
                 <View style={styles.actions}>
@@ -347,11 +418,11 @@ const DadosPets = () => {
                       color={colors.secondary}
                     />
                   </TouchableOpacity>
-                  {/*                                                                    
-                                    <TouchableOpacity onPress={() => excluirPet(pet.idAnimal)} style={{ marginTop: 10 }}>
-                                        <Ionicons name="trash-outline" size={24} color="#ff4d4d" />
-                                    </TouchableOpacity>
-                                    */}
+                  {/*
+                  <TouchableOpacity onPress={() => excluirPet(pet.idAnimal)} style={{ marginTop: 10 }}>
+                    <Ionicons name="trash-outline" size={24} color="#ff4d4d" />
+                  </TouchableOpacity>
+                  */}
                 </View>
               </View>
             ))
@@ -474,6 +545,27 @@ const styles = StyleSheet.create({
   actions: {
     justifyContent: "center",
     alignItems: "center",
+  },
+  porteButton: {
+    flex: 1,
+    marginHorizontal: 4,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  porteButtonSelected: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  porteButtonText: {
+    color: "#555",
+    fontWeight: "600",
+  },
+  porteButtonTextSelected: {
+    color: "#fff",
   },
 });
 

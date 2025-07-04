@@ -72,7 +72,10 @@ const RegistrarUsuarioNovo = () => {
     setLoading(true);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Permissão para acessar a galeria é necessária!");
+      Toast.show({
+        type: "info",
+        text1: "Permissão para acessar a galeria é necessária!",
+      });
       return;
     }
 
@@ -93,7 +96,10 @@ const RegistrarUsuarioNovo = () => {
     setLoading(true);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Permissão para acessar a galeria é necessária!");
+      Toast.show({
+        type: "info",
+        text1: "Permissão para acessar a galeria é necessária!",
+      });
       return;
     }
 

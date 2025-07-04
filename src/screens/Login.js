@@ -58,7 +58,7 @@ const TelaLogin = () => {
 
   const handleLogin = async () => {
     if (!telefoneLimpo || !Senha) {
-      alert("Preencha todos os campos!");
+      Toast.show({ type: "info", text1: "Preencha todos os campos!" });
       return;
     }
     setLoading(true); // <- INICIA LOADING

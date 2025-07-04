@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
 import { getUsuarioStore } from "../store/store";
+import Toast from "react-native-toast-message";
 
 const Privacidade = () => {
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -22,12 +23,15 @@ const Privacidade = () => {
 
   const alterarSenha = async () => {
     if (!senhaAtual || !novaSenha || !confirmarSenha) {
-      alert("Por favor, preencha todos os campos.");
+      Toast.show({
+        type: "info",
+        text1: "Por favor, preencha todos os campos.",
+      });
       return;
     }
 
     if (novaSenha !== confirmarSenha) {
-      alert("As senhas não coincidem.");
+      Toast.show({ type: "info", text1: "As senhas não coincidem." });
       return;
     }
 
@@ -37,14 +41,19 @@ const Privacidade = () => {
         idUsuario
       );
       if (sucesso) {
-        alert("Senha alterada com sucesso!");
+        Toast.show({ type: "success", text1: "Senha alterada com sucesso!" });
         navigation.navigate("Usuario");
       } else {
-        alert("Falha ao alterar a senha. Verifique a senha atual.");
+        Toast.show({
+          type: "error",
+          text1: "Falha ao alterar a senha. Verifique a senha atual.",
+        });
       }
     } catch (error) {
-      console.error(error);
-      alert("Ocorreu um erro ao tentar alterar a senha.");
+      Toast.show({
+        type: "error",
+        text1: "Ocorreu um erro ao tentar alterar a senha.",
+      });
     }
   };
 

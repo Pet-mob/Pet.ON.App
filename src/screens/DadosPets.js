@@ -225,31 +225,10 @@ const DadosPets = () => {
   };
 
   const excluirPet = (idAnimalParam) => {
-    Alert.alert("Confirmação", "Tem certeza de que deseja excluir este pet?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Excluir",
-        onPress: async () => {
-          try {
-            const sucesso = await apiRequisicaoAnimal.excluirAnimal(
-              idUsuario,
-              idAnimalParam
-            );
-            if (sucesso) {
-              Toast.show({
-                type: "success",
-                text1: "Pet excluído com sucesso!",
-              });
-              buscarPetsPorUsuario(idUsuario);
-            } else {
-              Toast.show({ type: "error", text1: "Erro ao excluir pet." });
-            }
-          } catch (error) {
-            Toast.show({ type: "error", text1: "Erro ao excluir pet." });
-          }
-        },
-      },
-    ]);
+    Toast.show({
+      type: "info",
+      text1: "Função de exclusão de pet não implementada nesta versão.",
+    });
   };
 
   const editarPet = (pet) => {

@@ -60,15 +60,6 @@ const Usuario = () => {
 };
 
 const styles = StyleSheet.create({
-  // container: {
-  // },
-  // header: {
-  // },
-  // backButton: {
-  // },
-  // title: {
-  // },
-
   container: {
     flex: 1,
     backgroundColor: "#F9F9F9",
@@ -81,24 +72,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // paddingTop: 50,
-    // paddingBottom: 15,
-    // paddingHorizontal: 20,
-    // backgroundColor: '#FFF',
-    // elevation: 4,
-    // borderBottomWidth: 1,
-    // borderColor: '#E0E0E0',
+    // ...existing code...
   },
   backButton: {
     position: "absolute",
     left: 16,
     top: 50,
-    // padding: 10,
-    // position: 'absolute',
-    // left: 20,
-    // top: 50,
+    // ...existing code...
     // padding: 5,
   },
   title: {

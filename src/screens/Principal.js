@@ -73,7 +73,7 @@ const TelaInicial = () => {
         setEmpresas(empresasResp);
         setListaLogos(logosResp);
       } catch (error) {
-        console.log("Erro ao carregar dados:", error);
+        Toast.show({ type: "error", text1: "Erro ao carregar dados." });
       } finally {
         setLoading(false);
       }

@@ -157,7 +157,7 @@ const Agendamento = ({ navigation, route }) => {
         const atualizadas = { ...datasSelecionadas };
         delete atualizadas[dataKey];
         setDatasSelecionadas({ ...atualizadas });
-        console.log("Datas selecionadas (removendo):", { ...atualizadas });
+        // console.log("Datas selecionadas (removendo):", { ...atualizadas });
         setTimeout(() => buscarHorarios(Object.keys(atualizadas)), 0);
         return;
       }
@@ -187,13 +187,13 @@ const Agendamento = ({ navigation, route }) => {
         [dataKey]: circleMark,
       };
       setDatasSelecionadas({ ...novasDatas });
-      console.log("Datas selecionadas (adicionando):", { ...novasDatas });
+      // console.log("Datas selecionadas (adicionando):", { ...novasDatas });
       setTimeout(() => buscarHorarios(Object.keys(novasDatas)), 0);
     } else {
       // Apenas uma data selecionada: sobrescreve
       const novaData = { [dataKey]: circleMark };
       setDatasSelecionadas({ ...novaData });
-      console.log("Datas selecionadas (única):", { ...novaData });
+      // console.log("Datas selecionadas (única):", { ...novaData });
       setTimeout(() => buscarHorarios([dataKey]), 0);
     }
   };

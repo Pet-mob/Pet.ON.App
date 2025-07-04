@@ -25,10 +25,13 @@ const ConsultaAgendamento = ({ navigation }) => {
       if (resposta) {
         setConsultaAgendamentos(resposta);
       } else {
-        alert("Não há dados cadastrados.");
+        Toast.show({ type: "info", text1: "Não há dados cadastrados." });
       }
     } catch (error) {
-      alert("Erro ao carregar dados dos agendamentos");
+      Toast.show({
+        type: "error",
+        text1: "Erro ao carregar dados dos agendamentos",
+      });
     }
   };
 

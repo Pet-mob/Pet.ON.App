@@ -3,10 +3,8 @@ import { Platform } from "react-native";
 
 const buscarAnimalUsuarioNaApi = async (idUsuario) => {
   try {
-    const dtoRequisicao = {
-      idUsuario: idUsuario,
-    };
-    const resposta = await api.get("/Animal", dtoRequisicao);
+    const uri = `/Animal?IdUsuario=${idUsuario}`;
+    const resposta = await api.get(uri);
     return resposta.data;
   } catch (error) {
     console.error("Erro ao buscar animais do usuario:", error);

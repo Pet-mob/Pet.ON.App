@@ -11,7 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa.js";
 import { setEmpresaStore } from "../store/store.js";
 import { getUsuarioStore } from "../store/store.js";
-import { Image as ExpoImage } from "expo-image";
+import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
 
 const placeholderImg = require("../../assets/placeholder.png");
 
@@ -102,7 +102,10 @@ const TelaInicial = () => {
               ]}
               onPress={() => setCategoriaSelecionada(item.id)}
             >
-              <ExpoImage source={item.icone} style={estilos.iconeCategoria} />
+              <ExpoImageWithPlaceholder
+                source={item.icone}
+                style={estilos.iconeCategoria}
+              />
               <Text
                 style={[
                   estilos.textoCategoria,
@@ -125,17 +128,14 @@ const TelaInicial = () => {
         contentContainerStyle={{ paddingLeft: 16, paddingBottom: 10 }}
         renderItem={({ item }) => (
           <View style={estilos.cartaoPromocao}>
-            <ExpoImage
+            <ExpoImageWithPlaceholder
               source={
-                erroImagemPromocao[item.id] ? placeholderImg : item.imagem // sempre require ou {uri:...}
+                erroImagemPromocao[item.id] ? placeholderImg : item.imagem
               }
               style={estilos.imagemPromocao}
               onError={() =>
                 setErroImagemPromocao((prev) => ({ ...prev, [item.id]: true }))
               }
-              placeholder={placeholderImg}
-              contentFit="cover"
-              transition={300}
             />
             <View style={estilos.infoPromocao}>
               <Text style={estilos.tituloPromocao}>{item.titulo}</Text>
@@ -180,7 +180,7 @@ const TelaInicial = () => {
                 onPress={() => irParaAgendamento(item.idEmpresa)}
               >
                 <View style={estilos.itemPetShop}>
-                  <ExpoImage
+                  <ExpoImageWithPlaceholder
                     source={
                       logo?.url && !erroImagemLogo[item.idEmpresa]
                         ? { uri: logo.url }
@@ -193,9 +193,6 @@ const TelaInicial = () => {
                         [item.idEmpresa]: true,
                       }))
                     }
-                    placeholder={placeholderImg}
-                    contentFit="cover"
-                    transition={300}
                   />
                   <View>
                     <Text style={estilos.nomePetShop}>

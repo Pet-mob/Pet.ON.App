@@ -12,7 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import apiRequisicaoEmpresa from "../Service/apiRequisicaoEmpresa.js";
 import { setEmpresaStore } from "../store/store.js";
-import { Image as ExpoImage } from "expo-image";
+import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
 
 const placeholderImg = require("../../assets/placeholder.png");
 
@@ -115,12 +115,9 @@ const Buscar = ({ navigation, route }) => {
                 ]}
                 onPress={() => handleSelecionarCategoria(item.id)}
               >
-                <ExpoImage
+                <ExpoImageWithPlaceholder
                   source={item.imagem}
                   style={styles.categoriaImagem}
-                  placeholder={placeholderImg}
-                  contentFit="cover"
-                  transition={300}
                 />
                 <Text style={styles.categoriaTexto}>{item.nome}</Text>
               </TouchableOpacity>
@@ -185,16 +182,13 @@ const Buscar = ({ navigation, route }) => {
               style={styles.empresaCard}
               onPress={() => irParaAgendamento(item.idEmpresa)}
             >
-              <ExpoImage
+              <ExpoImageWithPlaceholder
                 source={
                   item.urlLogoEmpresa
                     ? { uri: item.urlLogoEmpresa }
                     : require("../../assets/LogoGrande.png")
                 }
                 style={styles.empresaImagem}
-                placeholder={placeholderImg}
-                contentFit="cover"
-                transition={300}
               />
               <View style={styles.empresaInfo}>
                 <Text style={styles.empresaNome}>

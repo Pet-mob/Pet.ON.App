@@ -15,7 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { setUsuarioStore } from "../store/store";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
 import Toast from "react-native-toast-message";
-import { Image as ExpoImage } from "expo-image";
+import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
 
 const TelaLogin = () => {
   const navigation = useNavigation();
@@ -105,12 +105,9 @@ const TelaLogin = () => {
       <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <View style={estilos.containerInterno}>
           <View style={estilos.containerLogo}>
-            <ExpoImage
+            <ExpoImageWithPlaceholder
               source={require("../../assets/LogoGrande.png")}
               style={estilos.logo}
-              contentFit="contain"
-              transition={300}
-              placeholder={placeholderImg}
             />
           </View>
 

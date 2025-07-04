@@ -19,6 +19,8 @@ const DadosConta = () => {
   const [loading, setLoading] = useState(true);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  // Telefone limpo para envio à API
+  const [telefoneLimpo, setTelefoneLimpo] = useState("");
   const [foto, setFoto] = useState(null);
   const navigation = useNavigation();
 
@@ -88,9 +90,34 @@ const DadosConta = () => {
     }
   };
 
+  // Formata o telefone para exibição e salva limpo para API
+  const formatarTelefone = (texto) => {
+    const numeros = texto.replace(/\D/g, "");
+    setTelefoneLimpo(numeros);
+    let telefoneComMascara = "";
+    if (numeros.length <= 2) {
+      telefoneComMascara = `(${numeros}`;
+    } else if (numeros.length <= 6) {
+      telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
+        2
+      )}`;
+    } else if (numeros.length <= 10) {
+      telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
+        2,
+        7
+      )}-${numeros.substring(7)}`;
+    } else {
+      telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
+        2,
+        7
+      )}-${numeros.substring(7, 11)}`;
+    }
+    setTelefone(telefoneComMascara);
+  };
+
   // Altera nome e telefone do usuário
   const alterarUsuario = async () => {
-    if (!nome || !telefone) {
+    if (!nome || !telefoneLimpo) {
       Toast.show({
         type: "info",
         text1: "Por favor, preencha nome e telefone.",
@@ -102,7 +129,7 @@ const DadosConta = () => {
       const sucesso = await apiRequisicaoUsuario.alterarUsuario(
         idUsuario,
         nome,
-        telefone
+        telefoneLimpo
       );
       if (sucesso) {
         Toast.show({
@@ -141,7 +168,7 @@ const DadosConta = () => {
     const carregarDados = async () => {
       setLoading(true);
       setNome(nomeUsuario || "");
-      setTelefone(telefoneUsuario || "");
+      formatarTelefone(telefoneUsuario || "");
       await carregarFoto();
       setLoading(false);
     };
@@ -203,9 +230,10 @@ const DadosConta = () => {
             <TextInput
               style={styles.input}
               value={telefone}
-              onChangeText={setTelefone}
+              onChangeText={formatarTelefone}
               placeholder="Digite seu telefone"
               keyboardType="phone-pad"
+              maxLength={15}
             />
           </View>
 

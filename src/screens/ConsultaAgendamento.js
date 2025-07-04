@@ -69,7 +69,7 @@ const ConsultaAgendamento = ({ navigation }) => {
           style={estilos.botaoVoltar}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={28} color="#FFF" />
+          <Ionicons name="chevron-back-outline" size={28} color="#FFF" />
         </TouchableOpacity>
         <Text style={estilos.titulo}>Meus agendamentos</Text>
       </View>

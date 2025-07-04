@@ -50,6 +50,17 @@ const ConsultaAgendamento = ({ navigation }) => {
     carregarDados();
   }, []);
 
+  // Replicar último agendamento
+  const replicarUltimoAgendamento = () => {
+    if (!consultaAgendamentos.length) return;
+    const ultimo = consultaAgendamentos[0];
+    navigation.navigate("Agendamento", {
+      idEmpresaPetShop: ultimo.idEmpresa,
+      replicar: true,
+      dadosAgendamento: ultimo,
+    });
+  };
+
   return (
     <View style={estilos.container}>
       {/* Cabeçalho */}
@@ -62,6 +73,18 @@ const ConsultaAgendamento = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={estilos.titulo}>Meus agendamentos</Text>
       </View>
+
+      {/* Botão de replicar último agendamento */}
+      {consultaAgendamentos.length > 0 && (
+        <TouchableOpacity
+          style={estilos.botaoReplicar}
+          onPress={replicarUltimoAgendamento}
+        >
+          <Text style={estilos.textoBotaoReplicar}>
+            Replicar último agendamento
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Loading Spinner */}
       {loading ? (
@@ -227,6 +250,22 @@ const estilos = StyleSheet.create({
     color: "#4F46E5",
     fontWeight: "bold",
     marginTop: 20,
+  },
+  botaoReplicar: {
+    backgroundColor: "#4F46E5",
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 0,
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 2,
+  },
+  textoBotaoReplicar: {
+    color: "#FFF",
+    fontWeight: "bold",
+    fontSize: 15,
   },
 });
 

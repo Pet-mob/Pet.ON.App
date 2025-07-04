@@ -74,7 +74,8 @@ const ConsultaAgendamento = ({ navigation }) => {
         <Text style={estilos.titulo}>Meus agendamentos</Text>
       </View>
 
-      {/* Botão de replicar último agendamento */}
+      {/* Botão de replicar último agendamento (invisível nesta versão) */}
+      {/*
       {consultaAgendamentos.length > 0 && (
         <TouchableOpacity
           style={estilos.botaoReplicar}
@@ -85,6 +86,7 @@ const ConsultaAgendamento = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
       )}
+      */}
 
       {/* Loading Spinner */}
       {loading ? (

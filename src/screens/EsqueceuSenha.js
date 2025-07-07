@@ -8,53 +8,118 @@ import {
   StyleSheet,
 } from "react-native";
 import Toast from "react-native-toast-message";
+import apiRequisicaoAuth from "../Service/apiRequisicaoAuth";
+
+// Função para formatar telefone (ex: (99) 99999-9999)
+function formatPhone(phone) {
+  if (!phone) return "";
+  const cleaned = phone.replace(/\D/g, "");
+  if (cleaned.length <= 10)
+    return cleaned
+      .replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
+      .replace(/-$/, "");
+  return cleaned
+    .replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3")
+    .replace(/-$/, "");
+}
+
+// Função para limpar telefone (só números)
+function cleanPhone(phone) {
+  return phone.replace(/\D/g, "");
+}
 
 const EsqueceuSenha = () => {
-  const [step, setStep] = useState(1); // Controla qual etapa está ativa
+  const [step, setStep] = useState(1); // 1: telefone, 2: código, 3: nova senha
   const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  // Simula o envio do código SMS
-  const sendSMS = () => {
-    if (phoneNumber) {
-      Toast.show({
-        type: "success",
-        text1: `O código foi enviado para ${phoneNumber}.`,
-      });
-      setStep(2); // Avança para a próxima etapa
-    } else {
+
+  // Envia SMS via backend
+  const sendSMS = async () => {
+    const clean = cleanPhone(phoneNumber);
+    if (!clean || clean.length < 10) {
       Toast.show({
         type: "error",
         text1: "Por favor, insira um número de telefone válido.",
       });
+      return;
+    }
+    setLoading(true);
+    try {
+      await apiRequisicaoAuth.enviarSMS(clean);
+      Toast.show({
+        type: "success",
+        text1: `O código foi enviado para ${formatPhone(clean)}.`,
+      });
+      setStep(2);
+    } catch (e) {
+      Toast.show({ type: "error", text1: "Erro ao enviar SMS." });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Valida o código inserido
-  const validateCode = () => {
-    if (verificationCode === "123456") {
-      Toast.show({
-        type: "success",
-        text1: "Agora você pode redefinir sua senha.",
-      });
-      setStep(3); // Avança para a etapa de redefinição de senha
-    } else {
-      Toast.show({ type: "error", text1: "O código está incorreto." });
+  const validateCode = async () => {
+    const clean = cleanPhone(phoneNumber);
+    if (!verificationCode || verificationCode.length < 4) {
+      Toast.show({ type: "error", text1: "Digite o código recebido por SMS." });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await apiRequisicaoAuth.validarCodigo(
+        clean,
+        verificationCode
+      );
+      if (res.data && res.data.valid) {
+        Toast.show({
+          type: "success",
+          text1: "Agora você pode redefinir sua senha.",
+        });
+        setStep(3);
+      } else {
+        Toast.show({ type: "error", text1: "O código está incorreto." });
+      }
+    } catch {
+      Toast.show({ type: "error", text1: "Erro ao validar código." });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Redefine a senha
-  const resetPassword = () => {
-    if (newPassword) {
+  const resetPassword = async () => {
+    const clean = cleanPhone(phoneNumber);
+    if (!newPassword || newPassword.length < 4) {
       Toast.show({
-        type: "success",
-        text1: "Sua senha foi redefinida com sucesso!",
+        type: "error",
+        text1: "Por favor, insira uma nova senha válida.",
       });
-      // Aqui você pode redirecionar o usuário para a tela de login
-      navigation.navigate("Login");
-    } else {
-      Toast.show({ type: "error", text1: "Por favor, insira uma nova senha." });
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await apiRequisicaoAuth.redefinirSenha(
+        clean,
+        verificationCode,
+        newPassword
+      );
+      if (res.data && res.data.success) {
+        Toast.show({ type: "success", text1: "Senha redefinida com sucesso!" });
+        navigation.navigate("Login");
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Não foi possível redefinir a senha.",
+        });
+      }
+    } catch {
+      Toast.show({ type: "error", text1: "Erro ao redefinir senha." });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,11 +135,18 @@ const EsqueceuSenha = () => {
             style={styles.input}
             placeholder="Número de telefone"
             keyboardType="phone-pad"
-            value={phoneNumber}
-            onChangeText={setPhoneNumber}
+            value={formatPhone(phoneNumber)}
+            onChangeText={(text) => setPhoneNumber(cleanPhone(text))}
+            maxLength={15}
           />
-          <TouchableOpacity style={styles.button} onPress={sendSMS}>
-            <Text style={styles.buttonText}>Enviar Código</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={sendSMS}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Enviando..." : "Enviar Código"}
+            </Text>
           </TouchableOpacity>
         </>
       )}
@@ -83,7 +155,7 @@ const EsqueceuSenha = () => {
         <>
           <Text style={styles.title}>Verificação</Text>
           <Text style={styles.subtitle}>
-            Insira o código que enviamos para {phoneNumber}.
+            Insira o código que enviamos para {formatPhone(phoneNumber)}.
           </Text>
           <TextInput
             style={styles.input}
@@ -91,9 +163,16 @@ const EsqueceuSenha = () => {
             keyboardType="numeric"
             value={verificationCode}
             onChangeText={setVerificationCode}
+            maxLength={6}
           />
-          <TouchableOpacity style={styles.button} onPress={validateCode}>
-            <Text style={styles.buttonText}>Validar Código</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={validateCode}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Validando..." : "Validar Código"}
+            </Text>
           </TouchableOpacity>
         </>
       )}
@@ -108,9 +187,16 @@ const EsqueceuSenha = () => {
             secureTextEntry
             value={newPassword}
             onChangeText={setNewPassword}
+            maxLength={32}
           />
-          <TouchableOpacity style={styles.button} onPress={resetPassword}>
-            <Text style={styles.buttonText}>Redefinir Senha</Text>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={resetPassword}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Salvando..." : "Redefinir Senha"}
+            </Text>
           </TouchableOpacity>
         </>
       )}

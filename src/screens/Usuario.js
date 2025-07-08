@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getUsuarioStore } from "../store/store";
 import Toast from "react-native-toast-message";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario"; // certifique-se que o caminho está correto
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Usuario = () => {
   const navigation = useNavigation();
@@ -27,15 +28,22 @@ const Usuario = () => {
   const handleDeleteConfirm = async () => {
     setShowModal(false);
     try {
-      console.log("idUsuario:", idUsuario);
       const result = await apiRequisicaoUsuario.excluirContaUsuario(idUsuario);
       if (result === true) {
+        // Limpe dados locais
+        await AsyncStorage.clear();
+        // Se usar store/contexto, limpe também:
+        // usuarioStore.logout(); // Exemplo, ajuste conforme seu store
+
         Toast.show({
           type: "success",
           text1: "Conta excluída com sucesso!",
         });
         setTimeout(() => {
-          navigation.navigate("Login");
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "Login" }],
+          });
         }, 1200);
       } else {
         Toast.show({

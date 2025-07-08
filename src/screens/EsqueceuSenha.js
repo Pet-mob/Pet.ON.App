@@ -11,9 +11,9 @@ import Toast from "react-native-toast-message";
 import apiRequisicaoAuth from "../Service/apiRequisicaoAuth";
 
 // Função para formatar telefone (ex: (99) 99999-9999)
-function formatPhone(phone) {
-  if (!phone) return "";
-  const cleaned = phone.replace(/\D/g, "");
+function formatTelefone(telefone) {
+  if (!telefone) return "";
+  const cleaned = telefone.replace(/\D/g, "");
   if (cleaned.length <= 10)
     return cleaned
       .replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
@@ -24,21 +24,35 @@ function formatPhone(phone) {
 }
 
 // Função para limpar telefone (só números)
-function cleanPhone(phone) {
-  return phone.replace(/\D/g, "");
+function cleanTelefone(telefone) {
+  return telefone.replace(/\D/g, "");
+}
+
+// Função para mascarar e-mail (ex: j***@g***.com)
+function maskEmail(email) {
+  if (!email) return "";
+  const [user, domain] = email.split("@");
+  const maskedUser = user[0] + "***";
+  const domainParts = domain.split(".");
+  const maskedDomain =
+    domainParts[0][0] +
+    "***" +
+    (domainParts.length > 1 ? "." + domainParts.slice(1).join(".") : "");
+  return maskedUser + "@" + maskedDomain;
 }
 
 const EsqueceuSenha = () => {
   const [step, setStep] = useState(1); // 1: telefone, 2: código, 3: nova senha
-  const [phoneNumber, setPhoneNumber] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState(""); // novo estado para guardar o e-mail retornado
   const navigation = useNavigation();
 
-  // Envia SMS via backend
+  // Envia SMS via backend e recebe o e-mail mascarado
   const sendSMS = async () => {
-    const clean = cleanPhone(phoneNumber);
+    const clean = cleanTelefone(telefone);
     if (!clean || clean.length < 10) {
       Toast.show({
         type: "error",
@@ -48,12 +62,18 @@ const EsqueceuSenha = () => {
     }
     setLoading(true);
     try {
-      await apiRequisicaoAuth.enviarSMS(clean);
-      Toast.show({
-        type: "success",
-        text1: `O código foi enviado para ${formatPhone(clean)}.`,
-      });
-      setStep(2);
+      // Supondo que a API retorna { email: "usuario@email.com" }
+      const res = await apiRequisicaoAuth.enviarSMS(clean);
+      if (res.data && res.data.email) {
+        setUserEmail(res.data.email);
+        Toast.show({
+          type: "success",
+          text1: `O código foi enviado para ${maskEmail(res.data.email)}.`,
+        });
+        setStep(2);
+      } else {
+        Toast.show({ type: "error", text1: "Telefone não encontrado." });
+      }
     } catch (e) {
       Toast.show({ type: "error", text1: "Erro ao enviar SMS." });
     } finally {
@@ -63,9 +83,12 @@ const EsqueceuSenha = () => {
 
   // Valida o código inserido
   const validateCode = async () => {
-    const clean = cleanPhone(phoneNumber);
+    const clean = cleanTelefone(telefone);
     if (!verificationCode || verificationCode.length < 4) {
-      Toast.show({ type: "error", text1: "Digite o código recebido por SMS." });
+      Toast.show({
+        type: "error",
+        text1: "Digite o código recebido por e-mail.",
+      });
       return;
     }
     setLoading(true);
@@ -92,7 +115,7 @@ const EsqueceuSenha = () => {
 
   // Redefine a senha
   const resetPassword = async () => {
-    const clean = cleanPhone(phoneNumber);
+    const clean = cleanTelefone(telefone);
     if (!newPassword || newPassword.length < 4) {
       Toast.show({
         type: "error",
@@ -134,9 +157,9 @@ const EsqueceuSenha = () => {
           <TextInput
             style={styles.input}
             placeholder="Número de telefone"
-            keyboardType="phone-pad"
-            value={formatPhone(phoneNumber)}
-            onChangeText={(text) => setPhoneNumber(cleanPhone(text))}
+            keyboardType="telefone-pad"
+            value={formatTelefone(telefone)}
+            onChangeText={(text) => setTelefone(cleanTelefone(text))}
             maxLength={15}
           />
           <TouchableOpacity
@@ -155,7 +178,7 @@ const EsqueceuSenha = () => {
         <>
           <Text style={styles.title}>Verificação</Text>
           <Text style={styles.subtitle}>
-            Insira o código que enviamos para {formatPhone(phoneNumber)}.
+            Insira o código que enviamos para {maskEmail(userEmail)}.
           </Text>
           <TextInput
             style={styles.input}

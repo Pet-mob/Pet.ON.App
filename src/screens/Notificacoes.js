@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { api } from '../services/api';
+import { api } from '../Service/api';
 import { getUsuarioStore } from '../store/store';
 import { useNavigation } from '@react-navigation/native';
 

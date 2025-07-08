@@ -149,11 +149,29 @@ const RegistrarUsuarioNovo = () => {
     return re.test(email);
   };
 
+  // Função para validar critérios da senha
+  function validarSenha(senha) {
+    const minLength = senha.length >= 8;
+    const hasUpper = /[A-Z]/.test(senha);
+    const hasLower = /[a-z]/.test(senha);
+    const hasNumber = /[0-9]/.test(senha);
+    const hasSpecial = /[^A-Za-z0-9]/.test(senha);
+    return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
+  }
+
   const salvar = async () => {
     try {
       setLoading(true);
       if (!validarEmail(email)) {
         Toast.show({ type: "error", text1: "Email inválido" });
+        setLoading(false);
+        return;
+      }
+      if (!validarSenha(senha)) {
+        Toast.show({
+          type: "error",
+          text1: "Senha não atende aos critérios de segurança.",
+        });
         setLoading(false);
         return;
       }
@@ -231,7 +249,7 @@ const RegistrarUsuarioNovo = () => {
     nome &&
     validarEmail(email) &&
     telefoneLimpo.length >= 10 &&
-    senha.length >= 6 &&
+    validarSenha(senha) &&
     pets.every((pet) => pet.nome && pet.raca && pet.idPorte);
 
   return (
@@ -313,7 +331,19 @@ const RegistrarUsuarioNovo = () => {
               maxLength={20}
               editable={!loading}
             />
-            <Text style={styles.inputHint}>Mínimo 6 caracteres</Text>
+            <Text style={styles.inputHint}>Mínimo 8 caracteres, incluindo maiúscula, minúscula, número e especial</Text>
+            <View style={styles.passwordRulesBox}>
+              <Text style={styles.passwordRulesTitle}>
+                Sua senha deve conter:
+              </Text>
+              <Text style={styles.passwordRules}>
+                • Pelo menos 8 caracteres
+              </Text>
+              <Text style={styles.passwordRules}>• 1 letra maiúscula</Text>
+              <Text style={styles.passwordRules}>• 1 letra minúscula</Text>
+              <Text style={styles.passwordRules}>• 1 número</Text>
+              <Text style={styles.passwordRules}>• 1 caractere especial</Text>
+            </View>
           </View>
         </View>
 
@@ -570,6 +600,24 @@ const styles = StyleSheet.create({
   },
   porteButtonTextSelected: {
     color: "#fff",
+  },
+  passwordRulesBox: {
+    backgroundColor: "#F3F4F6",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  passwordRulesTitle: {
+    fontWeight: "bold",
+    color: "#4F46E5",
+    marginBottom: 2,
+    fontSize: 13,
+  },
+  passwordRules: {
+    color: "#333",
+    fontSize: 13,
+    marginLeft: 2,
   },
 });
 

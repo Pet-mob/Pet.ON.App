@@ -35,7 +35,14 @@ const RegistrarUsuarioNovo = () => {
 
   // Dados dos pets (array de pets)
   const [pets, setPets] = useState([
-    { nome: "", raca: "", porte: "", observacoes: "", foto: null, uriFoto: "" },
+    {
+      nome: "",
+      raca: "",
+      idPorte: null,
+      observacoes: "",
+      foto: null,
+      uriFoto: "",
+    },
   ]);
 
   const formatarTelefone = (texto) => {
@@ -87,7 +94,17 @@ const RegistrarUsuarioNovo = () => {
 
   // Funções para manipular pets
   const adicionarPet = () => {
-    setPets([...pets, { nome: "", raca: "", porte: "", observacoes: "", foto: null, uriFoto: "" }]);
+    setPets([
+      ...pets,
+      {
+        nome: "",
+        raca: "",
+        idPorte: null,
+        observacoes: "",
+        foto: null,
+        uriFoto: "",
+      },
+    ]);
   };
 
   const removerPet = (index) => {
@@ -142,8 +159,11 @@ const RegistrarUsuarioNovo = () => {
       }
       // Validação dos pets
       for (const pet of pets) {
-        if (!pet.nome || !pet.raca || !pet.porte) {
-          Toast.show({ type: "error", text1: "Preencha todos os campos obrigatórios do pet." });
+        if (!pet.nome || !pet.raca || !pet.idPorte) {
+          Toast.show({
+            type: "error",
+            text1: "Preencha todos os campos obrigatórios do pet.",
+          });
           setLoading(false);
           return;
         }
@@ -173,19 +193,21 @@ const RegistrarUsuarioNovo = () => {
           pet.nome,
           pet.raca,
           novoUsuario,
-          pet.porte,
+          pet.idPorte,
           pet.observacoes
         );
         if (!novoPet || novoPet <= 0) {
           throw new Error("Erro ao cadastrar o animal.");
         }
         if (pet.foto) {
-          const respostaAnimal = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
-            pet.foto,
-            novoUsuario,
-            novoPet
-          );
-          if (!respostaAnimal) throw new Error("Erro ao enviar foto do animal.");
+          const respostaAnimal =
+            await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
+              pet.foto,
+              novoUsuario,
+              novoPet
+            );
+          if (!respostaAnimal)
+            throw new Error("Erro ao enviar foto do animal.");
         }
       }
       Toast.show({
@@ -206,8 +228,11 @@ const RegistrarUsuarioNovo = () => {
   };
 
   const camposObrigatoriosPreenchidos =
-    nome && validarEmail(email) && telefoneLimpo.length >= 10 && senha.length >= 6 &&
-    pets.every((pet) => pet.nome && pet.raca && pet.porte);
+    nome &&
+    validarEmail(email) &&
+    telefoneLimpo.length >= 10 &&
+    senha.length >= 6 &&
+    pets.every((pet) => pet.nome && pet.raca && pet.idPorte);
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
@@ -313,7 +338,9 @@ const RegistrarUsuarioNovo = () => {
               <TextInput
                 placeholder="Ex: Thor"
                 value={pet.nome}
-                onChangeText={(valor) => atualizarCampoPet(index, "nome", valor)}
+                onChangeText={(valor) =>
+                  atualizarCampoPet(index, "nome", valor)
+                }
                 style={styles.input}
                 autoCapitalize="words"
                 editable={!loading}
@@ -324,7 +351,9 @@ const RegistrarUsuarioNovo = () => {
               <TextInput
                 placeholder="Ex: Golden Retriever"
                 value={pet.raca}
-                onChangeText={(valor) => atualizarCampoPet(index, "raca", valor)}
+                onChangeText={(valor) =>
+                  atualizarCampoPet(index, "raca", valor)
+                }
                 style={styles.input}
                 autoCapitalize="words"
                 editable={!loading}
@@ -332,36 +361,76 @@ const RegistrarUsuarioNovo = () => {
             </View>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Porte</Text>
-              <TextInput
-                placeholder="1 - Pequeno, 2 - Médio, 3 - Grande"
-                value={pet.porte}
-                onChangeText={(valor) => atualizarCampoPet(index, "porte", valor.replace(/[^1-3]/g, ""))}
-                style={styles.input}
-                keyboardType="numeric"
-                maxLength={1}
-                editable={!loading}
-              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                {[
+                  { label: "Pequeno", value: 1 },
+                  { label: "Médio", value: 2 },
+                  { label: "Grande", value: 3 },
+                ].map((opcao) => (
+                  <TouchableOpacity
+                    key={opcao.value}
+                    style={[
+                      styles.porteButton,
+                      pet.idPorte === opcao.value
+                        ? styles.porteButtonSelected
+                        : null,
+                    ]}
+                    onPress={() =>
+                      atualizarCampoPet(index, "idPorte", opcao.value)
+                    }
+                    disabled={loading}
+                  >
+                    <Text
+                      style={[
+                        styles.porteButtonText,
+                        pet.idPorte === opcao.value
+                          ? styles.porteButtonTextSelected
+                          : null,
+                      ]}
+                    >
+                      {opcao.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Observações</Text>
               <TextInput
                 placeholder="Observações sobre o pet (opcional)"
                 value={pet.observacoes}
-                onChangeText={(valor) => atualizarCampoPet(index, "observacoes", valor)}
+                onChangeText={(valor) =>
+                  atualizarCampoPet(index, "observacoes", valor)
+                }
                 style={styles.input}
                 editable={!loading}
                 multiline
               />
             </View>
             {pets.length > 1 && (
-              <TouchableOpacity onPress={() => removerPet(index)} disabled={loading} style={{ alignSelf: 'flex-end', marginBottom: 10 }}>
-                <Text style={{ color: 'red' }}>Remover pet</Text>
+              <TouchableOpacity
+                onPress={() => removerPet(index)}
+                disabled={loading}
+                style={{ alignSelf: "flex-end", marginBottom: 10 }}
+              >
+                <Text style={{ color: "red" }}>Remover pet</Text>
               </TouchableOpacity>
             )}
           </View>
         ))}
-        <TouchableOpacity onPress={adicionarPet} disabled={loading} style={{ alignItems: 'center', marginBottom: 10 }}>
-          <Text style={{ color: '#4F46E5', fontWeight: 'bold' }}>+ Adicionar outro pet</Text>
+        <TouchableOpacity
+          onPress={adicionarPet}
+          disabled={loading}
+          style={{ alignItems: "center", marginBottom: 10 }}
+        >
+          <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
+            + Adicionar outro pet
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -481,6 +550,26 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  porteButton: {
+    flex: 1,
+    paddingVertical: 10,
+    marginHorizontal: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#4F46E5",
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  porteButtonSelected: {
+    backgroundColor: "#4F46E5",
+  },
+  porteButtonText: {
+    color: "#4F46E5",
+    fontWeight: "bold",
+  },
+  porteButtonTextSelected: {
+    color: "#fff",
   },
 });
 

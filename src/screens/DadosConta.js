@@ -19,6 +19,7 @@ const DadosConta = () => {
   const [loading, setLoading] = useState(true);
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [email, setEmail] = useState("");
   // Telefone limpo para envio à API
   const [telefoneLimpo, setTelefoneLimpo] = useState("");
   const [foto, setFoto] = useState(null);
@@ -28,6 +29,7 @@ const DadosConta = () => {
   const idUsuario = usuarioStore.id;
   const nomeUsuario = usuarioStore.nome;
   const telefoneUsuario = usuarioStore.telefone;
+  const emailUsuario = usuarioStore.email;
 
   // Seleciona e envia a foto do usuário
   const selecionarFoto = async () => {
@@ -129,7 +131,8 @@ const DadosConta = () => {
       const sucesso = await apiRequisicaoUsuario.alterarUsuario(
         idUsuario,
         nome,
-        telefoneLimpo
+        telefoneLimpo,
+        email
       );
       if (sucesso) {
         Toast.show({
@@ -169,6 +172,7 @@ const DadosConta = () => {
       setLoading(true);
       setNome(nomeUsuario || "");
       formatarTelefone(telefoneUsuario || "");
+      setEmail(emailUsuario || "");
       await carregarFoto();
       setLoading(false);
     };
@@ -234,6 +238,18 @@ const DadosConta = () => {
               placeholder="Digite seu telefone"
               keyboardType="phone-pad"
               maxLength={15}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              placeholder="Digite seu email"
+              value={email}
+              onChangeText={setEmail}
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
             />
           </View>
 

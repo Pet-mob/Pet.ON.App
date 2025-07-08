@@ -63,15 +63,23 @@ const EsqueceuSenha = () => {
     setLoading(true);
     try {
       const res = await apiRequisicaoAuth.enviarSMS(clean);
+      console.log("Resposta enviarSMS:", res.data); // Para depuração no device
       if (res.data && res.data.sucesso) {
-        // Se a API retornar o e-mail, salve para os próximos passos
-        if (res.data.email) setUserEmail(res.data.email);
-        Toast.show({
-          type: "success",
-          text1:
-            res.data.mensagem || "Código enviado para o e-mail cadastrado.",
-        });
-        setStep(2);
+        if (res.data.email) {
+          setUserEmail(res.data.email);
+          Toast.show({
+            type: "success",
+            text1:
+              res.data.mensagem || "Código enviado para o e-mail cadastrado.",
+          });
+          setStep(2);
+        } else {
+          Toast.show({
+            type: "error",
+            text1:
+              "Não foi possível recuperar o e-mail cadastrado. Tente novamente.",
+          });
+        }
       } else {
         Toast.show({
           type: "error",
@@ -80,6 +88,7 @@ const EsqueceuSenha = () => {
       }
     } catch (e) {
       Toast.show({ type: "error", text1: "Erro ao enviar SMS." });
+      console.log("Erro enviarSMS:", e);
     } finally {
       setLoading(false);
     }
@@ -100,7 +109,7 @@ const EsqueceuSenha = () => {
         userEmail, // usar o e-mail retornado pela API
         verificationCode
       );
-      if (res.data && res.data.valid) {
+      if (res.data && res.data.valido) {
         Toast.show({
           type: "success",
           text1: "Agora você pode redefinir sua senha.",
@@ -159,7 +168,7 @@ const EsqueceuSenha = () => {
           <TextInput
             style={styles.input}
             placeholder="Número de telefone"
-            keyboardType="telefone-pad"
+            keyboardType="phone-pad"
             value={formatTelefone(telefone)}
             onChangeText={(text) => setTelefone(cleanTelefone(text))}
             maxLength={15}

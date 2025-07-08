@@ -1,18 +1,27 @@
 import api from "./api";
 
 // Envia SMS para o telefone informado
-const enviarSMS = async (phoneNumber) => {
-  return api.post("/auth/send-sms", { phoneNumber });
+const enviarSMS = async (telefone) => {
+  return api.post("/Auth/enviar-codigo", {
+    telefone: String(telefone),
+  });
 };
 
 // Valida o código recebido por SMS
-const validarCodigo = async (phoneNumber, code) => {
-  return api.post("/auth/validate-code", { phoneNumber, code });
+const validarCodigo = async (email, codigo) => {
+  return api.post("/Auth/validar-codigo", {
+    email: String(email),
+    codigo: String(codigo),
+  });
 };
 
 // Redefine a senha do usuário
-const redefinirSenha = async (phoneNumber, code, newPassword) => {
-  return api.post("/auth/reset-password", { phoneNumber, code, newPassword });
+const redefinirSenha = async (email, codigo, novaSenha) => {
+  return api.post("/Auth/redefinir-senha", {
+    email: String(email),
+    codigo: String(codigo),
+    novaSenha: String(novaSenha),
+  });
 };
 
 export default {

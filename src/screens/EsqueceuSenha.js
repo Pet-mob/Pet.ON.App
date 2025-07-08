@@ -62,17 +62,21 @@ const EsqueceuSenha = () => {
     }
     setLoading(true);
     try {
-      // Supondo que a API retorna { email: "usuario@email.com" }
       const res = await apiRequisicaoAuth.enviarSMS(clean);
-      if (res.data && res.data.email) {
-        setUserEmail(res.data.email);
+      if (res.data && res.data.sucesso) {
+        // Se a API retornar o e-mail, salve para os próximos passos
+        if (res.data.email) setUserEmail(res.data.email);
         Toast.show({
           type: "success",
-          text1: `O código foi enviado para ${maskEmail(res.data.email)}.`,
+          text1:
+            res.data.mensagem || "Código enviado para o e-mail cadastrado.",
         });
         setStep(2);
       } else {
-        Toast.show({ type: "error", text1: "Telefone não encontrado." });
+        Toast.show({
+          type: "error",
+          text1: res.data.mensagem || "Telefone não encontrado.",
+        });
       }
     } catch (e) {
       Toast.show({ type: "error", text1: "Erro ao enviar SMS." });
@@ -83,7 +87,6 @@ const EsqueceuSenha = () => {
 
   // Valida o código inserido
   const validateCode = async () => {
-    const clean = cleanTelefone(telefone);
     if (!verificationCode || verificationCode.length < 4) {
       Toast.show({
         type: "error",
@@ -94,7 +97,7 @@ const EsqueceuSenha = () => {
     setLoading(true);
     try {
       const res = await apiRequisicaoAuth.validarCodigo(
-        clean,
+        userEmail, // usar o e-mail retornado pela API
         verificationCode
       );
       if (res.data && res.data.valid) {
@@ -115,7 +118,6 @@ const EsqueceuSenha = () => {
 
   // Redefine a senha
   const resetPassword = async () => {
-    const clean = cleanTelefone(telefone);
     if (!newPassword || newPassword.length < 4) {
       Toast.show({
         type: "error",
@@ -126,7 +128,7 @@ const EsqueceuSenha = () => {
     setLoading(true);
     try {
       const res = await apiRequisicaoAuth.redefinirSenha(
-        clean,
+        userEmail, // usar o e-mail retornado pela API
         verificationCode,
         newPassword
       );

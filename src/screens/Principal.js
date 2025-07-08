@@ -119,7 +119,7 @@ const TelaInicial = () => {
         }}
       />
 
-      <Text style={estilos.tituloSecao}>Promoções</Text>
+      {/*<Text style={estilos.tituloSecao}>Promoções</Text>
       <FlatList
         data={promocoes}
         horizontal
@@ -143,7 +143,7 @@ const TelaInicial = () => {
             </View>
           </View>
         )}
-      />
+      /> */}
 
       <Text style={estilos.tituloSecao}>
         {categorias.find((cat) => cat.id === categoriaSelecionada)?.nome ??

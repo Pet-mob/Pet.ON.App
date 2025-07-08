@@ -122,7 +122,7 @@ const inserirUsuario = async (
 
 const excluirContaUsuario = async (idUsuarioParam) => {
   try {
-    const uri = `/Usuario?IdUsuario=${idUsuarioParam}`;
+    const uri = `/Usuario?idUsuario=${idUsuarioParam}`;
     const resposta = await api.delete(uri);
     return resposta.data;
   } catch (error) {

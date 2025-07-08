@@ -26,17 +26,17 @@ const RegistrarUsuarioNovo = () => {
 
   // Dados do usuário
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
   const [telefoneFormatado, setTelefoneFormatado] = useState("");
   const [telefoneLimpo, setTelefoneLimpo] = useState("");
   const [senha, setSenha] = useState("");
   const [fotoUsuario, setFotoUsuario] = useState(null);
   const [uriFotoUsuario, setUriFotoUsuario] = useState("");
 
-  // Dados do pet
-  const [nomePet, setNomePet] = useState("");
-  const [raca, setRaca] = useState("");
-  const [fotoPet, setFotoPet] = useState(null);
-  const [uriFotoPet, setUriFotoPet] = useState("");
+  // Dados dos pets (array de pets)
+  const [pets, setPets] = useState([
+    { nome: "", raca: "", porte: "", observacoes: "", foto: null, uriFoto: "" },
+  ]);
 
   const formatarTelefone = (texto) => {
     const numeros = texto.replace(/\D/g, "");
@@ -85,7 +85,23 @@ const RegistrarUsuarioNovo = () => {
     setLoading(false);
   };
 
-  const escolherImagemPet = async () => {
+  // Funções para manipular pets
+  const adicionarPet = () => {
+    setPets([...pets, { nome: "", raca: "", porte: "", observacoes: "", foto: null, uriFoto: "" }]);
+  };
+
+  const removerPet = (index) => {
+    if (pets.length === 1) return; // Sempre pelo menos 1 pet
+    setPets(pets.filter((_, i) => i !== index));
+  };
+
+  const atualizarCampoPet = (index, campo, valor) => {
+    const novosPets = [...pets];
+    novosPets[index][campo] = valor;
+    setPets(novosPets);
+  };
+
+  const escolherImagemPet = async (index) => {
     setLoading(true);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -102,19 +118,41 @@ const RegistrarUsuarioNovo = () => {
       quality: 1,
     });
     if (!resultado.canceled) {
-      setFotoPet(resultado.assets[0]);
-      setUriFotoPet(resultado.assets[0].uri);
+      const novosPets = [...pets];
+      novosPets[index].foto = resultado.assets[0];
+      novosPets[index].uriFoto = resultado.assets[0].uri;
+      setPets(novosPets);
     }
     setLoading(false);
+  };
+
+  // Validação de email
+  const validarEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   };
 
   const salvar = async () => {
     try {
       setLoading(true);
+      if (!validarEmail(email)) {
+        Toast.show({ type: "error", text1: "Email inválido" });
+        setLoading(false);
+        return;
+      }
+      // Validação dos pets
+      for (const pet of pets) {
+        if (!pet.nome || !pet.raca || !pet.porte) {
+          Toast.show({ type: "error", text1: "Preencha todos os campos obrigatórios do pet." });
+          setLoading(false);
+          return;
+        }
+      }
       const novoUsuario = await apiRequisicaoUsuario.inserirUsuario(
         nome,
         telefoneLimpo,
-        senha
+        senha,
+        email
       );
       if (!novoUsuario || novoUsuario <= 0) {
         throw new Error("Erro ao cadastrar usuário.");
@@ -128,23 +166,27 @@ const RegistrarUsuarioNovo = () => {
           throw new Error("Erro ao enviar foto do usuário.");
         setUriFotoUsuario(respostaUsuario);
       }
-      const novoPet = await apiRequisicaoAnimal.adicionarAnimalNovo(
-        nomePet,
-        raca,
-        novoUsuario
-      );
-      if (!novoPet || novoPet <= 0) {
-        throw new Error("Erro ao cadastrar o animal.");
-      }
-      if (fotoPet) {
-        const respostaAnimal =
-          await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
-            fotoPet,
+      // Cadastrar todos os pets
+      for (let i = 0; i < pets.length; i++) {
+        const pet = pets[i];
+        const novoPet = await apiRequisicaoAnimal.adicionarAnimalNovo(
+          pet.nome,
+          pet.raca,
+          novoUsuario,
+          pet.porte,
+          pet.observacoes
+        );
+        if (!novoPet || novoPet <= 0) {
+          throw new Error("Erro ao cadastrar o animal.");
+        }
+        if (pet.foto) {
+          const respostaAnimal = await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
+            pet.foto,
             novoUsuario,
             novoPet
           );
-        if (!respostaAnimal) throw new Error("Erro ao enviar foto do animal.");
-        setUriFotoPet(respostaAnimal);
+          if (!respostaAnimal) throw new Error("Erro ao enviar foto do animal.");
+        }
       }
       Toast.show({
         type: "success",
@@ -164,7 +206,8 @@ const RegistrarUsuarioNovo = () => {
   };
 
   const camposObrigatoriosPreenchidos =
-    nome && telefoneLimpo.length >= 10 && senha.length >= 6 && nomePet && raca;
+    nome && validarEmail(email) && telefoneLimpo.length >= 10 && senha.length >= 6 &&
+    pets.every((pet) => pet.nome && pet.raca && pet.porte);
 
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
@@ -210,6 +253,18 @@ const RegistrarUsuarioNovo = () => {
             />
           </View>
           <View style={styles.inputContainer}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              placeholder="Digite seu email"
+              value={email}
+              onChangeText={setEmail}
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
+          </View>
+          <View style={styles.inputContainer}>
             <Text style={styles.label}>Telefone</Text>
             <TextInput
               placeholder="(99) 99999-9999"
@@ -237,44 +292,77 @@ const RegistrarUsuarioNovo = () => {
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Dados do seu pet</Text>
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.fotoContainer}
-            onPress={escolherImagemPet}
-            disabled={loading}
-          >
-            <ExpoImageWithPlaceHolder
-              uri={fotoPet ? uriFotoPet : urlFotoPadrao}
-              style={styles.foto}
-            />
-            <Text style={styles.textoFoto}>
-              {fotoPet ? "Foto selecionada" : "Adicionar foto"}
-            </Text>
-          </TouchableOpacity>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nome do pet</Text>
-            <TextInput
-              placeholder="Ex: Thor"
-              value={nomePet}
-              onChangeText={setNomePet}
-              style={styles.input}
-              autoCapitalize="words"
-              editable={!loading}
-            />
+        <Text style={styles.sectionTitle}>Dados do(s) seu(s) pet(s)</Text>
+        {pets.map((pet, index) => (
+          <View key={index} style={styles.section}>
+            <TouchableOpacity
+              style={styles.fotoContainer}
+              onPress={() => escolherImagemPet(index)}
+              disabled={loading}
+            >
+              <ExpoImageWithPlaceHolder
+                uri={pet.foto ? pet.uriFoto : urlFotoPadrao}
+                style={styles.foto}
+              />
+              <Text style={styles.textoFoto}>
+                {pet.foto ? "Foto selecionada" : "Adicionar foto"}
+              </Text>
+            </TouchableOpacity>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Nome do pet</Text>
+              <TextInput
+                placeholder="Ex: Thor"
+                value={pet.nome}
+                onChangeText={(valor) => atualizarCampoPet(index, "nome", valor)}
+                style={styles.input}
+                autoCapitalize="words"
+                editable={!loading}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Raça</Text>
+              <TextInput
+                placeholder="Ex: Golden Retriever"
+                value={pet.raca}
+                onChangeText={(valor) => atualizarCampoPet(index, "raca", valor)}
+                style={styles.input}
+                autoCapitalize="words"
+                editable={!loading}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Porte</Text>
+              <TextInput
+                placeholder="1 - Pequeno, 2 - Médio, 3 - Grande"
+                value={pet.porte}
+                onChangeText={(valor) => atualizarCampoPet(index, "porte", valor.replace(/[^1-3]/g, ""))}
+                style={styles.input}
+                keyboardType="numeric"
+                maxLength={1}
+                editable={!loading}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Observações</Text>
+              <TextInput
+                placeholder="Observações sobre o pet (opcional)"
+                value={pet.observacoes}
+                onChangeText={(valor) => atualizarCampoPet(index, "observacoes", valor)}
+                style={styles.input}
+                editable={!loading}
+                multiline
+              />
+            </View>
+            {pets.length > 1 && (
+              <TouchableOpacity onPress={() => removerPet(index)} disabled={loading} style={{ alignSelf: 'flex-end', marginBottom: 10 }}>
+                <Text style={{ color: 'red' }}>Remover pet</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Raça</Text>
-            <TextInput
-              placeholder="Ex: Golden Retriever"
-              value={raca}
-              onChangeText={setRaca}
-              style={styles.input}
-              autoCapitalize="words"
-              editable={!loading}
-            />
-          </View>
-        </View>
+        ))}
+        <TouchableOpacity onPress={adicionarPet} disabled={loading} style={{ alignItems: 'center', marginBottom: 10 }}>
+          <Text style={{ color: '#4F46E5', fontWeight: 'bold' }}>+ Adicionar outro pet</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           onPress={salvar}

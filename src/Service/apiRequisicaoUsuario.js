@@ -120,6 +120,17 @@ const inserirUsuario = async (
   }
 };
 
+const excluirContaUsuario = async (idUsuarioParam) => {
+  try {
+    const uri = `/Usuario?IdUsuario=${idUsuarioParam}`;
+    const resposta = await api.delete(uri);
+    return resposta.data;
+  } catch (error) {
+    console.error("Erro ao excluir usuario:", error);
+    throw error;
+  }
+};
+
 export default {
   validarLogin,
   alterarSenhaUsuario,
@@ -127,4 +138,5 @@ export default {
   buscarFotoUsuario,
   enviarFotoUsuario,
   inserirUsuario,
+  excluirContaUsuario,
 };

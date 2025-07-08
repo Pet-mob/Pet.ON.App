@@ -14,6 +14,7 @@ import DadosPets from "../screens/DadosPets.js";
 import EsqueceuSenha from "../screens/EsqueceuSenha.js";
 import RegistrarNovoUsuario from "../screens/RegistrarNovoUsuario.js";
 import MenuInferior from "../components/menuInferior.js";
+import AgendamentoLink from "../screens/AgendamentoLink.js";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -70,6 +71,11 @@ export default function Routes() {
       <Stack.Screen
         name="RegistrarNovoUsuario"
         component={RegistrarNovoUsuario}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="AgendamentoLink"
+        component={AgendamentoLink}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

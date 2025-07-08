@@ -331,7 +331,6 @@ const RegistrarUsuarioNovo = () => {
               maxLength={20}
               editable={!loading}
             />
-            <Text style={styles.inputHint}>Mínimo 8 caracteres, incluindo maiúscula, minúscula, número e especial</Text>
             <View style={styles.passwordRulesBox}>
               <Text style={styles.passwordRulesTitle}>
                 Sua senha deve conter:

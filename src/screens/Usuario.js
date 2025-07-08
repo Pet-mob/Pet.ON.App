@@ -32,8 +32,7 @@ const Usuario = () => {
       if (result === true) {
         // Limpe dados locais
         await AsyncStorage.clear();
-        // Se usar store/contexto, limpe também:
-        // usuarioStore.logout(); // Exemplo, ajuste conforme seu store
+        usuarioStore.logout();
 
         Toast.show({
           type: "success",

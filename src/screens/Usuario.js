@@ -31,8 +31,18 @@ const Usuario = () => {
       const result = await apiRequisicaoUsuario.excluirContaUsuario(idUsuario);
       if (result === true) {
         // Limpe dados locais
-        await AsyncStorage.clear();
-        usuarioStore.logout();
+        try {
+          await AsyncStorage.clear();
+        } catch (storageError) {
+          if (
+            storageError.message &&
+            storageError.message.includes("couldn’t be removed")
+          ) {
+            // Não faz nada
+          } else {
+            console.log("Erro ao limpar AsyncStorage:", storageError);
+          }
+        }
 
         Toast.show({
           type: "success",

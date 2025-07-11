@@ -1,3 +1,4 @@
+import { id } from "date-fns/locale";
 import api from "./api";
 import { Platform } from "react-native";
 
@@ -118,12 +119,20 @@ const enviarFotosAnimalPorUsuario = async (imagem, idUsuario, idAnimal) => {
   }
 };
 
-const adicionarAnimalNovo = async (nomeParam, racaParam, idUsuarioParam) => {
+const adicionarAnimalNovo = async (
+  nomeParam,
+  racaParam,
+  idUsuarioParam,
+  idPorteParam,
+  observacoesParam
+) => {
   try {
     const dtoRequisicao = {
       nome: nomeParam,
       raca: racaParam,
       idUsuario: idUsuarioParam,
+      idPorte: idPorteParam,
+      observacoes: observacoesParam,
     };
     const resposta = await api.post(
       "/Animal/AdcionarAnimalNovo",

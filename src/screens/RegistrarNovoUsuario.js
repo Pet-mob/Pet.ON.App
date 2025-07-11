@@ -276,7 +276,9 @@ const RegistrarUsuarioNovo = () => {
             disabled={loading}
           >
             <ExpoImageWithPlaceHolder
-              uri={fotoUsuario ? uriFotoUsuario : urlFotoPadrao}
+              source={
+                fotoUsuario ? { uri: uriFotoUsuario } : { uri: urlFotoPadrao }
+              }
               style={styles.foto}
             />
             <Text style={styles.textoFoto}>
@@ -355,7 +357,9 @@ const RegistrarUsuarioNovo = () => {
               disabled={loading}
             >
               <ExpoImageWithPlaceHolder
-                uri={pet.foto ? pet.uriFoto : urlFotoPadrao}
+                source={
+                  pet.foto ? { uri: pet.uriFoto } : { uri: urlFotoPadrao }
+                }
                 style={styles.foto}
               />
               <Text style={styles.textoFoto}>

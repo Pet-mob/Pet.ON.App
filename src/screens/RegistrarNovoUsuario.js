@@ -231,7 +231,7 @@ const RegistrarUsuarioNovo = () => {
       Toast.show({
         type: "success",
         text1: "Cadastro realizado!",
-        text2: "Seja bem-vindo à plataforma Pet.ON!",
+        text2: "Seja bem-vindo à plataforma PetMob!",
       });
       setLoading(false);
       navigation.navigate("Login");

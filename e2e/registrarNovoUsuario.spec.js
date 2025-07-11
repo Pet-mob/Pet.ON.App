@@ -2,18 +2,33 @@ const { test, expect } = require("@playwright/test");
 
 test("Fluxo de registro de novo usuário com pets", async ({ page }) => {
   await page.goto("http://localhost:8081");
-  await page.click("text=Registrar");
+
+  // Ir para tela de registro
+  await page.click("text=Registrar-se");
+
+  // Preencher dados do usuário
   await expect(
-    page.locator('input[placeholder="Nome completo"]')
+    page.locator('input[placeholder="Digite seu nome"]')
   ).toBeVisible();
-  await page.fill('input[placeholder="Nome completo"]', "Usuário Teste");
-  await page.fill('input[placeholder="Telefone"]', "11999999999");
-  await page.fill('input[placeholder="Email"]', "teste@teste.com");
-  await page.fill('input[placeholder="Senha"]', "senha123");
-  // Adiciona pet
-  await page.click("text=Adicionar Pet");
-  await page.fill('input[placeholder="Nome do Pet"]', "Rex");
-  await page.click("text=Registrar");
-  await expect(page.locator("text=Login")).toBeVisible();
-  // Adapte os seletores conforme o app
+  await page.fill('input[placeholder="Digite seu nome"]', "Usuário Teste");
+  await page.fill('input[placeholder="Digite seu email"]', "teste@teste.com");
+  await page.fill('input[placeholder="(99) 99999-9999"]', "(11) 99999-9999");
+  await page.fill('input[placeholder="Crie uma senha"]', "Senha@123");
+
+  // Preencher dados do pet
+  await page.fill('input[placeholder="Ex: Thor"]', "Rex");
+  await page.fill('input[placeholder="Ex: Golden Retriever"]', "SRD");
+
+  // Selecionar porte do pet
+  await page.click("text=Pequeno");
+
+  // Confirmar que o botão está habilitado
+  const registrarBtn = page.getByRole("button", { name: "Registrar" });
+  await expect(registrarBtn).toBeEnabled();
+
+  // Clicar para registrar
+  await registrarBtn.click();
+
+  // Validar redirecionamento
+  await expect(page.getByText("Login")).toBeVisible();
 });

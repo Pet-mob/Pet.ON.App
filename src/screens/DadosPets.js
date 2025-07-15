@@ -149,7 +149,7 @@ const DadosPets = () => {
   };
 
   const salvarPet = async () => {
-    if (!nome || !idade || !raca || !idPorte) {
+    if (!nome || !raca || !idPorte) {
       Toast.show({
         type: "info",
         text1: "Preencha todos os campos obrigatórios",

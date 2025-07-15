@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "PetMob",
-    "slug": "petmob",
+    "slug": "pet-mob-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/LogoGrande.png",

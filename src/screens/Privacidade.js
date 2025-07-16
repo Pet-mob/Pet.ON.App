@@ -21,11 +21,30 @@ const Privacidade = () => {
   const usuarioStore = getUsuarioStore();
   const idUsuario = usuarioStore.id;
 
+  // Função para validar critérios da senha
+  function validarSenha(senha) {
+    const minLength = senha.length >= 8;
+    const hasUpper = /[A-Z]/.test(senha);
+    const hasLower = /[a-z]/.test(senha);
+    const hasNumber = /[0-9]/.test(senha);
+    const hasSpecial = /[^A-Za-z0-9]/.test(senha);
+    return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
+  }
+
   const alterarSenha = async () => {
     if (!senhaAtual || !novaSenha || !confirmarSenha) {
       Toast.show({
         type: "info",
         text1: "Por favor, preencha todos os campos.",
+      });
+      return;
+    }
+
+    if (!validarSenha(novaSenha)) {
+      Toast.show({
+        type: "info",
+        text1:
+          "A nova senha deve ter pelo menos 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.",
       });
       return;
     }
@@ -95,6 +114,26 @@ const Privacidade = () => {
             secureTextEntry
             placeholderTextColor="#999"
           />
+          <View style={styles.passwordRulesBox}>
+            <Text style={styles.passwordRulesTitle}>
+              Sua senha deve conter:
+            </Text>
+            <Text style={styles.passwordRules}>
+              • Pelo menos 8 caracteres
+            </Text>
+            <Text style={styles.passwordRules}>
+              • 1 letra maiúscula (A-Z)
+            </Text>
+            <Text style={styles.passwordRules}>
+              • 1 letra minúscula (a-z)
+            </Text>
+            <Text style={styles.passwordRules}>
+              • 1 número (0-9)
+            </Text>
+            <Text style={styles.passwordRules}>
+              • 1 caractere especial (! @ # $ % & * ?)
+            </Text>
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
@@ -161,6 +200,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     fontSize: 16,
+  },
+  passwordRulesBox: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 10,
+  },
+  passwordRulesTitle: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  passwordRules: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 4,
   },
   botaoSalvar: {
     backgroundColor: "#28A745",

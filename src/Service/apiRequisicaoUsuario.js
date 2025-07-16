@@ -54,13 +54,8 @@ const alterarUsuario = async (
 
 const buscarFotoUsuario = async (idUsuarioParam) => {
   try {
-    const dtoRequisicao = {
-      idUsuario: idUsuarioParam,
-    };
-    const resposta = await api.get(
-      "/Usuario/BuscarFotosUsuario",
-      dtoRequisicao
-    );
+    const uri = `/Usuario/BuscarFotosUsuario?IdUsuario=${idUsuarioParam}`;
+    const resposta = await api.get(uri);
     return resposta.data;
   } catch (error) {
     throw error;

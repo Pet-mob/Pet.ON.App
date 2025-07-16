@@ -61,7 +61,7 @@ const Privacidade = () => {
       );
       if (sucesso) {
         Toast.show({ type: "success", text1: "Senha alterada com sucesso!" });
-        navigation.navigate("Usuario");
+        navigation.navigate("MenuInferior", { screen: "Usuario" });
       } else {
         Toast.show({
           type: "error",
@@ -118,18 +118,10 @@ const Privacidade = () => {
             <Text style={styles.passwordRulesTitle}>
               Sua senha deve conter:
             </Text>
-            <Text style={styles.passwordRules}>
-              • Pelo menos 8 caracteres
-            </Text>
-            <Text style={styles.passwordRules}>
-              • 1 letra maiúscula (A-Z)
-            </Text>
-            <Text style={styles.passwordRules}>
-              • 1 letra minúscula (a-z)
-            </Text>
-            <Text style={styles.passwordRules}>
-              • 1 número (0-9)
-            </Text>
+            <Text style={styles.passwordRules}>• Pelo menos 8 caracteres</Text>
+            <Text style={styles.passwordRules}>• 1 letra maiúscula (A-Z)</Text>
+            <Text style={styles.passwordRules}>• 1 letra minúscula (a-z)</Text>
+            <Text style={styles.passwordRules}>• 1 número (0-9)</Text>
             <Text style={styles.passwordRules}>
               • 1 caractere especial (! @ # $ % & * ?)
             </Text>

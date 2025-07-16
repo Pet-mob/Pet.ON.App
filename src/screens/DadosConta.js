@@ -7,12 +7,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
-import { getUsuarioStore } from "../store/store";
+import { getUsuarioStore, setUsuarioStore } from "../store/store";
 import Toast from "react-native-toast-message";
 
 const DadosConta = () => {
@@ -20,7 +22,6 @@ const DadosConta = () => {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
-  // Telefone limpo para envio à API
   const [telefoneLimpo, setTelefoneLimpo] = useState("");
   const [foto, setFoto] = useState(null);
   const navigation = useNavigation();
@@ -97,22 +98,14 @@ const DadosConta = () => {
     const numeros = texto.replace(/\D/g, "");
     setTelefoneLimpo(numeros);
     let telefoneComMascara = "";
-    if (numeros.length <= 2) {
-      telefoneComMascara = `(${numeros}`;
-    } else if (numeros.length <= 6) {
-      telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
-        2
-      )}`;
-    } else if (numeros.length <= 10) {
-      telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
-        2,
-        7
-      )}-${numeros.substring(7)}`;
-    } else {
-      telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
-        2,
-        7
-      )}-${numeros.substring(7, 11)}`;
+    if (numeros.length > 0) {
+      telefoneComMascara = `(${numeros.substring(0, 2)}`;
+      if (numeros.length > 2) {
+        telefoneComMascara += `) ${numeros.substring(2, 7)}`;
+        if (numeros.length > 7) {
+          telefoneComMascara += `-${numeros.substring(7, 11)}`;
+        }
+      }
     }
     setTelefone(telefoneComMascara);
   };
@@ -139,6 +132,13 @@ const DadosConta = () => {
           type: "success",
           text1: "Usuário alterado com sucesso!",
         });
+        const novoUsuario = {
+          nome,
+          telefone: telefoneLimpo,
+          email,
+          id: idUsuario,
+        };
+        setUsuarioStore(novoUsuario);
         navigation.navigate("MenuInferior", { screen: "Usuario" });
       } else {
         Toast.show({ type: "error", text1: "Falha ao alterar o usuário." });
@@ -177,88 +177,94 @@ const DadosConta = () => {
       setLoading(false);
     };
     carregarDados();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="chevron-back-outline" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Dados da Conta</Text>
-      </View>
-
-      {loading ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={{ color: "#4F46E5", fontSize: 18, fontWeight: "bold" }}>
-            Carregando...
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.bodyContainer}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container}>
+        <View style={styles.header}>
           <TouchableOpacity
-            style={styles.fotoContainer}
-            onPress={selecionarFoto}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
           >
-            <ExpoImageWithPlaceholder
-              source={
-                foto
-                  ? { uri: foto }
-                  : {
-                      uri: "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D",
-                    }
-              }
-              style={styles.foto}
-            />
-            <Text style={styles.textoFoto}>Alterar Foto</Text>
+            <Ionicons name="chevron-back-outline" size={28} color="#FFFFFF" />
           </TouchableOpacity>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nome</Text>
-            <TextInput
-              style={styles.input}
-              value={nome}
-              onChangeText={setNome}
-              placeholder="Digite seu nome"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Telefone</Text>
-            <TextInput
-              style={styles.input}
-              value={telefone}
-              onChangeText={formatarTelefone}
-              placeholder="Digite seu telefone"
-              keyboardType="phone-pad"
-              maxLength={15}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              placeholder="Digite seu email"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-
-          <TouchableOpacity style={styles.botaoSalvar} onPress={alterarUsuario}>
-            <Text style={styles.textoBotao}>Salvar Alterações</Text>
-          </TouchableOpacity>
+          <Text style={styles.title}>Dados da Conta</Text>
         </View>
-      )}
-    </View>
+
+        {loading ? (
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            <Text
+              style={{ color: "#4F46E5", fontSize: 18, fontWeight: "bold" }}
+            >
+              Carregando...
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.bodyContainer}>
+            <TouchableOpacity
+              style={styles.fotoContainer}
+              onPress={selecionarFoto}
+            >
+              <ExpoImageWithPlaceholder
+                source={
+                  foto
+                    ? { uri: foto }
+                    : {
+                        uri: "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D",
+                      }
+                }
+                style={styles.foto}
+              />
+              <Text style={styles.textoFoto}>Alterar Foto</Text>
+            </TouchableOpacity>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Nome</Text>
+              <TextInput
+                style={styles.input}
+                value={nome}
+                onChangeText={setNome}
+                placeholder="Digite seu nome"
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Telefone</Text>
+              <TextInput
+                style={styles.input}
+                value={telefone}
+                onChangeText={formatarTelefone}
+                placeholder="Digite seu telefone"
+                keyboardType="phone-pad"
+                maxLength={15}
+              />
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                placeholder="Digite seu email"
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.botaoSalvar}
+              onPress={alterarUsuario}
+            >
+              <Text style={styles.textoBotao}>Salvar Alterações</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
@@ -280,7 +286,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 16,
     top: 50,
-    // padding: 10,
   },
   title: {
     fontSize: 20,

@@ -157,8 +157,8 @@ const DadosPets = () => {
       return;
     }
 
-    // Converte porte para número
     let porteNumero = idPorte;
+    let idadeNumero = idade ? parseInt(idade, 10) : 0;
 
     try {
       let sucesso;
@@ -168,16 +168,17 @@ const DadosPets = () => {
         sucesso = await apiRequisicaoAnimal.alterarAnimal(
           idAnimal,
           nome,
-          idade,
+          idadeNumero,
           raca,
           observacoes,
           idUsuario,
           porteNumero
         );
       } else {
+        // Envia os dados dentro do campo dto
         const novoPet = await apiRequisicaoAnimal.inserirAnimal(
           nome,
-          idade,
+          idadeNumero,
           raca,
           observacoes,
           idUsuario,

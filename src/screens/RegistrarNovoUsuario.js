@@ -328,7 +328,7 @@ const RegistrarUsuarioNovo = () => {
               placeholder="Crie uma senha"
               value={senha}
               onChangeText={setSenha}
-              style={styles.input}
+              style={[styles.input, { color: "#333" }]} // Adicione color aqui
               secureTextEntry
               maxLength={20}
               editable={!loading}

@@ -95,7 +95,7 @@ const Privacidade = () => {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Senha Atual:</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: "#333" }]} // Adicione color aqui
             value={senhaAtual}
             onChangeText={setSenhaAtual}
             placeholder="Digite sua senha atual"
@@ -107,7 +107,7 @@ const Privacidade = () => {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nova Senha:</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: "#333" }]} // Adicione color aqui
             value={novaSenha}
             onChangeText={setNovaSenha}
             placeholder="Digite a nova senha"
@@ -131,7 +131,7 @@ const Privacidade = () => {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Confirmar Nova Senha:</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { color: "#333" }]} // Adicione color aqui
             value={confirmarSenha}
             onChangeText={setConfirmarSenha}
             placeholder="Confirme a nova senha"

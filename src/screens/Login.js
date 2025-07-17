@@ -122,7 +122,7 @@ const TelaLogin = () => {
             placeholderTextColor="#aaa"
           />
           <TextInput
-            style={estilos.input}
+            style={[styles.input, { color: "#333" }]} // Adicione color aqui
             placeholder="Digite sua senha"
             value={Senha}
             onChangeText={setSenha}

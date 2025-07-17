@@ -160,12 +160,13 @@ const DadosPets = () => {
     let porteNumero = idPorte;
     let idadeNumero = idade ? parseInt(idade, 10) : 0;
 
+    setLoading(true);
     try {
+      let resposta;
       let sucesso;
-      let idGerado = idAnimal;
 
       if (idAnimal) {
-        sucesso = await apiRequisicaoAnimal.alterarAnimal(
+        resposta = await apiRequisicaoAnimal.alterarAnimal(
           idAnimal,
           nome,
           idadeNumero,
@@ -174,9 +175,9 @@ const DadosPets = () => {
           idUsuario,
           porteNumero
         );
+        sucesso = resposta === true;
       } else {
-        // Envia os dados dentro do campo dto
-        const novoPet = await apiRequisicaoAnimal.inserirAnimal(
+        resposta = await apiRequisicaoAnimal.inserirAnimal(
           nome,
           idadeNumero,
           raca,
@@ -184,13 +185,12 @@ const DadosPets = () => {
           idUsuario,
           porteNumero
         );
-        sucesso = novoPet?.idAnimal > 0;
-        idGerado = novoPet?.idAnimal;
+        sucesso = resposta === true;
       }
 
       if (sucesso) {
-        if (foto && idGerado) {
-          const uploadSucesso = await enviarFotoDetalhadamente(idGerado);
+        if (foto && idAnimal) {
+          const uploadSucesso = await enviarFotoDetalhadamente(idAnimal);
           if (!uploadSucesso) {
             Toast.show({
               type: "warning",
@@ -198,7 +198,6 @@ const DadosPets = () => {
             });
           }
         }
-
         Toast.show({
           type: "success",
           text1: idAnimal
@@ -206,12 +205,18 @@ const DadosPets = () => {
             : "Pet inserido com sucesso!",
         });
         resetarFormulario();
-        carregarDados();
+        await carregarDados();
       } else {
         Toast.show({ type: "error", text1: "Falha ao salvar pet." });
       }
     } catch (error) {
-      Toast.show({ type: "error", text1: "Erro ao salvar pet." });
+      Toast.show({
+        type: "error",
+        text1: "Erro ao salvar pet.",
+        text2: error?.message || "",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 

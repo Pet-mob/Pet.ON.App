@@ -691,7 +691,7 @@ const Agendamento = ({ navigation, route }) => {
                     {Object.keys(datasSelecionadas)
                       .map((data) => {
                         const [ano, mes, dia] = data.split("-");
-                        return `${dia}-${mes}-${ano}`;
+                        return `${dia}/${mes}/${ano}`;
                       })
                       .join(", ")}
                   </Text>

@@ -99,7 +99,7 @@ const Usuario = () => {
           style={styles.card}
           onPress={() => navigation.navigate("Privacidade")}
         >
-          <Text style={styles.cardText}>Privacidade</Text>
+          <Text style={styles.cardText}>Alterar Senha</Text>
           <Ionicons name="chevron-forward" size={20} color="#888" />
         </TouchableOpacity>
 

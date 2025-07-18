@@ -97,26 +97,32 @@ const Buscar = ({ navigation, route }) => {
       <View style={{ flexShrink: 1 }}>
         <FlatList
           data={categorias}
-          numColumns={4}
-          key={"4-cols"}
+          horizontal
+          showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.categoriasContainer}
-          columnWrapperStyle={{ justifyContent: "space-between" }}
+          contentContainerStyle={styles.listaCategorias}
           renderItem={({ item }) => {
             const selecionado = categoriaSelecionada === item.id;
             return (
               <TouchableOpacity
                 style={[
-                  styles.categoriaCard,
-                  selecionado && styles.categoriaSelecionada,
+                  styles.itemCategoria,
+                  selecionado && styles.itemCategoriaSelecionada,
                 ]}
                 onPress={() => handleSelecionarCategoria(item.id)}
               >
                 <ExpoImageWithPlaceholder
                   source={item.imagem}
-                  style={styles.categoriaImagem}
+                  style={styles.iconeCategoria}
                 />
-                <Text style={styles.categoriaTexto}>{item.nome}</Text>
+                <Text
+                  style={[
+                    styles.textoCategoria,
+                    selecionado && styles.textoCategoriaSelecionada,
+                  ]}
+                >
+                  {item.nome}
+                </Text>
               </TouchableOpacity>
             );
           }}
@@ -220,29 +226,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   input: { flex: 1, padding: 10 },
-  categoriasContainer: {
-    paddingHorizontal: 8,
+  listaCategorias: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
   },
-  categoriaCard: {
+  itemCategoria: {
     backgroundColor: "#E0F7FA",
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: 12,
     alignItems: "center",
-    margin: 4,
-    flex: 1,
+    justifyContent: "center",
+    padding: 10,
+    marginRight: 12,
+    width: 90,
+    height: 80,
   },
-  categoriaSelecionada: {
+  itemCategoriaSelecionada: {
     backgroundColor: "#26C6DA",
   },
-  categoriaImagem: {
-    width: 50,
-    height: 50,
+  iconeCategoria: {
+    width: 36,
+    height: 36,
     marginBottom: 4,
+    resizeMode: "contain",
   },
-  categoriaTexto: {
+  textoCategoria: {
     fontSize: 12,
     color: "#00796B",
     textAlign: "center",
+  },
+  textoCategoriaSelecionada: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   filtrosContainer: {
     flexDirection: "row",

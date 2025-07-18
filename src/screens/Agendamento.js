@@ -688,7 +688,12 @@ const Agendamento = ({ navigation, route }) => {
                 <View style={styles.resumoLinha}>
                   <Text style={styles.resumoTitulo}>Data(s):</Text>
                   <Text style={styles.resumoValor}>
-                    {Object.keys(datasSelecionadas).join(", ")}
+                    {Object.keys(datasSelecionadas)
+                      .map((data) => {
+                        const [ano, mes, dia] = data.split("-");
+                        return `${dia}-${mes}-${ano}`;
+                      })
+                      .join(", ")}
                   </Text>
                 </View>
                 {/* Horários */}

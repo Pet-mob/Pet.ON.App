@@ -22,7 +22,6 @@ const Buscar = ({ navigation, route }) => {
   const [filtroCategoria, setFiltroCategoria] = useState("Pet shop"); // Nome sincronizado só para exibição
   const [modalOrdenacaoVisible, setModalOrdenacaoVisible] = useState(false);
   const [empresas, setEmpresas] = useState([]);
-  const [listaLogos, setListaLogos] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const categorias = [
@@ -57,11 +56,9 @@ const Buscar = ({ navigation, route }) => {
     try {
       const [empresasResp, logosResp] = await Promise.all([
         apiRequisicaoEmpresa.buscarEmpresas(categoriaId),
-        apiRequisicaoEmpresa.buscarLogoEmpresas(),
       ]);
 
       setEmpresas(empresasResp);
-      setListaLogos(logosResp);
     } catch (error) {
       Toast.show({ type: "error", text1: "Erro ao carregar dados." });
     } finally {

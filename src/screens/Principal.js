@@ -19,7 +19,7 @@ const TelaInicial = () => {
   const navigation = useNavigation();
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [listaLogos, setListaLogos] = useState([]);
+  // const [listaLogos, setListaLogos] = useState([]);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(1);
   const [erroImagemPromocao, setErroImagemPromocao] = useState({});
   const [erroImagemLogo, setErroImagemLogo] = useState({});
@@ -67,11 +67,11 @@ const TelaInicial = () => {
             idUsuarioLogado,
             categoriaSelecionada
           ),
-          apiRequisicaoEmpresa.buscarLogoEmpresas(),
+          // apiRequisicaoEmpresa.buscarLogoEmpresas(),
         ]);
 
         setEmpresas(empresasResp);
-        setListaLogos(logosResp);
+        // setListaLogos(logosResp);
       } catch (error) {
         Toast.show({ type: "error", text1: "Erro ao carregar dados." });
       } finally {
@@ -167,14 +167,6 @@ const TelaInicial = () => {
           keyExtractor={(item) => item.idEmpresa.toString()}
           ListHeaderComponent={renderHeader}
           renderItem={({ item }) => {
-            const logo = listaLogos.find(
-              (logo) => logo.idEmpresa === item.idEmpresa
-            );
-            const imagemLogo =
-              logo?.url && !erroImagemLogo[item.idEmpresa]
-                ? { uri: logo.url }
-                : placeholderImg;
-
             return (
               <TouchableOpacity
                 onPress={() => irParaAgendamento(item.idEmpresa)}
@@ -182,8 +174,8 @@ const TelaInicial = () => {
                 <View style={estilos.itemPetShop}>
                   <ExpoImageWithPlaceholder
                     source={
-                      logo?.url && !erroImagemLogo[item.idEmpresa]
-                        ? { uri: logo.url }
+                      item.urlLogoEmpresa && !erroImagemLogo[item.idEmpresa]
+                        ? { uri: item.urlLogoEmpresa }
                         : placeholderImg
                     }
                     style={estilos.iconePetShop}

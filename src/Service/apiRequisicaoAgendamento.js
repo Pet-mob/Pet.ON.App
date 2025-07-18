@@ -3,13 +3,15 @@ import api from "./api";
 const buscarHorariosDisponiveisNaApi = async (
   idEmpresa,
   listaDataAgendamento,
-  duracaoEmMin
+  duracaoEmMin,
+  horarioAtual
 ) => {
   try {
     const dtoRequisicao = {
       idEmpresa: idEmpresa,
       listaDataAgendamento: listaDataAgendamento,
       duracaoEmMinutos: duracaoEmMin,
+      horarioAtual: horarioAtual,
     };
     const resposta = await api.post(
       "/Agendamento/HorariosDisponiveis",

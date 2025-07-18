@@ -87,8 +87,8 @@ const Agendamento = ({ navigation, route }) => {
         apiRequisicaoParametro.buscarParametro(idEmpresaPetShop),
       ]);
 
-      // Carregar fotos dos pets
-      await manipularFotoAnimal(petsApi);
+      setPets(petsApi || []);
+      // await manipularFotoAnimal(petsApi);
 
       // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
       if (parametrosApi) setParametrosEmpresa(parametrosApi);
@@ -255,13 +255,18 @@ const Agendamento = ({ navigation, route }) => {
     }
     const servico = servicos.find((s) => s.idServico === servicoSelecionado);
     const duracaoEmMinutos = servico?.duracao || 120;
+    const horarioAtual =
+      new Date().getHours().toString().padStart(2, "0") +
+      ":" +
+      new Date().getMinutes().toString().padStart(2, "0");
     setLoading(true);
     try {
       const { horarios } =
         await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(
           idEmpresaPetShop,
           datasFormatadas,
-          duracaoEmMinutos
+          duracaoEmMinutos,
+          horarioAtual
         );
       setHorariosDisponiveis(horarios || []);
       setHorariosSelecionados([]);
@@ -409,9 +414,9 @@ const Agendamento = ({ navigation, route }) => {
                   >
                     <ExpoImage
                       source={
-                        typeof item.imagem === "string"
-                          ? { uri: item.imagem }
-                          : item.imagem
+                        item?.urlFotoAnimal
+                          ? { uri: item.urlFotoAnimal }
+                          : placeholderImg
                       }
                       style={styles.petImage}
                       placeholder={placeholderImg}
@@ -446,21 +451,27 @@ const Agendamento = ({ navigation, route }) => {
                 <Text style={styles.textBtnConfirmar}>Selecionar Serviços</Text>
               </TouchableOpacity>
               <Text style={styles.label}>Serviços selecionados:</Text>
-              {servicos
-                .filter((s) => servicosSelecionados.includes(s.idServico))
-                .map((s) => (
-                  <View
-                    key={s.idServico}
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      marginBottom: 4,
-                    }}
-                  >
-                    <Text>{s.descricao}</Text>
-                    <Text>R$ {s.valor}</Text>
-                  </View>
-                ))}
+              {servicosSelecionados.length === 0 ? (
+                <Text style={{ color: "#888", marginVertical: 8 }}>
+                  Nenhum serviço selecionado.
+                </Text>
+              ) : (
+                servicos
+                  .filter((s) => servicosSelecionados.includes(s.idServico))
+                  .map((s) => (
+                    <View
+                      key={s.idServico}
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 4,
+                      }}
+                    >
+                      <Text>{s.descricao}</Text>
+                      <Text>R$ {s.valor}</Text>
+                    </View>
+                  ))
+              )}
               <View style={styles.footerStep}>
                 <TouchableOpacity
                   style={[
@@ -935,6 +946,38 @@ const styles = StyleSheet.create({
   petBox: {
     alignItems: "center",
     marginRight: 15,
+    gap: 5,
+    marginBottom: 15,
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 10,
+    backgroundColor: "#f7faff",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+    width: 90,
+    height: 120,
+    justifyContent: "center",
+    position: "relative",
+    overflow: "hidden",
+    flex: 1,
+    maxWidth: 90,
+    maxHeight: 120,
+    minWidth: 90,
+    minHeight: 120,
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: "auto",
+    flexDirection: "column",
+    alignSelf: "flex-start",
+    backgroundColor: "#f7faff",
+    shadowColor: "#007aff",
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
   },
   petSelecionado: {
     borderWidth: 2,

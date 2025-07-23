@@ -328,7 +328,7 @@ const Agendamento = ({ navigation, route }) => {
       Toast.show({
         type: "success",
         text1: "Agendamento realizado com sucesso!",
-        text2: "Este é um toast customizado!",
+        text2: "Confira os detalhes no seu agendamentos.",
       });
       navigation.goBack();
     } catch {

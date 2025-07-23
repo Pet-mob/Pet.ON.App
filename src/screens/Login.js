@@ -81,7 +81,7 @@ const TelaLogin = () => {
     } catch (error) {
       Toast.show({
         type: "error",
-        text1: "Erro ao buscar acesso.",
+        text1: "Login/Senha não encontrados",
         text2: "Tente novamente ou verifique sua conexão.",
       });
     } finally {

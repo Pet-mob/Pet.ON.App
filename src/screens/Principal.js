@@ -169,28 +169,25 @@ const TelaInicial = () => {
           renderItem={({ item }) => {
             return (
               <TouchableOpacity
+                style={estilos.itemEmpresa}
                 onPress={() => irParaAgendamento(item.idEmpresa)}
               >
-                <View style={estilos.itemPetShop}>
-                  <ExpoImageWithPlaceholder
-                    source={
-                      item.urlLogoEmpresa && !erroImagemLogo[item.idEmpresa]
-                        ? { uri: item.urlLogoEmpresa }
-                        : placeholderImg
-                    }
-                    style={estilos.iconePetShop}
-                    onError={() =>
-                      setErroImagemLogo((prev) => ({
-                        ...prev,
-                        [item.idEmpresa]: true,
-                      }))
-                    }
-                  />
-                  <View>
-                    <Text style={estilos.nomePetShop}>
-                      {item.descricaoNomeFisica}
-                    </Text>
-                  </View>
+                <ExpoImageWithPlaceholder
+                  source={
+                    item.urlLogoEmpresa
+                      ? { uri: item.urlLogoEmpresa }
+                      : placeholderImg
+                  }
+                  style={estilos.empresaImagem}
+                />
+                <View style={estilos.empresaInfo}>
+                  <Text style={estilos.empresaNome}>
+                    {item.descricaoNomeFisica}
+                  </Text>
+                  <Text style={estilos.empresaSelos}>
+                    {item.hipoalergenico && "🧴 Hipoalergênico"}{" "}
+                    {item.taxiDog && "🚕 Táxi Dog"}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
@@ -276,24 +273,31 @@ const estilos = StyleSheet.create({
     color: "#7F8C8D",
     marginTop: 4,
   },
-  itemPetShop: {
+  itemEmpresa: {
     flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderColor: "#eee",
   },
-  iconePetShop: {
+  empresaImagem: {
     width: 60,
     height: 60,
-    borderRadius: 30,
-    marginRight: 12,
+    marginRight: 10,
+    borderRadius: 8,
+    backgroundColor: "#ddd",
   },
-  nomePetShop: {
-    fontSize: 16,
-    color: "#2C3E50",
+  empresaInfo: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  empresaSelos: {
+    fontSize: 12,
+    color: "#555",
+    marginTop: 4,
+  },
+  empresaNome: {
     fontWeight: "bold",
+    marginBottom: 4,
   },
   overlay: {
     flex: 1,

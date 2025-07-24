@@ -182,14 +182,14 @@ const Buscar = ({ navigation, route }) => {
           }
           renderItem={({ item }) => (
             <TouchableOpacity
-              style={styles.empresaCard}
+              style={styles.itemEmpresa}
               onPress={() => irParaAgendamento(item.idEmpresa)}
             >
               <ExpoImageWithPlaceholder
                 source={
                   item.urlLogoEmpresa
                     ? { uri: item.urlLogoEmpresa }
-                    : require("../../assets/LogoGrande.png")
+                    : placeholderImg
                 }
                 style={styles.empresaImagem}
               />
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
   },
-  empresaCard: {
+  itemEmpresa: {
     flexDirection: "row",
     padding: 10,
     borderBottomWidth: 1,

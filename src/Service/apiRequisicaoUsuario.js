@@ -126,6 +126,16 @@ const excluirContaUsuario = async (idUsuarioParam) => {
   }
 };
 
+const validarTelefoneCadastrado = async (telefone) => {
+  try {
+    const uri = `/Usuario/ValidarTelefoneCadastrado?telefone=${telefone}`;
+    const resposta = await api.get(uri);
+    return resposta.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   validarLogin,
   alterarSenhaUsuario,
@@ -134,4 +144,5 @@ export default {
   enviarFotoUsuario,
   inserirUsuario,
   excluirContaUsuario,
+  validarTelefoneCadastrado,
 };

@@ -67,6 +67,22 @@ const RegistrarUsuarioNovo = () => {
       )}-${numeros.substring(7, 11)}`;
     }
     setTelefoneFormatado(telefoneComMascara);
+    validarTelefoneCadastrado(numeros)
+      .then((isValid) => {
+        if (!isValid) {
+          Toast.show({
+            type: "error",
+            text1: "Telefone já cadastrado!",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao validar telefone:", error);
+        Toast.show({
+          type: "error",
+          text1: "Erro ao validar telefone. Tente novamente.",
+        });
+      });
   };
 
   const escolherImagemUsuario = async () => {
@@ -175,6 +191,14 @@ const RegistrarUsuarioNovo = () => {
         setLoading(false);
         return;
       }
+      if (await validarTelefoneCadastrado(telefoneLimpo)) {
+        Toast.show({
+          type: "error",
+          text1: "Telefone já cadastrado!",
+        });
+        setLoading(false);
+        return;
+      }
       // Validação dos pets
       for (const pet of pets) {
         if (!pet.nome || !pet.raca || !pet.idPorte) {
@@ -244,6 +268,17 @@ const RegistrarUsuarioNovo = () => {
       });
     }
   };
+
+  async function validarTelefoneCadastrado(telefone) {
+    if (!telefone || telefone.length < 10) {
+      return false;
+    }
+    var telefoneLimpo = telefone.replace(/\D/g, "");
+
+    const telefoneValidado =
+      await apiRequisicaoUsuario.validarTelefoneCadastrado(telefoneLimpo);
+    return telefoneValidado;
+  }
 
   const camposObrigatoriosPreenchidos =
     nome &&

@@ -67,22 +67,6 @@ const RegistrarUsuarioNovo = () => {
       )}-${numeros.substring(7, 11)}`;
     }
     setTelefoneFormatado(telefoneComMascara);
-    validarTelefoneCadastrado(numeros)
-      .then((isValid) => {
-        if (!isValid) {
-          Toast.show({
-            type: "error",
-            text1: "Telefone já cadastrado!",
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Erro ao validar telefone:", error);
-        Toast.show({
-          type: "error",
-          text1: "Erro ao validar telefone. Tente novamente.",
-        });
-      });
   };
 
   const escolherImagemUsuario = async () => {

@@ -264,6 +264,7 @@ const RegistrarUsuarioNovo = () => {
     }
 
     if (fotoUsuario) {
+      console.log("Enviando foto do usuário...", fotoUsuario.toString());
       const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(
         fotoUsuario,
         novoUsuario
@@ -290,6 +291,7 @@ const RegistrarUsuarioNovo = () => {
       }
 
       if (pet.foto) {
+        console.log("Enviando foto do pet...", pet.foto.toString());
         const respostaAnimal =
           await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
             pet.foto,

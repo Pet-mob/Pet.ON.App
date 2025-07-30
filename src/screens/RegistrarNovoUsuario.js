@@ -264,7 +264,6 @@ const RegistrarUsuarioNovo = () => {
     }
 
     if (fotoUsuario) {
-      console.log("Enviando foto do usuário...", fotoUsuario.toString());
       const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(
         fotoUsuario,
         novoUsuario
@@ -291,7 +290,6 @@ const RegistrarUsuarioNovo = () => {
       }
 
       if (pet.foto) {
-        console.log("Enviando foto do pet...", pet.foto.toString());
         const respostaAnimal =
           await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
             pet.foto,
@@ -569,6 +567,25 @@ const RegistrarUsuarioNovo = () => {
         >
           <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
             + Adicionar outro pet
+          </Text>
+        </TouchableOpacity>
+
+        {/* exibir o objeto por tras da foto para entender */}
+        <TouchableOpacity
+          onPress={() =>
+            console.log("Dados do usuário:", {
+              nome,
+              email,
+              telefone: telefoneLimpo,
+              senha,
+              fotoUsuario,
+              pets,
+            })
+          }
+          style={{ alignItems: "center", marginBottom: 20 }}
+        >
+          <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
+            Ver dados do usuário e pets no console
           </Text>
         </TouchableOpacity>
 

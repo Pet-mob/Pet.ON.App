@@ -32,7 +32,7 @@ const RegistrarUsuarioNovo = () => {
   const [senha, setSenha] = useState("");
   const [fotoUsuario, setFotoUsuario] = useState(null);
   const [uriFotoUsuario, setUriFotoUsuario] = useState("");
-
+  const [jsonString, setJsonString] = useState("");
   // Dados dos pets (array de pets)
   const [pets, setPets] = useState([
     {
@@ -349,6 +349,26 @@ const RegistrarUsuarioNovo = () => {
     return telefoneValidado;
   }
 
+  const mostrarEmString = (
+    nome,
+    email,
+    telefoneLimpo,
+    senha,
+    fotoUsuario,
+    pets
+  ) => {
+    const obj = {
+      nome,
+      email,
+      telefone: telefoneLimpo,
+      senha,
+      fotoUsuario,
+      pets,
+    };
+
+    return JSON.stringify(obj, null, 2); // o "2" formata com identação para leitura
+  };
+
   const camposObrigatoriosPreenchidos =
     nome &&
     validarEmail(email) &&
@@ -570,25 +590,40 @@ const RegistrarUsuarioNovo = () => {
           </Text>
         </TouchableOpacity>
 
-        {/* exibir o objeto por tras da foto para entender */}
         <TouchableOpacity
-          onPress={() =>
-            console.log("Dados do usuário:", {
+          onPress={() => {
+            const json = mostrarEmString(
               nome,
               email,
-              telefone: telefoneLimpo,
+              telefoneLimpo,
               senha,
               fotoUsuario,
-              pets,
-            })
-          }
+              pets
+            );
+            setJsonString(json); // Atualiza o estado
+          }}
           style={{ alignItems: "center", marginBottom: 20 }}
         >
           <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
-            Ver dados do usuário e pets no console
+            Ver dados do usuário e pets
           </Text>
         </TouchableOpacity>
-
+        {/* Campo que exibe o JSON */}
+        <TextInput
+          value={jsonString}
+          multiline
+          editable={false}
+          style={{
+            height: 200,
+            backgroundColor: "#f0f0f0",
+            padding: 10,
+            borderRadius: 6,
+            fontFamily: "monospace",
+            fontSize: 12,
+            color: "#333",
+            textAlignVertical: "top",
+          }}
+        />
         <TouchableOpacity
           onPress={salvar}
           style={[

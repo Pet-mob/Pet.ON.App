@@ -17,7 +17,8 @@ import { colors, spacing, fontSizes, radii } from "../theme/theme1.js";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Toast from "react-native-toast-message";
 import ExpoImageWithPlaceHolder from "../components/ExpoImageWithPlaceholder";
-
+import Clipboard from "@react-native-clipboard/clipboard";
+import { Alert } from "react-native";
 const RegistrarUsuarioNovo = () => {
   const navigation = useNavigation();
   const urlFotoPadrao =
@@ -369,6 +370,13 @@ const RegistrarUsuarioNovo = () => {
     return JSON.stringify(obj, null, 2); // o "2" formata com identação para leitura
   };
 
+  const copiarParaClipboard = () => {
+    Clipboard.setString(jsonString);
+    Alert.alert(
+      "Copiado!",
+      "Os dados foram copiados para a área de transferência."
+    );
+  };
   const camposObrigatoriosPreenchidos =
     nome &&
     validarEmail(email) &&
@@ -590,40 +598,57 @@ const RegistrarUsuarioNovo = () => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => {
-            const json = mostrarEmString(
-              nome,
-              email,
-              telefoneLimpo,
-              senha,
-              fotoUsuario,
-              pets
-            );
-            setJsonString(json); // Atualiza o estado
-          }}
-          style={{ alignItems: "center", marginBottom: 20 }}
-        >
-          <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
-            Ver dados do usuário e pets
-          </Text>
-        </TouchableOpacity>
-        {/* Campo que exibe o JSON */}
-        <TextInput
-          value={jsonString}
-          multiline
-          editable={false}
-          style={{
-            height: 200,
-            backgroundColor: "#f0f0f0",
-            padding: 10,
-            borderRadius: 6,
-            fontFamily: "monospace",
-            fontSize: 12,
-            color: "#333",
-            textAlignVertical: "top",
-          }}
-        />
+        <View style={{ padding: 20 }}>
+          <TouchableOpacity
+            onPress={() => {
+              const json = mostrarEmString(
+                nome,
+                email,
+                telefoneLimpo,
+                senha,
+                fotoUsuario,
+                pets
+              );
+              setJsonString(json);
+            }}
+            style={{ alignItems: "center", marginBottom: 10 }}
+          >
+            <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
+              Ver dados do usuário e pets
+            </Text>
+          </TouchableOpacity>
+
+          <TextInput
+            value={jsonString}
+            multiline
+            editable={false}
+            style={{
+              height: 200,
+              backgroundColor: "#f0f0f0",
+              padding: 10,
+              borderRadius: 6,
+              fontFamily: "monospace",
+              fontSize: 12,
+              color: "#333",
+              textAlignVertical: "top",
+              marginBottom: 10,
+            }}
+          />
+
+          <TouchableOpacity
+            onPress={copiarParaClipboard}
+            style={{
+              alignSelf: "flex-end",
+              backgroundColor: "#4F46E5",
+              paddingVertical: 8,
+              paddingHorizontal: 16,
+              borderRadius: 6,
+            }}
+          >
+            <Text style={{ color: "white", fontWeight: "bold" }}>Copiar</Text>
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity
           onPress={salvar}
           style={[

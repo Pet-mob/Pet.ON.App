@@ -159,100 +159,185 @@ const RegistrarUsuarioNovo = () => {
     return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
   }
 
-  const salvar = async () => {
-    try {
-      setLoading(true);
-      if (!validarEmail(email)) {
-        Toast.show({ type: "error", text1: "Email inválido" });
-        setLoading(false);
-        return;
+  // Função para validar foto do usuário
+  const validarFotoUsuario = (foto) => {
+    if (!foto) return false; // Se não houver foto, retorna falso
+    const tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+    const tiposPermitidos = ["image/jpeg", "image/png", "image/jpg"];
+    if (foto.fileSize > tamanhoMaximo) {
+      Toast.show({
+        type: "error",
+        text1: "Foto muito grande",
+        text2: "O tamanho máximo permitido é 5MB.",
+      });
+      return false;
+    }
+    if (!tiposPermitidos.includes(foto.mimeType)) {
+      Toast.show({
+        type: "error",
+        text1: "Tipo de arquivo inválido",
+        text2: "Apenas imagens JPEG e PNG são permitidas.",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  // Função para validar foto do pet
+  const validarFotoPet = (foto) => {
+    if (!foto) return false; // Se não houver foto, retorna falso
+    const tamanhoMaximo = 5 * 1024 * 1024; //5MB
+    const tiposPermitidos = ["image/jpeg", "image/png", "image/jpg"];
+    if (foto.fileSize > tamanhoMaximo) {
+      Toast.show({
+        type: "error",
+        text1: "Foto do pet muito grande",
+        text2: "O tamanho máximo permitido é 5MB.",
+      });
+      return false;
+    }
+    if (!tiposPermitidos.includes(foto.mimeType)) {
+      Toast.show({
+        type: "error",
+        text1: "Tipo de arquivo inválido",
+        text2: "Apenas imagens JPEG e PNG são permitidas.",
+      });
+      return false;
+    }
+    return true;
+  };
+
+  // Função para mostrar mensagens de erro
+  const mostrarErro = (mensagem) => {
+    Toast.show({ type: "error", text1: mensagem });
+  };
+
+  // Função para validar todos os campos antes de executar a transação
+  const validarTudoAntesDaExecucao = async () => {
+    if (!validarEmail(email)) {
+      mostrarErro("Email inválido");
+      return false;
+    }
+
+    if (!validarSenha(senha)) {
+      mostrarErro("Senha não atende aos critérios de segurança.");
+      return false;
+    }
+
+    if (!validarFotoUsuario(fotoUsuario)) {
+      mostrarErro("Selecione uma foto de usuário válida.");
+      return false;
+    }
+
+    const telefoneExiste = await validarTelefoneCadastrado(telefoneLimpo);
+    if (telefoneExiste) {
+      mostrarErro("Telefone já cadastrado!");
+      return false;
+    }
+
+    for (const pet of pets) {
+      if (!pet.nome || !pet.raca || !pet.idPorte) {
+        mostrarErro("Preencha todos os campos obrigatórios do pet.");
+        return false;
       }
-      if (!validarSenha(senha)) {
-        Toast.show({
-          type: "error",
-          text1: "Senha não atende aos critérios de segurança.",
-        });
-        setLoading(false);
-        return;
+
+      if (!validarFotoPet(pet.foto)) {
+        mostrarErro("Selecione uma foto de pet válida.");
+        return false;
       }
-      if (await validarTelefoneCadastrado(telefoneLimpo)) {
-        Toast.show({
-          type: "error",
-          text1: "Telefone já cadastrado!",
-        });
-        setLoading(false);
-        return;
-      }
-      // Validação dos pets
-      for (const pet of pets) {
-        if (!pet.nome || !pet.raca || !pet.idPorte) {
-          Toast.show({
-            type: "error",
-            text1: "Preencha todos os campos obrigatórios do pet.",
-          });
-          setLoading(false);
-          return;
-        }
-      }
-      const novoUsuario = await apiRequisicaoUsuario.inserirUsuario(
-        nome,
-        telefoneLimpo,
-        senha,
-        email
+    }
+
+    return true;
+  };
+
+  // Função para executar a transação de cadastro
+  const executarTransacao = async () => {
+    const novoUsuario = await apiRequisicaoUsuario.inserirUsuario(
+      nome,
+      telefoneLimpo,
+      senha,
+      email
+    );
+
+    if (!novoUsuario || novoUsuario <= 0) {
+      throw new Error("Erro ao cadastrar usuário.");
+    }
+
+    if (fotoUsuario) {
+      const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(
+        fotoUsuario,
+        novoUsuario
       );
-      if (!novoUsuario || novoUsuario <= 0) {
-        throw new Error("Erro ao cadastrar usuário.");
+
+      if (!respostaUsuario) {
+        throw new Error("Erro ao enviar foto do usuário.");
       }
-      if (fotoUsuario) {
-        const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(
-          fotoUsuario,
-          novoUsuario
-        );
-        if (!respostaUsuario)
-          throw new Error("Erro ao enviar foto do usuário.");
-        setUriFotoUsuario(respostaUsuario);
+
+      setUriFotoUsuario(respostaUsuario);
+    }
+
+    for (const pet of pets) {
+      const novoPet = await apiRequisicaoAnimal.adicionarAnimalNovo(
+        pet.nome,
+        pet.raca,
+        novoUsuario,
+        pet.idPorte,
+        pet.observacoes
+      );
+
+      if (!novoPet || novoPet <= 0) {
+        throw new Error("Erro ao cadastrar o animal.");
       }
-      // Cadastrar todos os pets
-      for (let i = 0; i < pets.length; i++) {
-        const pet = pets[i];
-        const novoPet = await apiRequisicaoAnimal.adicionarAnimalNovo(
-          pet.nome,
-          pet.raca,
-          novoUsuario,
-          pet.idPorte,
-          pet.observacoes
-        );
-        if (!novoPet || novoPet <= 0) {
-          throw new Error("Erro ao cadastrar o animal.");
-        }
-        if (pet.foto) {
-          const respostaAnimal =
-            await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
-              pet.foto,
-              novoUsuario,
-              novoPet
-            );
-          if (!respostaAnimal)
-            throw new Error("Erro ao enviar foto do animal.");
+
+      if (pet.foto) {
+        const respostaAnimal =
+          await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
+            pet.foto,
+            novoUsuario,
+            novoPet
+          );
+
+        if (!respostaAnimal) {
+          throw new Error("Erro ao enviar foto do animal.");
         }
       }
+    }
+
+    return true;
+  };
+
+  // Função para salvar os dados do usuário e pets
+  const salvar = async () => {
+    setLoading(true);
+    try {
+      const validado = await validarTudoAntesDaExecucao();
+
+      if (!validado) {
+        setLoading(false);
+        return;
+      }
+
+      await executarTransacao();
+
       Toast.show({
         type: "success",
         text1: "Cadastro realizado!",
         text2: "Seja bem-vindo à plataforma PetMob!",
       });
-      setLoading(false);
+
       navigation.navigate("Login");
     } catch (error) {
-      setLoading(false);
       Toast.show({
         type: "error",
         text1: "Erro ao cadastrar",
-        text2: "Tente novamente ou verifique sua conexão.",
+        text2: error.message || "Tente novamente ou verifique sua conexão.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Função para validar telefone cadastrado
   async function validarTelefoneCadastrado(telefone) {
     if (!telefone || telefone.length < 10) {
       return false;

@@ -65,17 +65,16 @@ const buscarFotoUsuario = async (idUsuarioParam) => {
 const enviarFotoUsuario = async (imagem, idUsuario) => {
   const formData = new FormData();
 
-  if (Platform.OS === "web") {
-    // `imagem` aqui é um File (do input file)
-    formData.append("arquivo", imagem);
-  } else {
-    // `imagem` aqui é um objeto com uri, type, name
-    formData.append("arquivo", {
-      uri: imagem.uri,
-      name: imagem.name || "fotoAnimal.jpg",
-      type: imagem.type || "image/jpeg",
-    });
-  }
+  // Garante nome e tipo para Android/iOS
+  const nomeArquivo =
+    imagem.fileName || imagem.name || `foto_${Date.now()}.jpg`;
+  const tipoArquivo = imagem.mimeType || imagem.type || "image/jpeg";
+
+  formData.append("arquivo", {
+    uri: imagem.uri,
+    name: nomeArquivo,
+    type: tipoArquivo,
+  });
 
   formData.append("idUsuario", idUsuario);
 

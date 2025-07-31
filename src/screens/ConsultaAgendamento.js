@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { Ionicons } from "@expo/vector-icons";
 import apiRequisicaoAgendamento from "../Service/apiRequisicaoAgendamento.js";
 import { getUsuarioStore } from "../store/store";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ConsultaAgendamento = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -43,15 +44,17 @@ const ConsultaAgendamento = ({ navigation }) => {
     return horarioParametro.slice(0, 5);
   };
 
-  useEffect(() => {
-    const carregarDados = async () => {
-      setLoading(true);
-      await buscarAgendamentosPorUsuario(idUsuario);
-      setLoading(false);
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const carregarDados = async () => {
+        setLoading(true);
+        await buscarAgendamentosPorUsuario(idUsuario);
+        setLoading(false);
+      };
 
-    carregarDados();
-  }, []);
+      carregarDados();
+    }, [idUsuario])
+  );
 
   // Replicar último agendamento
   const replicarUltimoAgendamento = () => {

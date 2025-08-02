@@ -349,26 +349,6 @@ const RegistrarUsuarioNovo = () => {
     return telefoneValidado;
   }
 
-  const mostrarEmString = (
-    nome,
-    email,
-    telefoneLimpo,
-    senha,
-    fotoUsuario,
-    pets
-  ) => {
-    const obj = {
-      nome,
-      email,
-      telefone: telefoneLimpo,
-      senha,
-      fotoUsuario,
-      pets,
-    };
-
-    return JSON.stringify(obj, null, 2); // o "2" formata com identação para leitura
-  };
-
   const camposObrigatoriosPreenchidos =
     nome &&
     validarEmail(email) &&
@@ -589,38 +569,6 @@ const RegistrarUsuarioNovo = () => {
             + Adicionar outro pet
           </Text>
         </TouchableOpacity>
-
-        <View style={{ padding: 20 }}>
-          <TouchableOpacity
-            onPress={mostrarEmString}
-            style={{ alignItems: "center", marginBottom: 10 }}
-          >
-            <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
-              Ver dados do usuário e pets
-            </Text>
-          </TouchableOpacity>
-
-          {/* Campo de texto copiável manualmente */}
-          <TextInput
-            value={jsonString}
-            multiline
-            editable={false}
-            selectTextOnFocus={true}
-            style={{
-              height: 200,
-              backgroundColor: "#f0f0f0",
-              padding: 10,
-              borderRadius: 6,
-              fontFamily: "monospace",
-              fontSize: 12,
-              color: "#333",
-              textAlignVertical: "top",
-            }}
-          />
-          <Text style={{ fontSize: 12, marginTop: 5, color: "#666" }}>
-            Toque e segure para copiar o conteúdo
-          </Text>
-        </View>
 
         <TouchableOpacity
           onPress={salvar}

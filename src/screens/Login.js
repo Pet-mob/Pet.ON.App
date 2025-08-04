@@ -15,6 +15,7 @@ import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
 import Toast from "react-native-toast-message";
 import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
 import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
+import { Ionicons } from "@expo/vector-icons";
 
 const TelaLogin = () => {
   const navigation = useNavigation();
@@ -22,6 +23,7 @@ const TelaLogin = () => {
   const [telefoneLimpo, setTelefoneLimpo] = useState("");
   const [Senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const placeholderImg = require("../../assets/placeholder.png");
 
@@ -117,14 +119,26 @@ const TelaLogin = () => {
             keyboardType="phone-pad"
             placeholderTextColor="#aaa"
           />
-          <TextInput
-            style={[estilos.input, { color: "#333" }]} // Adicione color aqui
-            placeholder="Digite sua senha"
-            value={Senha}
-            onChangeText={setSenha}
-            secureTextEntry
-            placeholderTextColor="#aaa"
-          />
+          <View style={estilos.passwordContainer}>
+            <TextInput
+              style={[estilos.passwordInput, { color: "#333" }]}
+              placeholder="Digite sua senha"
+              value={Senha}
+              onChangeText={setSenha}
+              secureTextEntry={!showPassword}
+              placeholderTextColor="#aaa"
+            />
+            <TouchableOpacity
+              style={estilos.eyeIcon}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <Ionicons
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={[estilos.botao, loading && { backgroundColor: "#aaa" }]}
@@ -197,6 +211,26 @@ const estilos = StyleSheet.create({
     elevation: 2, // Para Android
     // boxShadow substitui shadowColor, shadowOpacity, shadowOffset, shadowRadius
     boxShadow: "0px 2px 5px rgba(0,0,0,0.1)",
+  },
+  passwordContainer: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: "#F9F9F9",
+    marginBottom: 15,
+    elevation: 2,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+    paddingHorizontal: 15,
+    fontSize: 16,
+  },
+  eyeIcon: {
+    padding: 10,
   },
   botao: {
     width: "100%",

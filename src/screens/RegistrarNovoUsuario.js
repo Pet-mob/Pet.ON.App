@@ -22,6 +22,7 @@ const RegistrarUsuarioNovo = () => {
   const urlFotoPadrao =
     "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D";
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Dados do usuário
   const [nome, setNome] = useState("");
@@ -431,15 +432,27 @@ const RegistrarUsuarioNovo = () => {
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Senha</Text>
-              <TextInput
-                placeholder="Crie uma senha"
-                value={senha}
-                onChangeText={setSenha}
-                style={[styles.input, { color: "#333" }]} // Adicione color aqui
-                secureTextEntry
-                maxLength={20}
-                editable={!loading}
-              />
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  placeholder="Crie uma senha"
+                  value={senha}
+                  onChangeText={setSenha}
+                  style={[styles.passwordInput, { color: "#333" }]}
+                  secureTextEntry={!showPassword}
+                  maxLength={20}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
               <View style={styles.passwordRulesBox}>
                 <Text style={styles.passwordRulesTitle}>
                   Sua senha deve conter:
@@ -732,6 +745,24 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 13,
     marginLeft: 2,
+  },
+  passwordInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    marginBottom: 5,
+  },
+  passwordInput: {
+    flex: 1,
+    fontSize: 16,
+    paddingHorizontal: 15,
+    height: 50,
+  },
+  eyeIcon: {
+    padding: 10,
   },
 });
 

@@ -17,6 +17,9 @@ const Privacidade = () => {
   const [senhaAtual, setSenhaAtual] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigation = useNavigation();
   const usuarioStore = getUsuarioStore();
   const idUsuario = usuarioStore.id;
@@ -94,26 +97,50 @@ const Privacidade = () => {
       >
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Senha Atual:</Text>
-          <TextInput
-            style={[styles.input, { color: "#333" }]} // Adicione color aqui
-            value={senhaAtual}
-            onChangeText={setSenhaAtual}
-            placeholder="Digite sua senha atual"
-            secureTextEntry
-            placeholderTextColor="#999"
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              value={senhaAtual}
+              onChangeText={setSenhaAtual}
+              placeholder="Digite sua senha atual"
+              secureTextEntry={!showCurrentPassword}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+            >
+              <Ionicons
+                name={showCurrentPassword ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nova Senha:</Text>
-          <TextInput
-            style={[styles.input, { color: "#333" }]} // Adicione color aqui
-            value={novaSenha}
-            onChangeText={setNovaSenha}
-            placeholder="Digite a nova senha"
-            secureTextEntry
-            placeholderTextColor="#999"
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              value={novaSenha}
+              onChangeText={setNovaSenha}
+              placeholder="Digite a nova senha"
+              secureTextEntry={!showNewPassword}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setShowNewPassword(!showNewPassword)}
+            >
+              <Ionicons
+                name={showNewPassword ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
           <View style={styles.passwordRulesBox}>
             <Text style={styles.passwordRulesTitle}>
               Sua senha deve conter:
@@ -130,14 +157,26 @@ const Privacidade = () => {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Confirmar Nova Senha:</Text>
-          <TextInput
-            style={[styles.input, { color: "#333" }]} // Adicione color aqui
-            value={confirmarSenha}
-            onChangeText={setConfirmarSenha}
-            placeholder="Confirme a nova senha"
-            secureTextEntry
-            placeholderTextColor="#999"
-          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              value={confirmarSenha}
+              onChangeText={setConfirmarSenha}
+              placeholder="Confirme a nova senha"
+              secureTextEntry={!showConfirmPassword}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity
+              style={styles.eyeIcon}
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              <Ionicons
+                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                size={24}
+                color="#666"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.botaoSalvar} onPress={alterarSenha}>
@@ -192,6 +231,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     fontSize: 16,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 16,
+    color: "#333",
+  },
+  eyeIcon: {
+    padding: 10,
   },
   passwordRulesBox: {
     backgroundColor: "#f0f0f0",

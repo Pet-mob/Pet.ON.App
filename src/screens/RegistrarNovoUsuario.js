@@ -149,16 +149,6 @@ const RegistrarUsuarioNovo = () => {
     return re.test(email);
   };
 
-  // Função para validar critérios da senha
-  function validarSenha(senha) {
-    const minLength = senha.length >= 8;
-    const hasUpper = /[A-Z]/.test(senha);
-    const hasLower = /[a-z]/.test(senha);
-    const hasNumber = /[0-9]/.test(senha);
-    const hasSpecial = /[^A-Za-z0-9]/.test(senha);
-    return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
-  }
-
   // Função para validar foto do usuário
   const validarFotoUsuario = (foto) => {
     if (!foto) return false; // Se não houver foto, retorna falso
@@ -216,11 +206,6 @@ const RegistrarUsuarioNovo = () => {
   const validarTudoAntesDaExecucao = async () => {
     if (!validarEmail(email)) {
       mostrarErro("Email inválido");
-      return false;
-    }
-
-    if (!validarSenha(senha)) {
-      mostrarErro("Senha não atende aos critérios de segurança.");
       return false;
     }
 
@@ -353,7 +338,6 @@ const RegistrarUsuarioNovo = () => {
     nome &&
     validarEmail(email) &&
     telefoneLimpo.length >= 10 &&
-    validarSenha(senha) &&
     pets.every((pet) => pet.nome && pet.raca && pet.idPorte);
 
   return (
@@ -455,7 +439,8 @@ const RegistrarUsuarioNovo = () => {
               </View>
               <View style={styles.passwordRulesBox}>
                 <Text style={styles.passwordRulesTitle}>
-                  Sua senha deve conter:
+                  Para garantir a segurança da sua conta, sugerimos que a sua
+                  nova senha deve atender aos seguintes critérios:
                 </Text>
                 <Text style={styles.passwordRules}>
                   • Pelo menos 8 caracteres

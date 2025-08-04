@@ -24,30 +24,11 @@ const Privacidade = () => {
   const usuarioStore = getUsuarioStore();
   const idUsuario = usuarioStore.id;
 
-  // Função para validar critérios da senha
-  function validarSenha(senha) {
-    const minLength = senha.length >= 8;
-    const hasUpper = /[A-Z]/.test(senha);
-    const hasLower = /[a-z]/.test(senha);
-    const hasNumber = /[0-9]/.test(senha);
-    const hasSpecial = /[^A-Za-z0-9]/.test(senha);
-    return minLength && hasUpper && hasLower && hasNumber && hasSpecial;
-  }
-
   const alterarSenha = async () => {
     if (!senhaAtual || !novaSenha || !confirmarSenha) {
       Toast.show({
         type: "info",
         text1: "Por favor, preencha todos os campos.",
-      });
-      return;
-    }
-
-    if (!validarSenha(novaSenha)) {
-      Toast.show({
-        type: "info",
-        text1:
-          "A nova senha deve ter pelo menos 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.",
       });
       return;
     }
@@ -143,7 +124,8 @@ const Privacidade = () => {
           </View>
           <View style={styles.passwordRulesBox}>
             <Text style={styles.passwordRulesTitle}>
-              Sua senha deve conter:
+              Para garantir a segurança da sua conta, sugerimos que a sua nova
+              senha deve atender aos seguintes critérios:
             </Text>
             <Text style={styles.passwordRules}>• Pelo menos 8 caracteres</Text>
             <Text style={styles.passwordRules}>• 1 letra maiúscula (A-Z)</Text>

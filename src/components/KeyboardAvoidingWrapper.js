@@ -9,14 +9,16 @@ import {
 const KeyboardAvoidingWrapper = ({ children }) => {
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
       >
         {children}
       </ScrollView>
@@ -27,10 +29,15 @@ const KeyboardAvoidingWrapper = ({ children }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: "transparent",
   },
   scrollContent: {
     flexGrow: 1,
+    paddingBottom: Platform.OS === "ios" ? 20 : 30,
   },
 });
 

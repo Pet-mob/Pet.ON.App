@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -14,7 +13,6 @@ import apiRequisicaoAnimal from "../Service/apiRequisicaoAnimal.js";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
 import { useNavigation } from "@react-navigation/native";
 import { colors, spacing, fontSizes, radii } from "../theme/theme1.js";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Toast from "react-native-toast-message";
 import ExpoImageWithPlaceHolder from "../components/ExpoImageWithPlaceholder";
 import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
@@ -359,7 +357,7 @@ const RegistrarUsuarioNovo = () => {
 
   return (
     <KeyboardAvoidingWrapper>
-      <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+      <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}
@@ -369,11 +367,8 @@ const RegistrarUsuarioNovo = () => {
           </TouchableOpacity>
           <Text style={styles.title}>Criar conta</Text>
         </View>
-        <KeyboardAwareScrollView
-          style={styles.bodyContainer}
-          contentContainerStyle={{ paddingBottom: 30 }}
-          enableOnAndroid
-        >
+        
+        <View style={styles.bodyContainer}>
           <Text style={styles.sectionTitle}>Seus dados</Text>
           <View style={styles.section}>
             <TouchableOpacity
@@ -590,8 +585,8 @@ const RegistrarUsuarioNovo = () => {
               <Text style={styles.botaoTexto}>Registrar</Text>
             )}
           </TouchableOpacity>
-        </KeyboardAwareScrollView>
-      </ScrollView>
+        </View>
+      </View>
     </KeyboardAvoidingWrapper>
   );
 };

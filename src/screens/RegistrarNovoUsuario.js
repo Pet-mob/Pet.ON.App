@@ -367,7 +367,7 @@ const RegistrarUsuarioNovo = () => {
           </TouchableOpacity>
           <Text style={styles.title}>Criar conta</Text>
         </View>
-        
+
         <View style={styles.bodyContainer}>
           <Text style={styles.sectionTitle}>Seus dados</Text>
           <View style={styles.section}>
@@ -386,6 +386,7 @@ const RegistrarUsuarioNovo = () => {
                 {fotoUsuario ? "Foto selecionada" : "Adicionar foto"}
               </Text>
             </TouchableOpacity>
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Nome completo</Text>
               <TextInput
@@ -398,6 +399,7 @@ const RegistrarUsuarioNovo = () => {
                 returnKeyType="next"
               />
             </View>
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -410,6 +412,7 @@ const RegistrarUsuarioNovo = () => {
                 editable={!loading}
               />
             </View>
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Telefone</Text>
               <TextInput
@@ -425,6 +428,7 @@ const RegistrarUsuarioNovo = () => {
                 Usaremos para contato e login
               </Text>
             </View>
+
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Senha</Text>
               <TextInput
@@ -469,6 +473,7 @@ const RegistrarUsuarioNovo = () => {
                   {pet.foto ? "Foto selecionada" : "Adicionar foto"}
                 </Text>
               </TouchableOpacity>
+
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Nome do pet</Text>
                 <TextInput
@@ -482,6 +487,7 @@ const RegistrarUsuarioNovo = () => {
                   editable={!loading}
                 />
               </View>
+
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Raça</Text>
                 <TextInput
@@ -535,6 +541,7 @@ const RegistrarUsuarioNovo = () => {
                   ))}
                 </View>
               </View>
+
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Observações</Text>
                 <TextInput
@@ -545,9 +552,9 @@ const RegistrarUsuarioNovo = () => {
                   }
                   style={styles.input}
                   editable={!loading}
-                  multiline
                 />
               </View>
+
               {pets.length > 1 && (
                 <TouchableOpacity
                   onPress={() => removerPet(index)}

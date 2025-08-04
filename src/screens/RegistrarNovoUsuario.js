@@ -17,6 +17,7 @@ import { colors, spacing, fontSizes, radii } from "../theme/theme1.js";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Toast from "react-native-toast-message";
 import ExpoImageWithPlaceHolder from "../components/ExpoImageWithPlaceholder";
+import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
 
 const RegistrarUsuarioNovo = () => {
   const navigation = useNavigation();
@@ -357,237 +358,241 @@ const RegistrarUsuarioNovo = () => {
     pets.every((pet) => pet.nome && pet.raca && pet.idPorte);
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="chevron-back-outline" size={28} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Criar conta</Text>
-      </View>
-      <KeyboardAwareScrollView
-        style={styles.bodyContainer}
-        contentContainerStyle={{ paddingBottom: 30 }}
-        enableOnAndroid
-      >
-        <Text style={styles.sectionTitle}>Seus dados</Text>
-        <View style={styles.section}>
+    <KeyboardAvoidingWrapper>
+      <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+        <View style={styles.header}>
           <TouchableOpacity
-            style={styles.fotoContainer}
-            onPress={escolherImagemUsuario}
-            disabled={loading}
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
           >
-            <ExpoImageWithPlaceHolder
-              source={
-                fotoUsuario ? { uri: uriFotoUsuario } : { uri: urlFotoPadrao }
-              }
-              style={styles.foto}
-            />
-            <Text style={styles.textoFoto}>
-              {fotoUsuario ? "Foto selecionada" : "Adicionar foto"}
-            </Text>
+            <Ionicons name="chevron-back-outline" size={28} color="#FFFFFF" />
           </TouchableOpacity>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nome completo</Text>
-            <TextInput
-              placeholder="Digite seu nome"
-              value={nome}
-              onChangeText={setNome}
-              style={styles.input}
-              autoCapitalize="words"
-              editable={!loading}
-              returnKeyType="next"
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              placeholder="Digite seu email"
-              value={email}
-              onChangeText={setEmail}
-              style={styles.input}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              editable={!loading}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Telefone</Text>
-            <TextInput
-              placeholder="(99) 99999-9999"
-              value={telefoneFormatado}
-              onChangeText={formatarTelefone}
-              style={styles.input}
-              keyboardType="phone-pad"
-              maxLength={15}
-              editable={!loading}
-            />
-            <Text style={styles.inputHint}>Usaremos para contato e login</Text>
-          </View>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Senha</Text>
-            <TextInput
-              placeholder="Crie uma senha"
-              value={senha}
-              onChangeText={setSenha}
-              style={[styles.input, { color: "#333" }]} // Adicione color aqui
-              secureTextEntry
-              maxLength={20}
-              editable={!loading}
-            />
-            <View style={styles.passwordRulesBox}>
-              <Text style={styles.passwordRulesTitle}>
-                Sua senha deve conter:
-              </Text>
-              <Text style={styles.passwordRules}>
-                • Pelo menos 8 caracteres
-              </Text>
-              <Text style={styles.passwordRules}>• 1 letra maiúscula</Text>
-              <Text style={styles.passwordRules}>• 1 letra minúscula</Text>
-              <Text style={styles.passwordRules}>• 1 número</Text>
-              <Text style={styles.passwordRules}>• 1 caractere especial</Text>
-            </View>
-          </View>
+          <Text style={styles.title}>Criar conta</Text>
         </View>
-
-        <Text style={styles.sectionTitle}>Dados do(s) seu(s) pet(s)</Text>
-        {pets.map((pet, index) => (
-          <View key={index} style={styles.section}>
+        <KeyboardAwareScrollView
+          style={styles.bodyContainer}
+          contentContainerStyle={{ paddingBottom: 30 }}
+          enableOnAndroid
+        >
+          <Text style={styles.sectionTitle}>Seus dados</Text>
+          <View style={styles.section}>
             <TouchableOpacity
               style={styles.fotoContainer}
-              onPress={() => escolherImagemPet(index)}
+              onPress={escolherImagemUsuario}
               disabled={loading}
             >
               <ExpoImageWithPlaceHolder
                 source={
-                  pet.foto ? { uri: pet.uriFoto } : { uri: urlFotoPadrao }
+                  fotoUsuario ? { uri: uriFotoUsuario } : { uri: urlFotoPadrao }
                 }
                 style={styles.foto}
               />
               <Text style={styles.textoFoto}>
-                {pet.foto ? "Foto selecionada" : "Adicionar foto"}
+                {fotoUsuario ? "Foto selecionada" : "Adicionar foto"}
               </Text>
             </TouchableOpacity>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Nome do pet</Text>
+              <Text style={styles.label}>Nome completo</Text>
               <TextInput
-                placeholder="Ex: Thor"
-                value={pet.nome}
-                onChangeText={(valor) =>
-                  atualizarCampoPet(index, "nome", valor)
-                }
+                placeholder="Digite seu nome"
+                value={nome}
+                onChangeText={setNome}
                 style={styles.input}
                 autoCapitalize="words"
+                editable={!loading}
+                returnKeyType="next"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                placeholder="Digite seu email"
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
                 editable={!loading}
               />
             </View>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Raça</Text>
+              <Text style={styles.label}>Telefone</Text>
               <TextInput
-                placeholder="Ex: Golden Retriever"
-                value={pet.raca}
-                onChangeText={(valor) =>
-                  atualizarCampoPet(index, "raca", valor)
-                }
+                placeholder="(99) 99999-9999"
+                value={telefoneFormatado}
+                onChangeText={formatarTelefone}
                 style={styles.input}
-                autoCapitalize="words"
+                keyboardType="phone-pad"
+                maxLength={15}
                 editable={!loading}
               />
+              <Text style={styles.inputHint}>
+                Usaremos para contato e login
+              </Text>
             </View>
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Porte</Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                {[
-                  { label: "Pequeno", value: 1 },
-                  { label: "Médio", value: 2 },
-                  { label: "Grande", value: 3 },
-                ].map((opcao) => (
-                  <TouchableOpacity
-                    key={opcao.value}
-                    style={[
-                      styles.porteButton,
-                      pet.idPorte === opcao.value
-                        ? styles.porteButtonSelected
-                        : null,
-                    ]}
-                    onPress={() =>
-                      atualizarCampoPet(index, "idPorte", opcao.value)
-                    }
-                    disabled={loading}
-                  >
-                    <Text
-                      style={[
-                        styles.porteButtonText,
-                        pet.idPorte === opcao.value
-                          ? styles.porteButtonTextSelected
-                          : null,
-                      ]}
-                    >
-                      {opcao.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+              <Text style={styles.label}>Senha</Text>
+              <TextInput
+                placeholder="Crie uma senha"
+                value={senha}
+                onChangeText={setSenha}
+                style={[styles.input, { color: "#333" }]} // Adicione color aqui
+                secureTextEntry
+                maxLength={20}
+                editable={!loading}
+              />
+              <View style={styles.passwordRulesBox}>
+                <Text style={styles.passwordRulesTitle}>
+                  Sua senha deve conter:
+                </Text>
+                <Text style={styles.passwordRules}>
+                  • Pelo menos 8 caracteres
+                </Text>
+                <Text style={styles.passwordRules}>• 1 letra maiúscula</Text>
+                <Text style={styles.passwordRules}>• 1 letra minúscula</Text>
+                <Text style={styles.passwordRules}>• 1 número</Text>
+                <Text style={styles.passwordRules}>• 1 caractere especial</Text>
               </View>
             </View>
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Observações</Text>
-              <TextInput
-                placeholder="Observações sobre o pet (opcional)"
-                value={pet.observacoes}
-                onChangeText={(valor) =>
-                  atualizarCampoPet(index, "observacoes", valor)
-                }
-                style={styles.input}
-                editable={!loading}
-                multiline
-              />
-            </View>
-            {pets.length > 1 && (
-              <TouchableOpacity
-                onPress={() => removerPet(index)}
-                disabled={loading}
-                style={{ alignSelf: "flex-end", marginBottom: 10 }}
-              >
-                <Text style={{ color: "red" }}>Remover pet</Text>
-              </TouchableOpacity>
-            )}
           </View>
-        ))}
-        <TouchableOpacity
-          onPress={adicionarPet}
-          disabled={loading}
-          style={{ alignItems: "center", marginBottom: 10 }}
-        >
-          <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
-            + Adicionar outro pet
-          </Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={salvar}
-          style={[
-            styles.botao,
-            !camposObrigatoriosPreenchidos || loading
-              ? { backgroundColor: "#bdbdbd" }
-              : {},
-          ]}
-          disabled={!camposObrigatoriosPreenchidos || loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <Text style={styles.botaoTexto}>Registrar</Text>
-          )}
-        </TouchableOpacity>
-      </KeyboardAwareScrollView>
-    </ScrollView>
+          <Text style={styles.sectionTitle}>Dados do(s) seu(s) pet(s)</Text>
+          {pets.map((pet, index) => (
+            <View key={index} style={styles.section}>
+              <TouchableOpacity
+                style={styles.fotoContainer}
+                onPress={() => escolherImagemPet(index)}
+                disabled={loading}
+              >
+                <ExpoImageWithPlaceHolder
+                  source={
+                    pet.foto ? { uri: pet.uriFoto } : { uri: urlFotoPadrao }
+                  }
+                  style={styles.foto}
+                />
+                <Text style={styles.textoFoto}>
+                  {pet.foto ? "Foto selecionada" : "Adicionar foto"}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Nome do pet</Text>
+                <TextInput
+                  placeholder="Ex: Thor"
+                  value={pet.nome}
+                  onChangeText={(valor) =>
+                    atualizarCampoPet(index, "nome", valor)
+                  }
+                  style={styles.input}
+                  autoCapitalize="words"
+                  editable={!loading}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Raça</Text>
+                <TextInput
+                  placeholder="Ex: Golden Retriever"
+                  value={pet.raca}
+                  onChangeText={(valor) =>
+                    atualizarCampoPet(index, "raca", valor)
+                  }
+                  style={styles.input}
+                  autoCapitalize="words"
+                  editable={!loading}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Porte</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {[
+                    { label: "Pequeno", value: 1 },
+                    { label: "Médio", value: 2 },
+                    { label: "Grande", value: 3 },
+                  ].map((opcao) => (
+                    <TouchableOpacity
+                      key={opcao.value}
+                      style={[
+                        styles.porteButton,
+                        pet.idPorte === opcao.value
+                          ? styles.porteButtonSelected
+                          : null,
+                      ]}
+                      onPress={() =>
+                        atualizarCampoPet(index, "idPorte", opcao.value)
+                      }
+                      disabled={loading}
+                    >
+                      <Text
+                        style={[
+                          styles.porteButtonText,
+                          pet.idPorte === opcao.value
+                            ? styles.porteButtonTextSelected
+                            : null,
+                        ]}
+                      >
+                        {opcao.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Observações</Text>
+                <TextInput
+                  placeholder="Observações sobre o pet (opcional)"
+                  value={pet.observacoes}
+                  onChangeText={(valor) =>
+                    atualizarCampoPet(index, "observacoes", valor)
+                  }
+                  style={styles.input}
+                  editable={!loading}
+                  multiline
+                />
+              </View>
+              {pets.length > 1 && (
+                <TouchableOpacity
+                  onPress={() => removerPet(index)}
+                  disabled={loading}
+                  style={{ alignSelf: "flex-end", marginBottom: 10 }}
+                >
+                  <Text style={{ color: "red" }}>Remover pet</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+          <TouchableOpacity
+            onPress={adicionarPet}
+            disabled={loading}
+            style={{ alignItems: "center", marginBottom: 10 }}
+          >
+            <Text style={{ color: "#4F46E5", fontWeight: "bold" }}>
+              + Adicionar outro pet
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={salvar}
+            style={[
+              styles.botao,
+              !camposObrigatoriosPreenchidos || loading
+                ? { backgroundColor: "#bdbdbd" }
+                : {},
+            ]}
+            disabled={!camposObrigatoriosPreenchidos || loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFF" />
+            ) : (
+              <Text style={styles.botaoTexto}>Registrar</Text>
+            )}
+          </TouchableOpacity>
+        </KeyboardAwareScrollView>
+      </ScrollView>
+    </KeyboardAvoidingWrapper>
   );
 };
 

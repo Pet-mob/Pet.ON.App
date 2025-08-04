@@ -7,8 +7,6 @@ import {
   StyleSheet,
   Keyboard,
   Pressable,
-  KeyboardAvoidingView,
-  Platform,
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -16,6 +14,7 @@ import { setUsuarioStore } from "../store/store";
 import apiRequisicaoUsuario from "../Service/apiRequisicaoUsuario.js";
 import Toast from "react-native-toast-message";
 import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
+import KeyboardAvoidingWrapper from "../components/KeyboardAvoidingWrapper";
 
 const TelaLogin = () => {
   const navigation = useNavigation();
@@ -98,10 +97,7 @@ const TelaLogin = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={estilos.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
+    <KeyboardAvoidingWrapper>
       <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <View style={estilos.containerInterno}>
           <View style={estilos.containerLogo}>
@@ -155,7 +151,7 @@ const TelaLogin = () => {
           </View>
         </View>
       </Pressable>
-    </KeyboardAvoidingView>
+    </KeyboardAvoidingWrapper>
   );
 };
 

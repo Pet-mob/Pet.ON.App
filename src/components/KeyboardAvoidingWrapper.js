@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: Platform.OS === "ios" ? 20 : 30,
   },
 });
 

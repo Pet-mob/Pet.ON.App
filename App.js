@@ -2,16 +2,8 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import Routes from "./src/routes/routes";
 import Toast from "react-native-toast-message";
+import { notificacaoToastCustomizado } from "./src/components/notificacaoToastCustomizado";
 import { LocaleConfig } from "react-native-calendars";
-import * as Notifications from "expo-notifications";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
 
 export default function App() {
   LocaleConfig.locales["pt-br"] = {

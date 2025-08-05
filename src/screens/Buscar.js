@@ -130,7 +130,7 @@ const Buscar = ({ navigation, route }) => {
       </View>
 
       {/* Filtros rápidos */}
-      <View style={styles.filtrosContainer}>
+      {/* <View style={styles.filtrosContainer}>
         <TouchableOpacity
           onPress={() => setModalOrdenacaoVisible(true)}
           style={styles.filtroBotao}
@@ -143,7 +143,7 @@ const Buscar = ({ navigation, route }) => {
         <TouchableOpacity style={styles.filtroBotao}>
           <Text>Aberto agora</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       {/* Modal de ordenação */}
       <Modal visible={modalOrdenacaoVisible} animationType="slide" transparent>

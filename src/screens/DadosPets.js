@@ -400,11 +400,10 @@ const DadosPets = () => {
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Observações</Text>
             <TextInput
-              style={[styles.input, { height: 80 }]}
+              style={[styles.input]}
               value={observacoes}
               onChangeText={setObservacoes}
               placeholder="Informações adicionais"
-              multiline
             />
           </View>
 

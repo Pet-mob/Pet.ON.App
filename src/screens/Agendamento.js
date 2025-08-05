@@ -23,7 +23,7 @@ import { Image as ExpoImage } from "expo-image";
 import { getEmpresaStore } from "../store/store";
 import Toast from "react-native-toast-message";
 import apiRequisicaoParametro from "../Service/apiRequisicaoParametro";
-
+import { servicoNotificacao } from "../Service/servicoNotificacao";
 const placeholderImg = require("../../assets/placeholder.png");
 
 const Agendamento = ({ navigation, route }) => {
@@ -278,64 +278,131 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const confirmarAgendamento = async () => {
+    // Previne múltiplos cliques
     if (confirmando) return;
-    if (
-      !petSelecionado ||
-      !servicoSelecionado ||
-      horariosSelecionados.length === 0 ||
-      Object.keys(datasSelecionadas).length === 0
-    ) {
+
+    // Validação inicial dos campos obrigatórios
+    const camposInvalidos = validarCamposObrigatorios();
+    if (camposInvalidos) {
       Toast.show({
         type: "warning",
-        text1: "Preencha todos os campos antes de confirmar o agendamento.",
+        text1: "Campos obrigatórios",
+        text2: camposInvalidos,
+        position: "top",
+        visibilityTime: 3000,
       });
       return;
     }
 
     setConfirmando(true);
+
     try {
+      // Busca informações do serviço e pet
       const servico = servicos.find((s) => s.idServico === servicoSelecionado);
-      const duracao = servico?.duracao || 120;
+      const pet = pets.find((p) => p.idAnimal === petSelecionado);
 
-      const agendamentos = Object.keys(datasSelecionadas).flatMap((data) => {
-        return horariosSelecionados.map((horario) => {
-          const [h, m] = horario.split(":");
-          const inicio = new Date(`${data}T${h}:${m}:00`);
-          const fim = new Date(inicio);
-          fim.setMinutes(fim.getMinutes() + duracao);
-
-          return {
-            idServico: servicoSelecionado,
-            idAnimal: petSelecionado,
-            idUsuario,
-            idEmpresa: idEmpresaPetShop,
-            pacoteMensal: ehPacoteMensal,
-            listaDatasAgendamento: [inicio.toISOString()],
-            horario: `${horario}:00`,
-            horarioFinal: `${fim.getHours().toString().padStart(2, "0")}:${fim
-              .getMinutes()
-              .toString()
-              .padStart(2, "0")}:00`,
-            status: "Agendado",
-          };
-        });
-      });
-
-      for (const dto of agendamentos) {
-        await apiRequisicaoAgendamento.adicionarAgendamentoNaApi(dto);
+      if (!servico || !pet) {
+        throw new Error("Serviço ou pet não encontrado");
       }
 
-      Toast.show({
-        type: "success",
-        text1: "Agendamento realizado com sucesso!",
-        text2: "Confira os detalhes no seu agendamentos.",
-      });
-      navigation.goBack();
-    } catch {
-      Toast.show({ type: "error", text1: "Erro ao confirmar agendamento." });
+      const duracao = servico.duracao || 120;
+      const agendamentos = gerarAgendamentos(servico, pet, duracao);
+
+      // Salva cada agendamento e agenda notificações
+      for (const dto of agendamentos) {
+        await salvarAgendamentoENotificar(dto, pet, servico);
+      }
+
+      // Feedback de sucesso
+      exibirMensagemSucesso();
+
+      // Navega de volta após sucesso
+      setTimeout(() => {
+        navigation.goBack();
+      }, 1500);
+    } catch (error) {
+      exibirMensagemErro(error);
     } finally {
       setConfirmando(false);
     }
+  };
+
+  // Funções auxiliares
+  const validarCamposObrigatorios = () => {
+    if (!petSelecionado) return "Selecione um pet";
+    if (!servicoSelecionado) return "Selecione um serviço";
+    if (horariosSelecionados.length === 0) return "Selecione um horário";
+    if (Object.keys(datasSelecionadas).length === 0)
+      return "Selecione uma data";
+    return null;
+  };
+
+  const gerarAgendamentos = (servico, pet, duracao) => {
+    return Object.keys(datasSelecionadas).flatMap((data) => {
+      return horariosSelecionados.map((horario) => {
+        const [h, m] = horario.split(":");
+        const inicio = new Date(`${data}T${h}:${m}:00`);
+        const fim = new Date(inicio);
+        fim.setMinutes(fim.getMinutes() + duracao);
+
+        return {
+          idServico: servicoSelecionado,
+          idAnimal: petSelecionado,
+          idUsuario,
+          idEmpresa: idEmpresaPetShop,
+          pacoteMensal: ehPacoteMensal,
+          listaDatasAgendamento: [inicio.toISOString()],
+          horario: `${horario}:00`,
+          horarioFinal: formatarHorario(fim),
+          status: "Agendado",
+        };
+      });
+    });
+  };
+
+  const formatarHorario = (data) => {
+    return `${data.getHours().toString().padStart(2, "0")}:${data
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}:00`;
+  };
+
+  const salvarAgendamentoENotificar = async (dto, pet, servico) => {
+    // Salva o agendamento
+    const respostaAgendamento =
+      await apiRequisicaoAgendamento.adicionarAgendamentoNaApi(dto);
+
+    if (!respostaAgendamento) {
+      throw new Error("Falha ao salvar agendamento");
+    }
+
+    // Agenda notificações
+    await servicoNotificacao.agendarNotificacoesAgendamento({
+      dataAgendamento: dto.listaDatasAgendamento[0].split("T")[0],
+      horaAgendamento: dto.horario.substring(0, 5),
+      nomePet: pet?.nome || "Seu pet",
+      tipoServico: servico?.descricao || "Serviço",
+    });
+  };
+
+  const exibirMensagemSucesso = () => {
+    Toast.show({
+      type: "success",
+      text1: "Agendamento realizado com sucesso!",
+      text2: "Confira os detalhes nos seus agendamentos",
+      position: "top",
+      visibilityTime: 2000,
+    });
+  };
+
+  const exibirMensagemErro = (error) => {
+    Toast.show({
+      type: "error",
+      text1: "Erro ao confirmar agendamento",
+      text2: error?.message || "Tente novamente mais tarde",
+      position: "top",
+      visibilityTime: 3000,
+    });
   };
 
   return (
@@ -1076,7 +1143,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     fontSize: 14,
   },
-  // ...existing code...
   // --- Modal estilo print ---
   modalSheet: {
     backgroundColor: "#fff",

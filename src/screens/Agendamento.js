@@ -414,7 +414,8 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const ehDiaFuncionamento = (date) => {
-    const diasSemana = [
+    const data = new Date(date);
+    const diaSemana = [
       "Domingo",
       "Segunda-feira",
       "Terça-feira",
@@ -422,14 +423,21 @@ const Agendamento = ({ navigation, route }) => {
       "Quinta-feira",
       "Sexta-feira",
       "Sábado",
-    ];
+    ][data.getDay()];
 
-    const data = new Date(date);
-    const diaSemana = diasSemana[data.getDay()];
+    // Debug log
+    console.log("Verificando funcionamento:", {
+      data,
+      diaDaSemana: data.getDay(),
+      nomeDia: diaSemana,
+    });
 
     const horarioDia = horariosFuncionamento.find(
       (h) => h.nomeDiaSemana === diaSemana
     );
+
+    // Debug log
+    console.log("Horário encontrado:", horarioDia);
 
     if (!horarioDia) return false;
 
@@ -616,32 +624,44 @@ const Agendamento = ({ navigation, route }) => {
                   textDayHeaderFontWeight: "bold",
                 }}
                 dayComponent={({ date, state }) => {
+                  const currentDate = new Date(date.dateString);
                   const isWorkingDay = ehDiaFuncionamento(date.dateString);
                   const isSelected = datasSelecionadas[date.dateString];
                   const today = new Date().toISOString().split("T")[0];
                   const isPastDay = date.dateString < today;
-                  const isDisabled =
-                    state === "disabled" || !isWorkingDay || isPastDay;
+
+                  // Debug log for each day being rendered
+                  console.log("Rendering day:", {
+                    date: date.dateString,
+                    state,
+                    isWorkingDay,
+                    isPastDay,
+                  });
+
+                  // Only disable if it's a past day or non-working day
+                  const isDisabled = isPastDay || !isWorkingDay;
 
                   return (
                     <TouchableOpacity
                       style={[
                         styles.calendarDay,
                         isSelected && styles.calendarDaySelected,
-                        isDisabled && styles.calendarDayDisabled,
                         !isWorkingDay && styles.calendarDayNotWorking,
+                        isPastDay && styles.calendarDayDisabled,
                       ]}
-                      onPress={() =>
-                        !isDisabled && selecionarData(date.dateString)
-                      }
+                      onPress={() => {
+                        if (!isDisabled) {
+                          selecionarData(date.dateString);
+                        }
+                      }}
                       disabled={isDisabled}
                     >
                       <Text
                         style={[
                           styles.calendarDayText,
                           isSelected && styles.calendarDayTextSelected,
-                          isDisabled && styles.calendarDayTextDisabled,
                           !isWorkingDay && styles.calendarDayTextNotWorking,
+                          isPastDay && styles.calendarDayTextDisabled,
                         ]}
                       >
                         {date.day}
@@ -1277,15 +1297,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+    margin: 2,
   },
   calendarDaySelected: {
     backgroundColor: "#007aff",
   },
   calendarDayDisabled: {
     backgroundColor: "#f0f0f0",
+    opacity: 0.4,
   },
   calendarDayNotWorking: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#ffebee", // Light red background for non-working days
+    borderColor: "#ffcdd2",
+    borderWidth: 1,
   },
   calendarDayText: {
     color: "#000",
@@ -1293,12 +1322,13 @@ const styles = StyleSheet.create({
   },
   calendarDayTextSelected: {
     color: "#fff",
+    fontWeight: "bold",
   },
   calendarDayTextDisabled: {
-    color: "#ccc",
+    color: "#bbb",
   },
   calendarDayTextNotWorking: {
-    color: "#bbb",
+    color: "#d32f2f", // Red text for non-working days
   },
 });
 

@@ -50,6 +50,7 @@ const Agendamento = ({ navigation, route }) => {
   const [datasSelecionadas, setDatasSelecionadas] = useState({});
   const [horariosDisponiveis, setHorariosDisponiveis] = useState([]);
   const [horariosSelecionados, setHorariosSelecionados] = useState([]);
+  const [horariosFuncionamento, setHorariosFuncionamento] = useState([]);
   const empresa = getEmpresaStore();
 
   // Passo a passo
@@ -82,9 +83,12 @@ const Agendamento = ({ navigation, route }) => {
     setLoading(true);
     try {
       // Primeiro busca os pets
-      const [petsApi, parametrosApi] = await Promise.all([
+      const [petsApi, parametrosApi, horarios] = await Promise.all([
         apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario),
         apiRequisicaoParametro.buscarParametro(idEmpresaPetShop),
+        apiRequisicaoEmpresa.buscarHorarioFuncionamentoEmpresa(
+          idEmpresaPetShop
+        ),
       ]);
 
       setPets(petsApi || []);
@@ -92,6 +96,7 @@ const Agendamento = ({ navigation, route }) => {
 
       // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
       if (parametrosApi) setParametrosEmpresa(parametrosApi);
+      setHorariosFuncionamento(horarios || []);
 
       // Após carregar pets, busca serviços do pet selecionado (ou do único pet)
       let idPortePet = null;
@@ -152,6 +157,17 @@ const Agendamento = ({ navigation, route }) => {
   };
 
   const selecionarData = async (dateString) => {
+    // Verifica se é dia de funcionamento
+    if (!ehDiaFuncionamento(dateString)) {
+      Toast.show({
+        type: "warning",
+        text1: "Estabelecimento fechado neste dia",
+        position: "top",
+        visibilityTime: 2000,
+      });
+      return;
+    }
+
     // Corrige: se não houver servicoSelecionado, mas houver servicosSelecionados, define o primeiro
     let idServico = servicoSelecionado;
     if (!idServico && servicosSelecionados.length > 0) {
@@ -397,6 +413,29 @@ const Agendamento = ({ navigation, route }) => {
     });
   };
 
+  const ehDiaFuncionamento = (date) => {
+    const diasSemana = [
+      "Domingo",
+      "Segunda-feira",
+      "Terça-feira",
+      "Quarta-feira",
+      "Quinta-feira",
+      "Sexta-feira",
+      "Sábado",
+    ];
+
+    const data = new Date(date);
+    const diaSemana = diasSemana[data.getDay()];
+
+    const horarioDia = horariosFuncionamento.find(
+      (h) => h.nomeDiaSemana === diaSemana
+    );
+
+    if (!horarioDia) return false;
+
+    return horarioDia.funcionaNesseDia;
+  };
+
   return (
     <View style={styles.container}>
       {loading ? (
@@ -565,6 +604,7 @@ const Agendamento = ({ navigation, route }) => {
                 markedDates={datasSelecionadas}
                 onDayPress={selecionarData}
                 minDate={new Date().toISOString().split("T")[0]}
+                enableSwipeMonths={true}
                 theme={{
                   selectedDayBackgroundColor: "#007aff",
                   selectedDayTextColor: "#fff",
@@ -574,6 +614,40 @@ const Agendamento = ({ navigation, route }) => {
                   textDayFontWeight: "bold",
                   textMonthFontWeight: "bold",
                   textDayHeaderFontWeight: "bold",
+                }}
+                dayComponent={({ date, state }) => {
+                  const isWorkingDay = ehDiaFuncionamento(date.dateString);
+                  const isSelected = datasSelecionadas[date.dateString];
+                  const today = new Date().toISOString().split("T")[0];
+                  const isPastDay = date.dateString < today;
+                  const isDisabled =
+                    state === "disabled" || !isWorkingDay || isPastDay;
+
+                  return (
+                    <TouchableOpacity
+                      style={[
+                        styles.calendarDay,
+                        isSelected && styles.calendarDaySelected,
+                        isDisabled && styles.calendarDayDisabled,
+                        !isWorkingDay && styles.calendarDayNotWorking,
+                      ]}
+                      onPress={() =>
+                        !isDisabled && selecionarData(date.dateString)
+                      }
+                      disabled={isDisabled}
+                    >
+                      <Text
+                        style={[
+                          styles.calendarDayText,
+                          isSelected && styles.calendarDayTextSelected,
+                          isDisabled && styles.calendarDayTextDisabled,
+                          !isWorkingDay && styles.calendarDayTextNotWorking,
+                        ]}
+                      >
+                        {date.day}
+                      </Text>
+                    </TouchableOpacity>
+                  );
                 }}
               />
               <View style={styles.footerStep}>
@@ -1196,6 +1270,35 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     letterSpacing: 0.5,
+  },
+  calendarDay: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 16,
+  },
+  calendarDaySelected: {
+    backgroundColor: "#007aff",
+  },
+  calendarDayDisabled: {
+    backgroundColor: "#f0f0f0",
+  },
+  calendarDayNotWorking: {
+    backgroundColor: "#f5f5f5",
+  },
+  calendarDayText: {
+    color: "#000",
+    fontSize: 16,
+  },
+  calendarDayTextSelected: {
+    color: "#fff",
+  },
+  calendarDayTextDisabled: {
+    color: "#ccc",
+  },
+  calendarDayTextNotWorking: {
+    color: "#bbb",
   },
 });
 

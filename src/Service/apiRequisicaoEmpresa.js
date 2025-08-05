@@ -74,6 +74,16 @@ const enviarLogoEmpresa = async (arquivoParam, idEmpresaParam) => {
   }
 };
 
+const buscarHorarioFuncionamentoEmpresa = async (idEmpresa) => {
+  try {
+    const uri = `/Empresa/HorariosFuncionamento?IdEmpresa=${idEmpresa}`;
+    const resposta = await api.get(uri);
+    return resposta.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   buscarEmpresas,
   buscarNaAPIPorNomePetShop,
@@ -81,4 +91,5 @@ export default {
   buscarLogoEmpresas,
   enviarLogoEmpresa,
   buscarLogoEmpresaPorIdEmpresa,
+  buscarHorarioFuncionamentoEmpresa,
 };

@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
-  Alert,
   Platform,
+  Modal,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -31,6 +31,8 @@ const DadosPets = () => {
   const [idPorte, setIdPorte] = useState("");
   const [arquivoFoto, setArquivoFoto] = useState({});
   const [listaDePets, setListaDePets] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedPetId, setSelectedPetId] = useState(null);
   const navigation = useNavigation();
   const usuarioStore = getUsuarioStore();
   const idUsuario = usuarioStore.id;
@@ -149,6 +151,14 @@ const DadosPets = () => {
   };
 
   const salvarPet = async () => {
+    if (!foto) {
+      Toast.show({
+        type: "info",
+        text1: "Selecione uma foto para o pet.",
+      });
+      return;
+    }
+
     if (!nome || !raca || !idPorte) {
       Toast.show({
         type: "info",
@@ -231,10 +241,55 @@ const DadosPets = () => {
   };
 
   const excluirPet = (idAnimalParam) => {
-    Toast.show({
-      type: "info",
-      text1: "Função de exclusão de pet não implementada nesta versão.",
-    });
+    setSelectedPetId(idAnimalParam);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    setShowDeleteModal(false);
+    if (!selectedPetId) return;
+
+    setLoading(true);
+    try {
+      const resposta = await apiRequisicaoAnimal.excluirAnimal(
+        idUsuario,
+        selectedPetId
+      );
+
+      if (resposta === true) {
+        // First show the toast
+        Toast.show({
+          type: "success",
+          text1: "Pet excluído com sucesso!",
+          position: "top",
+          visibilityTime: 2000,
+        });
+
+        // Wait for a moment before updating state
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Then update the state
+        await carregarDados();
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Não foi possível excluir o pet",
+          position: "top",
+          visibilityTime: 2000,
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Erro ao excluir pet",
+        text2: error?.message || "Tente novamente mais tarde",
+        position: "top",
+        visibilityTime: 2000,
+      });
+    } finally {
+      setLoading(false);
+      setSelectedPetId(null);
+    }
   };
 
   const editarPet = (pet) => {
@@ -246,6 +301,7 @@ const DadosPets = () => {
     setObservacoes(pet.observacoes);
     setFoto(pet.imagem || null);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -394,17 +450,57 @@ const DadosPets = () => {
                       color={colors.secondary}
                     />
                   </TouchableOpacity>
-                  {/*
-                  <TouchableOpacity onPress={() => excluirPet(pet.idAnimal)} style={{ marginTop: 10 }}>
+
+                  <TouchableOpacity
+                    onPress={() => excluirPet(pet.idAnimal)}
+                    style={{
+                      marginTop: 10,
+                      flexDirection: "row",
+                    }}
+                  >
                     <Ionicons name="trash-outline" size={24} color="#ff4d4d" />
                   </TouchableOpacity>
-                  */}
                 </View>
               </View>
             ))
           )}
         </KeyboardAwareScrollView>
       )}
+
+      {/* Modal de confirmação */}
+      <Modal
+        visible={showDeleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Excluir Pet</Text>
+            <Text style={styles.modalText}>
+              Tem certeza que deseja excluir este pet? Esta ação não pode ser
+              desfeita.
+            </Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowDeleteModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleDeleteConfirm}
+              >
+                <Text style={styles.confirmButtonText}>Excluir</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Add Toast at the root level */}
+      <Toast position="top" />
     </View>
   );
 };
@@ -542,6 +638,60 @@ const styles = StyleSheet.create({
   },
   porteButtonTextSelected: {
     color: "#fff",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    padding: 24,
+    width: "80%",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 12,
+    color: "#FF4D4F",
+  },
+  modalText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  cancelButton: {
+    flex: 1,
+    backgroundColor: "#EEE",
+    padding: 12,
+    borderRadius: 8,
+    marginRight: 8,
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "#333",
+    fontWeight: "bold",
+  },
+  confirmButton: {
+    flex: 1,
+    backgroundColor: "#FF4D4F",
+    padding: 12,
+    borderRadius: 8,
+    marginLeft: 8,
+    alignItems: "center",
+  },
+  confirmButtonText: {
+    color: "#FFF",
+    fontWeight: "bold",
   },
 });
 

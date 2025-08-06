@@ -211,7 +211,6 @@ const Agendamento = ({ navigation, route }) => {
         const atualizadas = { ...datasSelecionadas };
         delete atualizadas[dataKey];
         setDatasSelecionadas({ ...atualizadas });
-        // console.log("Datas selecionadas (removendo):", { ...atualizadas });
         setTimeout(() => buscarHorarios(Object.keys(atualizadas)), 0);
         return;
       }
@@ -241,13 +240,11 @@ const Agendamento = ({ navigation, route }) => {
         [dataKey]: circleMark,
       };
       setDatasSelecionadas({ ...novasDatas });
-      // console.log("Datas selecionadas (adicionando):", { ...novasDatas });
       setTimeout(() => buscarHorarios(Object.keys(novasDatas)), 0);
     } else {
       // Apenas uma data selecionada: sobrescreve
       const novaData = { [dataKey]: circleMark };
       setDatasSelecionadas({ ...novaData });
-      // console.log("Datas selecionadas (única):", { ...novaData });
       setTimeout(() => buscarHorarios([dataKey]), 0);
     }
   };
@@ -413,9 +410,23 @@ const Agendamento = ({ navigation, route }) => {
     });
   };
 
-  const ehDiaFuncionamento = (date) => {
-    const data = new Date(date);
-    const diaSemana = [
+  const parseDateLocal = (dateInput) => {
+    if (typeof dateInput === "string") {
+      const [year, month, day] = dateInput.split("-").map(Number);
+      return new Date(year, month - 1, day); // mês é zero-indexado
+    }
+    return new Date(dateInput);
+  };
+
+  const ehDiaFuncionamento = (dateInput) => {
+    const data =
+      dateInput instanceof Date ? dateInput : parseDateLocal(dateInput);
+
+    if (isNaN(data)) {
+      return false;
+    }
+
+    const diasSemana = [
       "Domingo",
       "Segunda-feira",
       "Terça-feira",
@@ -423,25 +434,15 @@ const Agendamento = ({ navigation, route }) => {
       "Quinta-feira",
       "Sexta-feira",
       "Sábado",
-    ][data.getDay()];
+    ];
 
-    // Debug log
-    console.log("Verificando funcionamento:", {
-      data,
-      diaDaSemana: data.getDay(),
-      nomeDia: diaSemana,
-    });
+    const nomeDia = diasSemana[data.getDay()];
 
     const horarioDia = horariosFuncionamento.find(
-      (h) => h.nomeDiaSemana === diaSemana
+      (h) => h.nomeDiaSemana === nomeDia
     );
 
-    // Debug log
-    console.log("Horário encontrado:", horarioDia);
-
-    if (!horarioDia) return false;
-
-    return horarioDia.funcionaNesseDia;
+    return horarioDia?.funcionaNesseDia ?? false;
   };
 
   return (
@@ -629,15 +630,6 @@ const Agendamento = ({ navigation, route }) => {
                   const isSelected = datasSelecionadas[date.dateString];
                   const today = new Date().toISOString().split("T")[0];
                   const isPastDay = date.dateString < today;
-
-                  // Debug log for each day being rendered
-                  console.log("Rendering day:", {
-                    date: date.dateString,
-                    state,
-                    isWorkingDay,
-                    isPastDay,
-                  });
-
                   // Only disable if it's a past day or non-working day
                   const isDisabled = isPastDay || !isWorkingDay;
 

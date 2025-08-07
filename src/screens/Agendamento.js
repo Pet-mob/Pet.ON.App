@@ -977,7 +977,7 @@ const Agendamento = ({ navigation, route }) => {
           </Modal>
         </>
       )}
-      {/* <Toast ref={(ref) => Toast.setRef(ref)} /> */}
+      <Toast ref={(ref) => Toast.setRef(ref)} />
     </View>
   );
 };

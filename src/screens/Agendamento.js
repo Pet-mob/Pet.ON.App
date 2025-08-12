@@ -358,8 +358,9 @@ const Agendamento = ({ navigation, route }) => {
         const fim = new Date(inicio);
         fim.setMinutes(fim.getMinutes() + duracao);
 
+        // Agora idServicos é um array de int
         return {
-          idServico: servicoSelecionado,
+          idServicos: [...servicosSelecionados],
           idAnimal: petSelecionado,
           idUsuario,
           idEmpresa: idEmpresaPetShop,

@@ -812,23 +812,76 @@ const Agendamento = ({ navigation, route }) => {
                 <View style={styles.resumoLinha}>
                   <Text style={styles.resumoTitulo}>Serviços:</Text>
                   <View style={{ flex: 1 }}>
-                    {(parametrosEmpresa.idModeloTrabalho === 2
-                      ? servicos.filter((s) =>
-                          servicosSelecionados.includes(s.idServico)
-                        )
-                      : servicos.filter(
-                          (s) => s.idServico === servicoSelecionado
-                        )
-                    ).map((s) => (
-                      <View key={s.idServico} style={styles.resumoServicoLinha}>
-                        <Text style={styles.resumoServicoNome}>
-                          {s.descricao}
-                        </Text>
-                        <Text style={styles.resumoServicoValor}>
-                          R$ {s.valor}
-                        </Text>
-                      </View>
-                    ))}
+                    {servicosSelecionados.length === 0 ? (
+                      <Text style={{ color: "#888", marginVertical: 8 }}>
+                        Nenhum serviço selecionado.
+                      </Text>
+                    ) : (
+                      <>
+                        {(parametrosEmpresa.idModeloTrabalho === 2
+                          ? servicos.filter((s) =>
+                              servicosSelecionados.includes(s.idServico)
+                            )
+                          : servicos.filter(
+                              (s) => s.idServico === servicoSelecionado
+                            )
+                        ).map((s) => (
+                          <View
+                            key={s.idServico}
+                            style={[
+                              styles.resumoServicoLinha,
+                              {
+                                backgroundColor: "#eef6ff",
+                                borderRadius: 8,
+                                marginBottom: 6,
+                                padding: 6,
+                              },
+                            ]}
+                          >
+                            <Icon
+                              name="paw-outline"
+                              size={18}
+                              color="#007aff"
+                              style={{ marginRight: 8 }}
+                            />
+                            <Text style={styles.resumoServicoNome}>
+                              {s.descricao}
+                            </Text>
+                            <Text style={styles.resumoServicoValor}>
+                              R$ {s.valor}
+                            </Text>
+                          </View>
+                        ))}
+                        {/* Total dos serviços */}
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "flex-end",
+                            marginTop: 8,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontWeight: "bold",
+                              color: "#007aff",
+                              fontSize: 16,
+                            }}
+                          >
+                            Total: R${" "}
+                            {(parametrosEmpresa.idModeloTrabalho === 2
+                              ? servicos.filter((s) =>
+                                  servicosSelecionados.includes(s.idServico)
+                                )
+                              : servicos.filter(
+                                  (s) => s.idServico === servicoSelecionado
+                                )
+                            )
+                              .reduce((acc, s) => acc + Number(s.valor), 0)
+                              .toFixed(2)}
+                          </Text>
+                        </View>
+                      </>
+                    )}
                   </View>
                 </View>
                 {/* Datas */}

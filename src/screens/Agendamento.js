@@ -812,21 +812,23 @@ const Agendamento = ({ navigation, route }) => {
                 <View style={styles.resumoLinha}>
                   <Text style={styles.resumoTitulo}>Serviços:</Text>
                   <View style={{ flex: 1 }}>
-                    {servicos
-                      .filter((s) => servicosSelecionados.includes(s.idServico))
-                      .map((s) => (
-                        <View
-                          key={s.idServico}
-                          style={styles.resumoServicoLinha}
-                        >
-                          <Text style={styles.resumoServicoNome}>
-                            {s.descricao}
-                          </Text>
-                          <Text style={styles.resumoServicoValor}>
-                            R$ {s.valor}
-                          </Text>
-                        </View>
-                      ))}
+                    {(parametrosEmpresa.idModeloTrabalho === 2
+                      ? servicos.filter((s) =>
+                          servicosSelecionados.includes(s.idServico)
+                        )
+                      : servicos.filter(
+                          (s) => s.idServico === servicoSelecionado
+                        )
+                    ).map((s) => (
+                      <View key={s.idServico} style={styles.resumoServicoLinha}>
+                        <Text style={styles.resumoServicoNome}>
+                          {s.descricao}
+                        </Text>
+                        <Text style={styles.resumoServicoValor}>
+                          R$ {s.valor}
+                        </Text>
+                      </View>
+                    ))}
                   </View>
                 </View>
                 {/* Datas */}
@@ -977,7 +979,8 @@ const Agendamento = ({ navigation, route }) => {
           </Modal>
         </>
       )}
-      <Toast ref={(ref) => Toast.setRef(ref)} />
+      {/* Toast notification */}
+      <Toast />
     </View>
   );
 };

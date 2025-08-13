@@ -113,9 +113,36 @@ const ConsultaAgendamento = ({ navigation }) => {
                 <Text style={estilos.textoAgendamentoNegrito}>
                   🐶 {item.nomeAnimal}
                 </Text>
-                <Text style={estilos.textoAgendamento}>
-                  ✂️ Serviço: {item.descricaoServico}
-                </Text>
+                {/* Lista de serviços */}
+                <View style={{ marginVertical: 4 }}>
+                  {item.descricaoServicos ? (
+                    item.descricaoServicos.split(",").map((desc, idx) => (
+                      <View
+                        key={idx}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          backgroundColor: "#f5f5f5ff",
+                          borderRadius: 8,
+                          marginBottom: 4,
+                          padding: 6,
+                        }}
+                      >
+                        <Ionicons
+                          name="paw-outline"
+                          size={16}
+                          color="#007aff"
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text style={{ fontSize: 14, color: "#222", flex: 1 }}>
+                          {desc.trim()}
+                        </Text>
+                      </View>
+                    ))
+                  ) : (
+                    <Text style={{ color: "#888" }}>Serviço não informado</Text>
+                  )}
+                </View>
                 <Text style={estilos.textoAgendamento}>
                   🏢 Estabelecimento: {item.nomeEmpresa}
                 </Text>
@@ -126,8 +153,7 @@ const ConsultaAgendamento = ({ navigation }) => {
                   ⏰ Horário: {formatarHorario(item.horarioInicial)} -{" "}
                   {formatarHorario(item.horarioFinal)}
                 </Text>
-
-                {/* Badge de status (ex: Confirmado/Pendente) - opcional */}
+                {/* Badge de status */}
                 {item.status && (
                   <View
                     style={[

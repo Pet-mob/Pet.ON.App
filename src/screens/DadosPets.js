@@ -317,9 +317,10 @@ const DadosPets = () => {
       {!loading && (
         <KeyboardAwareScrollView
           style={styles.bodyContainer}
-          contentContainerStyle={{ paddingBottom: 20 }}
+          contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           enableOnAndroid
+          extraScrollHeight={Platform.OS === "ios" ? 40 : 80} // ADICIONADO
         >
           <TouchableOpacity
             style={styles.fotoContainer}
@@ -339,20 +340,9 @@ const DadosPets = () => {
               value={nome}
               onChangeText={setNome}
               placeholder="Digite o nome"
+              returnKeyType="next"
             />
           </View>
-
-          {/*       <View style={styles.inputContainer}>
-                        <Text style={styles.label}>Idade</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={idade}
-                            onChangeText={setIdade}
-                            placeholder="Digite a idade"
-                            keyboardType="numeric"
-                        />
-                    </View>
-            */}
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Porte</Text>
@@ -394,6 +384,7 @@ const DadosPets = () => {
               value={raca}
               onChangeText={setRaca}
               placeholder="Digite a raça"
+              returnKeyType="next"
             />
           </View>
 
@@ -404,6 +395,8 @@ const DadosPets = () => {
               value={observacoes}
               onChangeText={setObservacoes}
               placeholder="Informações adicionais"
+              returnKeyType="done"
+              multiline
             />
           </View>
 

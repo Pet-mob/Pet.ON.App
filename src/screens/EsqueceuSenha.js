@@ -10,6 +10,7 @@ import {
   TouchableWithoutFeedback,
   Platform,
   KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import apiRequisicaoAuth from "../Service/apiRequisicaoAuth";
@@ -23,9 +24,8 @@ function formatTelefone(telefone) {
     return cleaned
       .replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
       .replace(/-$/, "");
-  return cleaned
-    .replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3")
-    .replace(/-$/, "");
+  return cleaned;
+  replace(/(\d{2})(\d{5})(\d{0,4})/, "($1) $2-$3").replace(/-$/, "");
 }
 
 // Função para limpar telefone (só números)
@@ -185,7 +185,8 @@ const EsqueceuSenha = () => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 30} // ajuste conforme necessário
       >
         <View style={styles.header}>
           <TouchableOpacity
@@ -196,102 +197,109 @@ const EsqueceuSenha = () => {
             <Text style={styles.backButtonText}>Voltar</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.content}>
-          {step === 1 && (
-            <>
-              <Text style={styles.title}>Esqueceu sua senha?</Text>
-              <Text style={styles.subtitle}>
-                Insira seu número de telefone para receber o código.
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Número de telefone"
-                keyboardType="phone-pad"
-                value={formatTelefone(telefone)}
-                onChangeText={(text) => setTelefone(cleanTelefone(text))}
-                maxLength={15}
-                editable={!loading}
-              />
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={sendSMS}
-                disabled={loading}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? "Enviando..." : "Enviar Código"}
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            {step === 1 && (
+              <>
+                <Text style={styles.title}>Esqueceu sua senha?</Text>
+                <Text style={styles.subtitle}>
+                  Insira seu número de telefone para receber o código.
                 </Text>
-              </TouchableOpacity>
-            </>
-          )}
+                <TextInput
+                  style={styles.input}
+                  placeholder="Número de telefone"
+                  keyboardType="phone-pad"
+                  value={formatTelefone(telefone)}
+                  onChangeText={(text) => setTelefone(cleanTelefone(text))}
+                  maxLength={15}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={sendSMS}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? "Enviando..." : "Enviar Código"}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
 
-          {step === 2 && (
-            <>
-              <Text style={styles.title}>Verificação</Text>
-              <Text style={styles.subtitle}>
-                Insira o código que enviamos para{" "}
-                <Text style={{ fontWeight: "bold" }}>
-                  {maskEmail(userEmail)}
+            {step === 2 && (
+              <>
+                <Text style={styles.title}>Verificação</Text>
+                <Text style={styles.subtitle}>
+                  Insira o código que enviamos para{" "}
+                  <Text style={{ fontWeight: "bold" }}>
+                    {maskEmail(userEmail)}
+                  </Text>
+                  .
                 </Text>
-                .
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Código de Verificação"
-                keyboardType="numeric"
-                value={verificationCode}
-                onChangeText={setVerificationCode}
-                maxLength={6}
-                editable={!loading}
-              />
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={validateCode}
-                disabled={loading}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? "Validando..." : "Validar Código"}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
+                <TextInput
+                  style={styles.input}
+                  placeholder="Código de Verificação"
+                  keyboardType="numeric"
+                  value={verificationCode}
+                  onChangeText={setVerificationCode}
+                  maxLength={6}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={validateCode}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? "Validando..." : "Validar Código"}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
 
-          {step === 3 && (
-            <>
-              <Text style={styles.title}>Redefinir Senha</Text>
-              <Text style={styles.subtitle}>Crie uma nova senha.</Text>
-              <View style={styles.passwordRulesBox}>
-                <Text style={styles.passwordRulesTitle}>
-                  Sua senha deve conter:
-                </Text>
-                <Text style={styles.passwordRules}>
-                  • Pelo menos 8 caracteres
-                </Text>
-                <Text style={styles.passwordRules}>• 1 letra maiúscula</Text>
-                <Text style={styles.passwordRules}>• 1 letra minúscula</Text>
-                <Text style={styles.passwordRules}>• 1 número</Text>
-                <Text style={styles.passwordRules}>• 1 caractere especial</Text>
-              </View>
-              <TextInput
-                style={styles.input}
-                placeholder="Nova Senha"
-                secureTextEntry
-                value={newPassword}
-                onChangeText={setNewPassword}
-                maxLength={100}
-                editable={!loading}
-              />
-              <TouchableOpacity
-                style={[styles.button, loading && styles.buttonDisabled]}
-                onPress={resetPassword}
-                disabled={loading}
-              >
-                <Text style={styles.buttonText}>
-                  {loading ? "Salvando..." : "Redefinir Senha"}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+            {step === 3 && (
+              <>
+                <Text style={styles.title}>Redefinir Senha</Text>
+                <Text style={styles.subtitle}>Crie uma nova senha.</Text>
+                <View style={styles.passwordRulesBox}>
+                  <Text style={styles.passwordRulesTitle}>
+                    Sua senha deve conter:
+                  </Text>
+                  <Text style={styles.passwordRules}>
+                    • Pelo menos 8 caracteres
+                  </Text>
+                  <Text style={styles.passwordRules}>• 1 letra maiúscula</Text>
+                  <Text style={styles.passwordRules}>• 1 letra minúscula</Text>
+                  <Text style={styles.passwordRules}>• 1 número</Text>
+                  <Text style={styles.passwordRules}>
+                    • 1 caractere especial
+                  </Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nova Senha"
+                  secureTextEntry
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  maxLength={100}
+                  editable={!loading}
+                />
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={resetPassword}
+                  disabled={loading}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? "Salvando..." : "Redefinir Senha"}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -320,6 +328,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     paddingHorizontal: 20,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
   },
   title: {
     fontSize: 22,

@@ -23,6 +23,7 @@ import { Image as ExpoImage } from "expo-image";
 import { getEmpresaStore } from "../store/store";
 import Toast from "react-native-toast-message";
 import apiRequisicaoParametro from "../Service/apiRequisicaoParametro";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const placeholderImg = require("../../assets/placeholder.png");
 
@@ -52,6 +53,7 @@ const Agendamento = ({ navigation, route }) => {
   const [horariosSelecionados, setHorariosSelecionados] = useState([]);
   const [horariosFuncionamento, setHorariosFuncionamento] = useState([]);
   const empresa = getEmpresaStore();
+  const insets = useSafeAreaInsets();
 
   // Passo a passo
   // O passo inicial será ajustado após carregar os pets
@@ -1132,7 +1134,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: "#fff" },
   footerStep: {
     marginTop: "auto",
-    paddingBottom: 10,
+    paddingBottom: 10, // Este valor será somado ao insets.bottom
     paddingTop: 10,
     backgroundColor: "#fff",
   },

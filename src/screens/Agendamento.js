@@ -953,7 +953,7 @@ const Agendamento = ({ navigation, route }) => {
                     const selecionado = servicosSelecionados.includes(
                       item.idServico
                     );
-                    // Agrupado: só pode selecionar 1 serviço
+                    // Agrupado: só pode selecionar 1 serviço (radio button visual)
                     // Separado: pode selecionar vários, mas só 1 por "tipo" (aqui, assume-se que cada serviço é único)
                     return (
                       <View style={styles.servicoLinhaPrint}>
@@ -966,7 +966,13 @@ const Agendamento = ({ navigation, route }) => {
                           </Text>
                         </View>
                         <TouchableOpacity
-                          style={styles.btnAddRemovePrint}
+                          style={[
+                            styles.btnAddRemovePrint,
+                            parametrosEmpresa.idModeloTrabalho === 1 && {
+                              borderColor: selecionado ? "#007aff" : "#ccc",
+                              backgroundColor: selecionado ? "#e3f0ff" : "#fff",
+                            },
+                          ]}
                           onPress={() => {
                             if (parametrosEmpresa.idModeloTrabalho === 1) {
                               // Agrupado: só 1 serviço
@@ -1000,18 +1006,46 @@ const Agendamento = ({ navigation, route }) => {
                             }
                           }}
                         >
-                          <Icon
-                            name={selecionado ? "remove" : "add"}
-                            size={22}
-                            color={selecionado ? "#d32f2f" : "#888"}
-                            style={{
-                              borderWidth: 1,
-                              borderColor: "#ccc",
-                              borderRadius: 12,
-                              padding: 2,
-                              backgroundColor: "#fff",
-                            }}
-                          />
+                          {parametrosEmpresa.idModeloTrabalho === 1 ? (
+                            // Radio button visual
+                            <View
+                              style={{
+                                width: 22,
+                                height: 22,
+                                borderRadius: 11,
+                                borderWidth: 2,
+                                borderColor: selecionado ? "#007aff" : "#bbb",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                backgroundColor: "#fff",
+                              }}
+                            >
+                              {selecionado && (
+                                <View
+                                  style={{
+                                    width: 12,
+                                    height: 12,
+                                    borderRadius: 6,
+                                    backgroundColor: "#007aff",
+                                  }}
+                                />
+                              )}
+                            </View>
+                          ) : (
+                            // Checkbox visual (ícone add/remove)
+                            <Icon
+                              name={selecionado ? "remove" : "add"}
+                              size={22}
+                              color={selecionado ? "#d32f2f" : "#888"}
+                              style={{
+                                borderWidth: 1,
+                                borderColor: "#ccc",
+                                borderRadius: 12,
+                                padding: 2,
+                                backgroundColor: "#fff",
+                              }}
+                            />
+                          )}
                         </TouchableOpacity>
                       </View>
                     );

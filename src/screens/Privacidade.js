@@ -6,6 +6,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -61,111 +65,132 @@ const Privacidade = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="chevron-back-outline" size={26} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Privacidade</Text>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.bodyContainer}
-        keyboardShouldPersistTaps="handled"
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 30}
       >
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Senha Atual:</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              value={senhaAtual}
-              onChangeText={setSenhaAtual}
-              placeholder="Digite sua senha atual"
-              secureTextEntry={!showCurrentPassword}
-              placeholderTextColor="#999"
-            />
+        <View style={styles.container}>
+          <View style={styles.header}>
             <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
             >
-              <Ionicons
-                name={showCurrentPassword ? "eye-off-outline" : "eye-outline"}
-                size={24}
-                color="#666"
-              />
+              <Ionicons name="chevron-back-outline" size={26} color="#FFFFFF" />
             </TouchableOpacity>
+            <Text style={styles.title}>Privacidade</Text>
           </View>
-        </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Nova Senha:</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              value={novaSenha}
-              onChangeText={setNovaSenha}
-              placeholder="Digite a nova senha"
-              secureTextEntry={!showNewPassword}
-              placeholderTextColor="#999"
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowNewPassword(!showNewPassword)}
-            >
-              <Ionicons
-                name={showNewPassword ? "eye-off-outline" : "eye-outline"}
-                size={24}
-                color="#666"
-              />
+          <ScrollView
+            contentContainerStyle={styles.bodyContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Senha Atual:</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  value={senhaAtual}
+                  onChangeText={setSenhaAtual}
+                  placeholder="Digite sua senha atual"
+                  secureTextEntry={!showCurrentPassword}
+                  placeholderTextColor="#999"
+                  returnKeyType="next"
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+                >
+                  <Ionicons
+                    name={
+                      showCurrentPassword ? "eye-off-outline" : "eye-outline"
+                    }
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Nova Senha:</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  value={novaSenha}
+                  onChangeText={setNovaSenha}
+                  placeholder="Digite a nova senha"
+                  secureTextEntry={!showNewPassword}
+                  placeholderTextColor="#999"
+                  returnKeyType="next"
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowNewPassword(!showNewPassword)}
+                >
+                  <Ionicons
+                    name={showNewPassword ? "eye-off-outline" : "eye-outline"}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.passwordRulesBox}>
+                <Text style={styles.passwordRulesTitle}>
+                  Para garantir a segurança da sua conta, sugerimos que a sua
+                  nova senha deve atender aos seguintes critérios:
+                </Text>
+                <Text style={styles.passwordRules}>
+                  • Pelo menos 8 caracteres
+                </Text>
+                <Text style={styles.passwordRules}>
+                  • 1 letra maiúscula (A-Z)
+                </Text>
+                <Text style={styles.passwordRules}>
+                  • 1 letra minúscula (a-z)
+                </Text>
+                <Text style={styles.passwordRules}>• 1 número (0-9)</Text>
+                <Text style={styles.passwordRules}>
+                  • 1 caractere especial (! @ # $ % & * ?)
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Confirmar Nova Senha:</Text>
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  value={confirmarSenha}
+                  onChangeText={setConfirmarSenha}
+                  placeholder="Confirme a nova senha"
+                  secureTextEntry={!showConfirmPassword}
+                  placeholderTextColor="#999"
+                  returnKeyType="done"
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Ionicons
+                    name={
+                      showConfirmPassword ? "eye-off-outline" : "eye-outline"
+                    }
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity style={styles.botaoSalvar} onPress={alterarSenha}>
+              <Text style={styles.textoBotao}>Salvar</Text>
             </TouchableOpacity>
-          </View>
-          <View style={styles.passwordRulesBox}>
-            <Text style={styles.passwordRulesTitle}>
-              Para garantir a segurança da sua conta, sugerimos que a sua nova
-              senha deve atender aos seguintes critérios:
-            </Text>
-            <Text style={styles.passwordRules}>• Pelo menos 8 caracteres</Text>
-            <Text style={styles.passwordRules}>• 1 letra maiúscula (A-Z)</Text>
-            <Text style={styles.passwordRules}>• 1 letra minúscula (a-z)</Text>
-            <Text style={styles.passwordRules}>• 1 número (0-9)</Text>
-            <Text style={styles.passwordRules}>
-              • 1 caractere especial (! @ # $ % & * ?)
-            </Text>
-          </View>
+          </ScrollView>
         </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirmar Nova Senha:</Text>
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              value={confirmarSenha}
-              onChangeText={setConfirmarSenha}
-              placeholder="Confirme a nova senha"
-              secureTextEntry={!showConfirmPassword}
-              placeholderTextColor="#999"
-            />
-            <TouchableOpacity
-              style={styles.eyeIcon}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              <Ionicons
-                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
-                size={24}
-                color="#666"
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.botaoSalvar} onPress={alterarSenha}>
-          <Text style={styles.textoBotao}>Salvar</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </View>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 };
 

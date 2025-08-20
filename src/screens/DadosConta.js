@@ -9,6 +9,8 @@ import {
   Platform,
   Keyboard,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 import ExpoImageWithPlaceholder from "../components/ExpoImageWithPlaceholder";
 import { Ionicons } from "@expo/vector-icons";
@@ -181,89 +183,106 @@ const DadosConta = () => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="chevron-back-outline" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Dados da Conta</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 30}
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="chevron-back-outline" size={28} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.title}>Dados da Conta</Text>
+          </View>
+
+          {loading ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{ color: "#4F46E5", fontSize: 18, fontWeight: "bold" }}
+              >
+                Carregando...
+              </Text>
+            </View>
+          ) : (
+            <ScrollView
+              style={styles.bodyContainer}
+              contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <TouchableOpacity
+                style={styles.fotoContainer}
+                onPress={selecionarFoto}
+              >
+                <ExpoImageWithPlaceholder
+                  source={
+                    foto
+                      ? { uri: foto }
+                      : {
+                          uri: "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D",
+                        }
+                  }
+                  style={styles.foto}
+                />
+                <Text style={styles.textoFoto}>Alterar Foto</Text>
+              </TouchableOpacity>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Nome</Text>
+                <TextInput
+                  style={styles.input}
+                  value={nome}
+                  onChangeText={setNome}
+                  placeholder="Digite seu nome"
+                  returnKeyType="next"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Telefone</Text>
+                <TextInput
+                  style={styles.input}
+                  value={telefone}
+                  onChangeText={formatarTelefone}
+                  placeholder="Digite seu telefone"
+                  keyboardType="phone-pad"
+                  maxLength={15}
+                  returnKeyType="next"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  placeholder="Digite seu email"
+                  value={email}
+                  onChangeText={setEmail}
+                  style={styles.input}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  returnKeyType="done"
+                />
+              </View>
+
+              <TouchableOpacity
+                style={styles.botaoSalvar}
+                onPress={alterarUsuario}
+              >
+                <Text style={styles.textoBotao}>Salvar Alterações</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          )}
         </View>
-
-        {loading ? (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <Text
-              style={{ color: "#4F46E5", fontSize: 18, fontWeight: "bold" }}
-            >
-              Carregando...
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.bodyContainer}>
-            <TouchableOpacity
-              style={styles.fotoContainer}
-              onPress={selecionarFoto}
-            >
-              <ExpoImageWithPlaceholder
-                source={
-                  foto
-                    ? { uri: foto }
-                    : {
-                        uri: "https://azureblobpeton.blob.core.windows.net/fotos-usuarios/usuario.png?sp=r&st=2025-05-14T01:03:49Z&se=2026-05-13T09:03:49Z&spr=https&sv=2024-11-04&sr=b&sig=d%2B%2BtxK1dMnSh%2FdHeCitA%2BrbR%2BnGq7FkRh3cd5Gg1AEQ%3D",
-                      }
-                }
-                style={styles.foto}
-              />
-              <Text style={styles.textoFoto}>Alterar Foto</Text>
-            </TouchableOpacity>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Nome</Text>
-              <TextInput
-                style={styles.input}
-                value={nome}
-                onChangeText={setNome}
-                placeholder="Digite seu nome"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Telefone</Text>
-              <TextInput
-                style={styles.input}
-                value={telefone}
-                onChangeText={formatarTelefone}
-                placeholder="Digite seu telefone"
-                keyboardType="phone-pad"
-                maxLength={15}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                placeholder="Digite seu email"
-                value={email}
-                onChangeText={setEmail}
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <TouchableOpacity
-              style={styles.botaoSalvar}
-              onPress={alterarUsuario}
-            >
-              <Text style={styles.textoBotao}>Salvar Alterações</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 };

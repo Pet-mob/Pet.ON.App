@@ -537,7 +537,7 @@ const Agendamento = ({ navigation, route }) => {
                   </TouchableOpacity>
                 )}
               />
-              <View style={styles.footerStep}>
+              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -582,7 +582,7 @@ const Agendamento = ({ navigation, route }) => {
                     </View>
                   ))
               )}
-              <View style={styles.footerStep}>
+              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -611,8 +611,9 @@ const Agendamento = ({ navigation, route }) => {
           {/* Passo 3: Data */}
           {passo === 3 && (
             <>
-              <Text style={styles.label}>Selecione data:</Text>
+              <Text style={[styles.label, { marginBottom: 5 }]}>Selecione data:</Text>
               <Calendar
+                style={{ marginTop: -10 }}
                 markedDates={datasSelecionadas}
                 onDayPress={selecionarData}
                 minDate={new Date().toISOString().split("T")[0]}
@@ -665,7 +666,7 @@ const Agendamento = ({ navigation, route }) => {
                   );
                 }}
               />
-              <View style={styles.footerStep}>
+              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 15 }]}>
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -755,7 +756,7 @@ const Agendamento = ({ navigation, route }) => {
                   Selecione uma data para ver horários disponíveis.
                 </Text>
               )}
-              <View style={styles.footerStep}>
+              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -907,7 +908,7 @@ const Agendamento = ({ navigation, route }) => {
                   </Text>
                 </View>
               </View>
-              <View style={styles.footerStep}>
+              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
                 <TouchableOpacity
                   style={styles.btnConfirmar}
                   onPress={confirmarAgendamento}

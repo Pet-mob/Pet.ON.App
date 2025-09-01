@@ -93,8 +93,23 @@ const Agendamento = ({ navigation, route }) => {
         ),
       ]);
 
-      setPets(petsApi || []);
-      // await manipularFotoAnimal(petsApi);
+      // Buscar fotos dos pets e associar corretamente
+      let petsComFoto = petsApi || [];
+      try {
+        const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
+        if (Array.isArray(fotos)) {
+          petsComFoto = petsComFoto.map((pet) => {
+            const foto = fotos.find((f) => f.idAnimal === pet.idAnimal);
+            return {
+              ...pet,
+              urlFotoAnimal: foto?.url || null,
+            };
+          });
+        }
+      } catch {
+        // Se falhar, mantém pets sem foto
+      }
+      setPets(petsComFoto);
 
       // Buscar parâmetros da empresa (mock ou ajuste conforme sua API)
       if (parametrosApi) setParametrosEmpresa(parametrosApi);
@@ -102,9 +117,9 @@ const Agendamento = ({ navigation, route }) => {
 
       // Após carregar pets, busca serviços do pet selecionado (ou do único pet)
       let idPortePet = null;
-      if (petsApi.length === 1) {
-        idPortePet = petsApi[0].idPorte;
-        setPetSelecionado(petsApi[0].idAnimal);
+      if (petsComFoto.length === 1) {
+        idPortePet = petsComFoto[0].idPorte;
+        setPetSelecionado(petsComFoto[0].idAnimal);
         setPasso(2);
       } else {
         setPasso(1);
@@ -121,21 +136,6 @@ const Agendamento = ({ navigation, route }) => {
       });
     } finally {
       setLoading(false);
-    }
-
-    async function manipularFotoAnimal(petsApi) {
-      const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(
-        idUsuario
-      );
-
-      const petsComFoto = petsApi.map((pet) => {
-        const foto = fotos?.find((f) => f.idAnimal === pet.idAnimal);
-        return {
-          ...pet,
-          imagem: foto?.url,
-        };
-      });
-      setPets(petsComFoto);
     }
   };
 

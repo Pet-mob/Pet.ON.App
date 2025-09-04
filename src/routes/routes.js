@@ -15,6 +15,7 @@ import EsqueceuSenha from "../screens/EsqueceuSenha.js";
 import RegistrarNovoUsuario from "../screens/RegistrarNovoUsuario.js";
 import MenuInferior from "../components/menuInferior.js";
 import AgendamentoLink from "../screens/AgendamentoLink.js";
+import ContatoEmpresa from "../screens/ContatoEmpresa.js";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -76,6 +77,11 @@ export default function Routes() {
       <Stack.Screen
         name="AgendamentoLink"
         component={AgendamentoLink}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ContatoEmpresa"
+        component={ContatoEmpresa}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

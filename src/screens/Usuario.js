@@ -103,12 +103,24 @@ const Usuario = () => {
           <Ionicons name="chevron-forward" size={20} color="#888" />
         </TouchableOpacity>
 
+        {/* Botão de contato da empresa */}
+        
+
         <Text style={styles.sectionTitle}>Pets</Text>
         <TouchableOpacity
           style={styles.card}
           onPress={() => navigation.navigate("DadosPets")}
         >
           <Text style={styles.cardText}>Dados dos Pets</Text>
+          <Ionicons name="chevron-forward" size={20} color="#888" />
+        </TouchableOpacity>
+        
+        <Text style={styles.sectionTitle}>Fale Conosco</Text>
+          <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate("ContatoEmpresa")}
+        >
+          <Text style={styles.cardText}>Contato da Empresa</Text>
           <Ionicons name="chevron-forward" size={20} color="#888" />
         </TouchableOpacity>
       </ScrollView>

@@ -158,11 +158,11 @@ const ConsultaAgendamento = ({ navigation }) => {
                   <View
                     style={[
                       estilos.badgeStatus,
-                      item.status === "Concluído"
+                      item.status === "Concluido"
                         ? estilos.statusConfirmado
                         : item.status === "Agendado"
-                        ? estilos.statusPendente
-                        : estilos.statusCancelado,
+                          ? estilos.statusPendente
+                          : estilos.statusCancelado,
                     ]}
                   >
                     <Text style={estilos.badgeTexto}>{item.status}</Text>

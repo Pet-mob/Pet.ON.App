@@ -945,7 +945,7 @@ const Agendamento = ({ navigation, route }) => {
                 backgroundColor: "rgba(0,0,0,0.15)",
               }}
             >
-              <View style={styles.modalSheet}>
+              <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 18 }]}>
                 <Text style={styles.modalTitlePrint}>
                   Selecione os serviços:
                 </Text>

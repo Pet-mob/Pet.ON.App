@@ -48,7 +48,7 @@ const DadosConta = () => {
             try {
               const resposta = await apiRequisicaoUsuario.enviarFotoUsuario(
                 file,
-                idUsuario
+                idUsuario,
               );
               setFoto(resposta);
             } catch (error) {
@@ -74,7 +74,7 @@ const DadosConta = () => {
           try {
             const resposta = await apiRequisicaoUsuario.enviarFotoUsuario(
               imagem,
-              idUsuario
+              idUsuario,
             );
             setFoto(resposta);
           } catch (error) {
@@ -127,7 +127,7 @@ const DadosConta = () => {
         idUsuario,
         nome,
         telefoneLimpo,
-        email
+        email,
       );
       if (sucesso) {
         Toast.show({
@@ -219,6 +219,7 @@ const DadosConta = () => {
               contentContainerStyle={{ paddingBottom: 40, flexGrow: 1 }}
               keyboardShouldPersistTaps="handled"
             >
+              {/*
               <TouchableOpacity
                 style={styles.fotoContainer}
                 onPress={selecionarFoto}
@@ -235,7 +236,7 @@ const DadosConta = () => {
                 />
                 <Text style={styles.textoFoto}>Alterar Foto</Text>
               </TouchableOpacity>
-
+              */}
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Nome</Text>
                 <TextInput

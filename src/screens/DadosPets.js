@@ -48,9 +48,8 @@ const DadosPets = () => {
         apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario),
       ]);
       // Carregar fotos dos pets
-      const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(
-        idUsuario
-      );
+      const fotos =
+        await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
       const petsComFoto = petsApi.map((pet) => {
         const foto = fotos?.find((f) => f.idAnimal === pet.idAnimal);
         return {
@@ -71,9 +70,8 @@ const DadosPets = () => {
 
   const buscarPetsPorUsuario = async (idUsuarioParam) => {
     try {
-      const resposta = await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(
-        idUsuarioParam
-      );
+      const resposta =
+        await apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuarioParam);
       if (resposta) {
         setListaDePets(resposta);
       } else {
@@ -97,7 +95,7 @@ const DadosPets = () => {
               await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
                 file,
                 idUsuario,
-                idGeradoAnimal
+                idGeradoAnimal,
               );
             setFoto(resposta);
             return resposta;
@@ -114,7 +112,7 @@ const DadosPets = () => {
             await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
               arquivoFoto,
               idUsuario,
-              idGeradoAnimal
+              idGeradoAnimal,
             );
           setFoto(resposta);
           return resposta;
@@ -183,7 +181,7 @@ const DadosPets = () => {
           raca,
           observacoes,
           idUsuario,
-          porteNumero
+          porteNumero,
         );
         sucesso = resposta === true;
       } else {
@@ -193,7 +191,7 @@ const DadosPets = () => {
           raca,
           observacoes,
           idUsuario,
-          porteNumero
+          porteNumero,
         );
         sucesso = resposta === true;
       }
@@ -253,7 +251,7 @@ const DadosPets = () => {
     try {
       const resposta = await apiRequisicaoAnimal.excluirAnimal(
         idUsuario,
-        selectedPetId
+        selectedPetId,
       );
 
       if (resposta === true) {
@@ -322,6 +320,7 @@ const DadosPets = () => {
           enableOnAndroid
           extraScrollHeight={Platform.OS === "ios" ? 40 : 80} // ADICIONADO
         >
+          {/*
           <TouchableOpacity
             style={styles.fotoContainer}
             onPress={selecionarFoto}
@@ -332,7 +331,7 @@ const DadosPets = () => {
             />
             <Text style={styles.textoFoto}>Selecionar Foto</Text>
           </TouchableOpacity>
-
+          */}
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Nome do Pet</Text>
             <TextInput
@@ -414,10 +413,12 @@ const DadosPets = () => {
           ) : (
             listaDePets.map((pet) => (
               <View key={pet.idAnimal} style={styles.petItem}>
+                {/*
                 <ExpoImageWithPlaceholder
                   source={{ uri: pet.imagem }}
                   style={styles.petImage}
                 />
+                */}
                 <View style={styles.petDetails}>
                   <Text style={styles.petText}>Nome: {pet.nome}</Text>
                   {/*<Text style={styles.petText}>Idade: {pet.idade}</Text>*/}
@@ -427,10 +428,10 @@ const DadosPets = () => {
                     {pet.idPorte === 1
                       ? "Pequeno"
                       : pet.idPorte === 2
-                      ? "Médio"
-                      : pet.idPorte === 3
-                      ? "Grande"
-                      : "-"}
+                        ? "Médio"
+                        : pet.idPorte === 3
+                          ? "Grande"
+                          : "-"}
                   </Text>
                   <Text style={styles.petText}>Obs: {pet.observacoes}</Text>
                 </View>

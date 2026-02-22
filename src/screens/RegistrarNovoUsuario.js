@@ -53,17 +53,17 @@ const RegistrarUsuarioNovo = () => {
       telefoneComMascara = `(${numeros}`;
     } else if (numeros.length <= 6) {
       telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
-        2
+        2,
       )}`;
     } else if (numeros.length <= 10) {
       telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
         2,
-        7
+        7,
       )}-${numeros.substring(7)}`;
     } else {
       telefoneComMascara = `(${numeros.substring(0, 2)}) ${numeros.substring(
         2,
-        7
+        7,
       )}-${numeros.substring(7, 11)}`;
     }
     setTelefoneFormatado(telefoneComMascara);
@@ -241,25 +241,25 @@ const RegistrarUsuarioNovo = () => {
       nome,
       telefoneLimpo,
       senha,
-      email
+      email,
     );
 
     if (!novoUsuario || novoUsuario <= 0) {
       throw new Error("Erro ao cadastrar usuário.");
     }
 
-    if (fotoUsuario) {
-      const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(
-        fotoUsuario,
-        novoUsuario
-      );
+    // if (fotoUsuario) {
+    //   const respostaUsuario = await apiRequisicaoUsuario.enviarFotoUsuario(
+    //     fotoUsuario,
+    //     novoUsuario,
+    //   );
 
-      if (!respostaUsuario) {
-        throw new Error("Erro ao enviar foto do usuário.");
-      }
+    //   if (!respostaUsuario) {
+    //     throw new Error("Erro ao enviar foto do usuário.");
+    //   }
 
-      setUriFotoUsuario(respostaUsuario);
-    }
+    //   setUriFotoUsuario(respostaUsuario);
+    // }
 
     for (const pet of pets) {
       const novoPet = await apiRequisicaoAnimal.adicionarAnimalNovo(
@@ -267,27 +267,25 @@ const RegistrarUsuarioNovo = () => {
         pet.raca,
         novoUsuario,
         pet.idPorte,
-        pet.observacoes
+        pet.observacoes,
       );
 
       if (!novoPet || novoPet <= 0) {
         throw new Error("Erro ao cadastrar o animal.");
       }
 
-      if (pet.foto) {
-        const respostaAnimal =
-          await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
-            pet.foto,
-            novoUsuario,
-            novoPet
-          );
+      // if (pet.foto) {
+      //   const respostaAnimal =
+      //     await apiRequisicaoAnimal.enviarFotosAnimalPorUsuario(
+      //       pet.foto,
+      //       novoUsuario,
+      //       novoPet,
+      //     );
 
-        if (!respostaAnimal) {
-          throw new Error("Erro ao enviar foto do animal.");
-        }
+      if (!respostaAnimal) {
+        throw new Error("Erro ao enviar foto do animal.");
       }
     }
-
     return true;
   };
 
@@ -356,22 +354,24 @@ const RegistrarUsuarioNovo = () => {
         <View style={styles.bodyContainer}>
           <Text style={styles.sectionTitle}>Seus dados</Text>
           <View style={styles.section}>
-            <TouchableOpacity
-              style={styles.fotoContainer}
-              onPress={escolherImagemUsuario}
-              disabled={loading}
-            >
-              <ExpoImageWithPlaceHolder
-                source={
-                  fotoUsuario ? { uri: uriFotoUsuario } : { uri: urlFotoPadrao }
-                }
-                style={styles.foto}
-              />
-              <Text style={styles.textoFoto}>
-                {fotoUsuario ? "Foto selecionada" : "Adicionar foto"}
-              </Text>
-            </TouchableOpacity>
-
+            {/*
+              Container da foto do usuário, que é clicável para abrir a galeria 
+          <TouchableOpacity
+            style={styles.fotoContainer}
+            onPress={escolherImagemUsuario}
+            disabled={loading}
+          >
+            <ExpoImageWithPlaceHolder
+              source={
+                fotoUsuario ? { uri: uriFotoUsuario } : { uri: urlFotoPadrao }
+              }
+              style={styles.foto}
+            />
+            <Text style={styles.textoFoto}>
+              {fotoUsuario ? "Foto selecionada" : "Adicionar foto"}
+            </Text>
+          </TouchableOpacity>
+          */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Nome completo</Text>
               <TextInput
@@ -456,6 +456,7 @@ const RegistrarUsuarioNovo = () => {
           <Text style={styles.sectionTitle}>Dados do(s) seu(s) pet(s)</Text>
           {pets.map((pet, index) => (
             <View key={index} style={styles.section}>
+              {/*
               <TouchableOpacity
                 style={styles.fotoContainer}
                 onPress={() => escolherImagemPet(index)}
@@ -471,7 +472,7 @@ const RegistrarUsuarioNovo = () => {
                   {pet.foto ? "Foto selecionada" : "Adicionar foto"}
                 </Text>
               </TouchableOpacity>
-
+              */}
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Nome do pet</Text>
                 <TextInput

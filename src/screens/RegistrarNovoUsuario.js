@@ -209,10 +209,10 @@ const RegistrarUsuarioNovo = () => {
       return false;
     }
 
-    if (!validarFotoUsuario(fotoUsuario)) {
-      mostrarErro("Selecione uma foto de usuário válida.");
-      return false;
-    }
+    // if (!validarFotoUsuario(fotoUsuario)) {
+    //   mostrarErro("Selecione uma foto de usuário válida.");
+    //   return false;
+    // }
 
     const telefoneExiste = await validarTelefoneCadastrado(telefoneLimpo);
     if (telefoneExiste) {
@@ -226,10 +226,10 @@ const RegistrarUsuarioNovo = () => {
         return false;
       }
 
-      if (!validarFotoPet(pet.foto)) {
-        mostrarErro("Selecione uma foto de pet válida.");
-        return false;
-      }
+      // if (!validarFotoPet(pet.foto)) {
+      //   mostrarErro("Selecione uma foto de pet válida.");
+      //   return false;
+      // }
     }
 
     return true;

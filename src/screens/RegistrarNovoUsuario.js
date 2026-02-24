@@ -282,9 +282,9 @@ const RegistrarUsuarioNovo = () => {
       //       novoPet,
       //     );
 
-      if (!respostaAnimal) {
-        throw new Error("Erro ao enviar foto do animal.");
-      }
+      // if (!respostaAnimal) {
+      //   throw new Error("Erro ao enviar foto do animal.");
+      // }
     }
     return true;
   };

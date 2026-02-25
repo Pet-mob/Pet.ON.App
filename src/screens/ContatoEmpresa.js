@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+  ScrollView,
+  Image,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { getEmpresaStore } from "../store/store";
 import { useNavigation } from "@react-navigation/native";
@@ -11,7 +19,7 @@ const ContatoEmpresa = () => {
   const navigation = useNavigation();
 
   // Exemplo de dados de contato
-  const telefone = empresa?.telefone || "(16) 981090989";
+  const telefone = empresa?.telefone || "(16) 99355-7709";
   const email = empresa?.email || "equipepetmob@gmail.com";
   const endereco = empresa?.endereco || "Ribeirão Preto - SP";
   const site = empresa?.site || "petmob.com.br";

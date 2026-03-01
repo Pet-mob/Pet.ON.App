@@ -149,13 +149,13 @@ const DadosPets = () => {
   };
 
   const salvarPet = async () => {
-    if (!foto) {
-      Toast.show({
-        type: "info",
-        text1: "Selecione uma foto para o pet.",
-      });
-      return;
-    }
+    //if (!foto) {
+    //  Toast.show({
+    //    type: "info",
+    //    text1: "Selecione uma foto para o pet.",
+    //  });
+    //  return;
+    //}
 
     if (!nome || !raca || !idPorte) {
       Toast.show({
@@ -197,15 +197,15 @@ const DadosPets = () => {
       }
 
       if (sucesso) {
-        if (foto && idAnimal) {
-          const uploadSucesso = await enviarFotoDetalhadamente(idAnimal);
-          if (!uploadSucesso) {
-            Toast.show({
-              type: "warning",
-              text1: "Pet salvo, mas houve erro ao enviar a imagem.",
-            });
-          }
-        }
+        //if (foto && idAnimal) {
+        //  const uploadSucesso = await enviarFotoDetalhadamente(idAnimal);
+        // if (!uploadSucesso) {
+        //    Toast.show({
+        //      type: "warning",
+        //      text1: "Pet salvo, mas houve erro ao enviar a imagem.",
+        //    });
+        //  }
+        //}
         Toast.show({
           type: "success",
           text1: idAnimal

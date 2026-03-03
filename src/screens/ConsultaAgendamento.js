@@ -53,7 +53,7 @@ const ConsultaAgendamento = ({ navigation }) => {
       };
 
       carregarDados();
-    }, [idUsuario])
+    }, [idUsuario]),
   );
 
   // Replicar último agendamento
@@ -154,18 +154,20 @@ const ConsultaAgendamento = ({ navigation }) => {
                   {formatarHorario(item.horarioFinal)}
                 </Text>
                 {/* Badge de status */}
-                {item.status && (
+                {item.idStatusAgendamento && (
                   <View
                     style={[
                       estilos.badgeStatus,
-                      item.status === "Concluido"
+                      item.idStatusAgendamento === 1
                         ? estilos.statusConfirmado
-                        : item.status === "Agendado"
+                        : item.idStatusAgendamento === 3
                           ? estilos.statusPendente
                           : estilos.statusCancelado,
                     ]}
                   >
-                    <Text style={estilos.badgeTexto}>{item.status}</Text>
+                    <Text style={estilos.badgeTexto}>
+                      {item.idStatusAgendamento}
+                    </Text>
                   </View>
                 )}
               </View>

@@ -89,14 +89,15 @@ const Agendamento = ({ navigation, route }) => {
         apiRequisicaoAnimal.buscarAnimalUsuarioNaApi(idUsuario),
         apiRequisicaoParametro.buscarParametro(idEmpresaPetShop),
         apiRequisicaoEmpresa.buscarHorarioFuncionamentoEmpresa(
-          idEmpresaPetShop
+          idEmpresaPetShop,
         ),
       ]);
 
       // Buscar fotos dos pets e associar corretamente
       let petsComFoto = petsApi || [];
       try {
-        const fotos = await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
+        const fotos =
+          await apiRequisicaoAnimal.buscarFotosAnimalPorUsuario(idUsuario);
         if (Array.isArray(fotos)) {
           petsComFoto = petsComFoto.map((pet) => {
             const foto = fotos.find((f) => f.idAnimal === pet.idAnimal);
@@ -145,7 +146,7 @@ const Agendamento = ({ navigation, route }) => {
     try {
       const servicosApi = await apiRequisicaoServico.buscarServicosEmpresaNaApi(
         idEmpresaPetShop,
-        idPorte
+        idPorte,
       );
       if (servicosApi) setServicos(servicosApi);
     } catch (error) {
@@ -226,7 +227,7 @@ const Agendamento = ({ navigation, route }) => {
       }
       const conflito = datas.some((data) => {
         const diff = Math.abs(
-          (new Date(dateString) - new Date(data)) / (1000 * 60 * 60 * 24)
+          (new Date(dateString) - new Date(data)) / (1000 * 60 * 60 * 24),
         );
         return diff < 7;
       });
@@ -251,6 +252,14 @@ const Agendamento = ({ navigation, route }) => {
     }
   };
 
+  // Converter minutos decimais para timespan (HH:mm:ss)
+  const converterMinutosParaTimespan = (minutos) => {
+    const horas = Math.floor(minutos / 60);
+    const minutosRestantes = Math.floor(minutos % 60);
+    const segundos = Math.floor((minutos % 1) * 60); // parte decimal em segundos
+    return `${String(horas).padStart(2, "0")}:${String(minutosRestantes).padStart(2, "0")}:${String(segundos).padStart(2, "0")}`;
+  };
+
   const buscarHorarios = async (datas) => {
     // Normaliza datas para garantir que sejam strings no formato YYYY-MM-DD
     const datasFormatadas = datas.map((d) => {
@@ -270,6 +279,7 @@ const Agendamento = ({ navigation, route }) => {
     }
     const servico = servicos.find((s) => s.idServico === servicoSelecionado);
     const duracaoEmMinutos = servico?.duracao || 120;
+    const duracaoTimespan = converterMinutosParaTimespan(duracaoEmMinutos);
     const horarioAtual =
       new Date().getHours().toString().padStart(2, "0") +
       ":" +
@@ -280,8 +290,8 @@ const Agendamento = ({ navigation, route }) => {
         await apiRequisicaoAgendamento.buscarHorariosDisponiveisNaApi(
           idEmpresaPetShop,
           datasFormatadas,
-          duracaoEmMinutos,
-          horarioAtual
+          duracaoTimespan,
+          horarioAtual,
         );
       setHorariosDisponiveis(horarios || []);
       setHorariosSelecionados([]);
@@ -370,7 +380,7 @@ const Agendamento = ({ navigation, route }) => {
           listaDatasAgendamento: [inicio.toISOString()],
           horario: `${horario}:00`,
           horarioFinal: formatarHorario(fim),
-          status: "Agendado",
+          idStatusAgendamento: 3,
         };
       });
     });
@@ -442,7 +452,7 @@ const Agendamento = ({ navigation, route }) => {
     const nomeDia = diasSemana[data.getDay()];
 
     const horarioDia = horariosFuncionamento.find(
-      (h) => h.nomeDiaSemana === nomeDia
+      (h) => h.nomeDiaSemana === nomeDia,
     );
 
     return horarioDia?.funcionaNesseDia ?? false;
@@ -537,7 +547,12 @@ const Agendamento = ({ navigation, route }) => {
                   </TouchableOpacity>
                 )}
               />
-              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
+              <View
+                style={[
+                  styles.footerStep,
+                  { paddingBottom: insets.bottom + 10 },
+                ]}
+              >
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -582,7 +597,12 @@ const Agendamento = ({ navigation, route }) => {
                     </View>
                   ))
               )}
-              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
+              <View
+                style={[
+                  styles.footerStep,
+                  { paddingBottom: insets.bottom + 10 },
+                ]}
+              >
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -611,7 +631,9 @@ const Agendamento = ({ navigation, route }) => {
           {/* Passo 3: Data */}
           {passo === 3 && (
             <>
-              <Text style={[styles.label, { marginBottom: 5 }]}>Selecione data:</Text>
+              <Text style={[styles.label, { marginBottom: 5 }]}>
+                Selecione data:
+              </Text>
               <Calendar
                 style={{ marginTop: -10 }}
                 markedDates={datasSelecionadas}
@@ -666,7 +688,12 @@ const Agendamento = ({ navigation, route }) => {
                   );
                 }}
               />
-              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 15 }]}>
+              <View
+                style={[
+                  styles.footerStep,
+                  { paddingBottom: insets.bottom + 15 },
+                ]}
+              >
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -737,8 +764,8 @@ const Agendamento = ({ navigation, route }) => {
                               color: horariosSelecionados.includes(horario)
                                 ? "#fff"
                                 : esgotado
-                                ? "#bbb"
-                                : "#000",
+                                  ? "#bbb"
+                                  : "#000",
                               fontWeight: esgotado ? "normal" : "bold",
                               textAlign: "center",
                             }}
@@ -756,7 +783,12 @@ const Agendamento = ({ navigation, route }) => {
                   Selecione uma data para ver horários disponíveis.
                 </Text>
               )}
-              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
+              <View
+                style={[
+                  styles.footerStep,
+                  { paddingBottom: insets.bottom + 10 },
+                ]}
+              >
                 <TouchableOpacity
                   style={[
                     styles.btnConfirmar,
@@ -790,7 +822,7 @@ const Agendamento = ({ navigation, route }) => {
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
                     {(() => {
                       const pet = pets.find(
-                        (p) => p.idAnimal === petSelecionado
+                        (p) => p.idAnimal === petSelecionado,
                       );
                       if (!pet)
                         return <Text style={styles.resumoValor}>-</Text>;
@@ -824,10 +856,10 @@ const Agendamento = ({ navigation, route }) => {
                       <>
                         {(parametrosEmpresa.idModeloTrabalho === 2
                           ? servicos.filter((s) =>
-                              servicosSelecionados.includes(s.idServico)
+                              servicosSelecionados.includes(s.idServico),
                             )
                           : servicos.filter(
-                              (s) => s.idServico === servicoSelecionado
+                              (s) => s.idServico === servicoSelecionado,
                             )
                         ).map((s) => (
                           <View
@@ -874,10 +906,10 @@ const Agendamento = ({ navigation, route }) => {
                             Total: R${" "}
                             {(parametrosEmpresa.idModeloTrabalho === 2
                               ? servicos.filter((s) =>
-                                  servicosSelecionados.includes(s.idServico)
+                                  servicosSelecionados.includes(s.idServico),
                                 )
                               : servicos.filter(
-                                  (s) => s.idServico === servicoSelecionado
+                                  (s) => s.idServico === servicoSelecionado,
                                 )
                             )
                               .reduce((acc, s) => acc + Number(s.valor), 0)
@@ -908,7 +940,12 @@ const Agendamento = ({ navigation, route }) => {
                   </Text>
                 </View>
               </View>
-              <View style={[styles.footerStep, { paddingBottom: insets.bottom + 10 }]}>
+              <View
+                style={[
+                  styles.footerStep,
+                  { paddingBottom: insets.bottom + 10 },
+                ]}
+              >
                 <TouchableOpacity
                   style={styles.btnConfirmar}
                   onPress={confirmarAgendamento}
@@ -945,7 +982,12 @@ const Agendamento = ({ navigation, route }) => {
                 backgroundColor: "rgba(0,0,0,0.15)",
               }}
             >
-              <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 18 }]}>
+              <View
+                style={[
+                  styles.modalSheet,
+                  { paddingBottom: insets.bottom + 18 },
+                ]}
+              >
                 <Text style={styles.modalTitlePrint}>
                   Selecione os serviços:
                 </Text>
@@ -954,7 +996,7 @@ const Agendamento = ({ navigation, route }) => {
                   keyExtractor={(item) => String(item.idServico)}
                   renderItem={({ item }) => {
                     const selecionado = servicosSelecionados.includes(
-                      item.idServico
+                      item.idServico,
                     );
                     // Agrupado: só pode selecionar 1 serviço (radio button visual)
                     // Separado: pode selecionar vários, mas só 1 por "tipo" (aqui, assume-se que cada serviço é único)
@@ -993,7 +1035,7 @@ const Agendamento = ({ navigation, route }) => {
                               let novaSelecao;
                               if (selecionado) {
                                 novaSelecao = servicosSelecionados.filter(
-                                  (id) => id !== item.idServico
+                                  (id) => id !== item.idServico,
                                 );
                               } else {
                                 novaSelecao = [
@@ -1004,7 +1046,7 @@ const Agendamento = ({ navigation, route }) => {
                               setServicosSelecionados(novaSelecao);
                               // Sempre mantém servicoSelecionado igual ao primeiro da lista (ou null)
                               setServicoSelecionado(
-                                novaSelecao.length > 0 ? novaSelecao[0] : null
+                                novaSelecao.length > 0 ? novaSelecao[0] : null,
                               );
                             }
                           }}

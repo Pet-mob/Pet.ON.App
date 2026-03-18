@@ -9,6 +9,7 @@ export const setUsuarioStore = (novoUsuario) => {
 
 export const logout = () => {
   usuario = null;
+  empresa = null;
 };
 
 export const getEmpresaStore = () => empresa;
